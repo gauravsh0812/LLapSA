@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
-from transformers import CLIPVisionModel, CLIPImageProcessor
+from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamProcessor
 
 
 def load_video(vis_path, num_frm=100):
@@ -57,33 +57,39 @@ def get_spatio_temporal_features(features, num_temporal_tokens=100):
     return sp_features
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Training")
+# def parse_args():
+#     parser = argparse.ArgumentParser(description="Training")
 
-    parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
-    parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
-    parser.add_argument("--infer_batch", required=False, type=int, default=32,
-                        help="Number of frames/images to perform batch inference.")
+#     parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
+#     parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
+#     parser.add_argument("--infer_batch", required=False, type=int, default=32,
+#                         help="Number of frames/images to perform batch inference.")
 
-    args = parser.parse_args()
+#     args = parser.parse_args()
 
-    return args
+#     return args
 
 
 def main():
-    args = parse_args()
-    video_dir_path = args.video_dir_path
-    clip_feat_path = args.clip_feat_path
-    infer_batch = args.infer_batch
+    # args = parse_args()
+    video_dir_path = "/data/shared/gauravs/llapsa/videos_clip"#args.video_dir_path
+    clip_feat_path = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos"#args.clip_feat_path
+    infer_batch = 32#args.infer_batch
     os.makedirs(clip_feat_path, exist_ok=True)
 
     # Initialize the CLIP model
     image_processor = CLIPImageProcessor.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16)
     vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
                                                    low_cpu_mem_usage=True).cuda()
-    vision_tower.eval()
+    
+    sam_image_processor = SamProcessor.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16)
+    sam_model = SamModel.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16,
+                                                   low_cpu_mem_usage=True).cuda()
 
-    all_videos = os.listdir(video_dir_path)
+    vision_tower.eval()
+    sam_model.eval()
+
+    all_videos = os.listdir(video_dir_path)[0]
     video_clip_features = {}
     counter = 0
     for video_name in tqdm(all_videos):
@@ -94,17 +100,24 @@ def main():
         try:
             video = load_video(video_path)
             video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
+            sam_tensor = sam_image_processor.preprocess(video, return_tensors="pt")['pixel_values']
             video_tensor = video_tensor.half()
+            sam_tensor = sam_tensor.half()
+            
+            print("vcgpt, sam: ", video_tensor.shape, sam_tensor.shape)
 
             n_chunk = len(video_tensor)
             video_features = torch.FloatTensor(n_chunk, 256, 1024).fill_(0)
             n_iter = int(math.ceil(n_chunk / float(infer_batch)))
-            for i in range(n_iter):
-                min_ind = i * infer_batch
-                max_ind = (i + 1) * infer_batch
-                video_batch = video_tensor[min_ind:max_ind].cuda()
 
-                image_forward_outs = vision_tower(video_batch, output_hidden_states=True)
+            for i in range(n_iter):
+                # min_ind = i * infer_batch
+                # max_ind = (i + 1) * infer_batch
+                # video_batch = video_tensor[min_ind:max_ind].cuda()
+
+                image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+                sam_forward_outs = sam_model()
+
 
                 select_hidden_state_layer = -2
                 select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
