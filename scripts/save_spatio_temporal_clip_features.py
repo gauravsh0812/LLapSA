@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
-from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamProcessor
+from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamImageProcessor
 
 
 def load_video(vis_path, num_frm=100):
@@ -82,7 +82,7 @@ def main():
     vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
                                                    low_cpu_mem_usage=True).cuda()
     
-    sam_image_processor = SamProcessor.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16)
+    sam_image_processor = SamImageProcessor.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16)
     sam_model = SamModel.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16,
                                                    low_cpu_mem_usage=True).cuda()
 
