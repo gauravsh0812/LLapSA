@@ -110,6 +110,8 @@ def main():
             video_features = torch.FloatTensor(n_chunk, 256, 1024).fill_(0)
             n_iter = int(math.ceil(n_chunk / float(infer_batch)))
 
+            break
+
             for i in range(n_iter):
                 # min_ind = i * infer_batch
                 # max_ind = (i + 1) * infer_batch
@@ -130,13 +132,15 @@ def main():
         except Exception as e:
             print(f"Can't process {video_path}")
 
+        break
+        
         if counter % 512 == 0:  # Save after every 512 videos, update this number as per your requirements
             for key in video_clip_features.keys():
                 features = video_clip_features[key]
                 with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
                     pickle.dump(features, f)
             video_clip_features = {}
-
+    exit()
     for key in video_clip_features.keys():
         features = video_clip_features[key]
         with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
