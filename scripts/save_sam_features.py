@@ -19,6 +19,8 @@ def load_video(vis_path, num_frm=100):
     frame_idx = get_seq_frames(total_frame_num, total_num_frm)
     img_array = vr.get_batch(frame_idx).asnumpy()  # (n_clips*num_frm, H, W, 3)
 
+    print(img_array.size)
+
     a, H, W, _ = img_array.shape
     h, w = 224, 224
     if img_array.shape[-3] != h or img_array.shape[-2] != w:
@@ -80,7 +82,6 @@ def main():
             continue
         # try:
         video = load_video(video_path)
-        print(video[0].size)
         exit()
         for i in range(len(video)):
             clip = video[i] #(224,224)
