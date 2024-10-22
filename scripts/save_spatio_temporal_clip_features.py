@@ -108,25 +108,24 @@ def main():
         
         print("vcgpt, sam: ", video_tensor.shape, sam_tensor.shape)
 
-        n_chunk = len(video_tensor)
-        video_features = torch.FloatTensor(n_chunk, 256, 1024).fill_(0)
-        n_iter = int(math.ceil(n_chunk / float(infer_batch)))
+        # n_chunk = len(video_tensor)
+        # video_features = torch.FloatTensor(n_chunk, 256, 1024).fill_(0)
+        # n_iter = int(math.ceil(n_chunk / float(infer_batch)))
 
-        break
-
-        for i in range(n_iter):
+        # for i in range(n_iter):
             # min_ind = i * infer_batch
             # max_ind = (i + 1) * infer_batch
             # video_batch = video_tensor[min_ind:max_ind].cuda()
 
-            image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
-            sam_forward_outs = sam_model()
+        image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+        sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True)
 
+        break
 
-            select_hidden_state_layer = -2
-            select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
-            batch_features = select_hidden_state[:, 1:]
-            video_features[min_ind:max_ind] = batch_features.detach().cpu()
+        select_hidden_state_layer = -2
+        select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
+        batch_features = select_hidden_state[:, 1:]
+        video_features[min_ind:max_ind] = batch_features.detach().cpu()
 
         video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
         counter += 1
