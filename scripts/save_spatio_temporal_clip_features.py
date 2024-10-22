@@ -103,8 +103,8 @@ def main():
         video = load_video(video_path)
         video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
         sam_tensor = sam_image_processor.preprocess(video, return_tensors="pt")['pixel_values']
-        video_tensor = video_tensor.half()
-        sam_tensor = sam_tensor.half()
+        video_tensor = video_tensor.half().cuda()
+        sam_tensor = sam_tensor.half().cuda()
         
         print("vcgpt, sam: ", video_tensor.shape, sam_tensor.shape)
 
