@@ -117,7 +117,7 @@ def main():
             # max_ind = (i + 1) * infer_batch
             # video_batch = video_tensor[min_ind:max_ind].cuda()
 
-        image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+        # image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
         sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True)
 
         break
