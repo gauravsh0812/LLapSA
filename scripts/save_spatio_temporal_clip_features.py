@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
-from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamImageProcessor
+from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamImageProcessor, BitsAndBytesConfig
 
 torch.cuda.empty_cache()
 
@@ -84,9 +84,26 @@ def main():
     # vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
     #                                                low_cpu_mem_usage=True).cuda()
     
+    use_4bit = True
+    bnb_4bit_compute_dtype = "float16"
+    bnb_4bit_quant_type = "nf4"
+    use_nested_quant = False
+    compute_dtype = getattr(torch, bnb_4bit_compute_dtype)
+    
+    bnb_config = BitsAndBytesConfig(
+            load_in_4bit=use_4bit,
+            bnb_4bit_quant_type=bnb_4bit_quant_type,
+            bnb_4bit_compute_dtype=compute_dtype,
+            bnb_4bit_use_double_quant=use_nested_quant,
+    )
+
+
     sam_image_processor = SamImageProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50", torch_dtype=torch.float16)
-    sam_model = SamModel.from_pretrained("Zigeng/SlimSAM-uniform-50", torch_dtype=torch.float16,
-                                                   low_cpu_mem_usage=True).cuda()
+    sam_model = SamModel.from_pretrained(
+        "Zigeng/SlimSAM-uniform-50", 
+        torch_dtype=torch.float16,
+        low_cpu_mem_usage=True, 
+        quantization_config=bnb_config,).cuda()
 
     # vision_tower.eval()
     sam_model.eval()
