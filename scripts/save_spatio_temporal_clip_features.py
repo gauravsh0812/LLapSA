@@ -101,18 +101,11 @@ def main():
 
 
     sam_image_processor = SamImageProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50", torch_dtype=torch.float16)
-    # sam_model = SamModel.from_pretrained(
-    #     "Zigeng/SlimSAM-uniform-50", 
-    #     torch_dtype=torch.float16,
-    #     low_cpu_mem_usage=True, 
-    #     quantization_config=bnb_config,).cuda()
-
     sam_model = SamModel.from_pretrained(
-    "Zigeng/SlimSAM-uniform-50",
-    torch_dtype=torch.float16,
-    load_in_8bit=True,  # Enables 8-bit quantization
-    low_cpu_mem_usage=True
-    ).cuda()    
+        "Zigeng/SlimSAM-uniform-50", 
+        torch_dtype=torch.float16,
+        low_cpu_mem_usage=True, 
+        quantization_config=bnb_config,).cuda()   
 
     # vision_tower.eval()
     sam_model.eval()
