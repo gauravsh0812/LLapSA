@@ -11,6 +11,7 @@ from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamImage
 
 
 def load_video(vis_path, num_frm=100):
+    print("vis path: ", vis_path)
     vr = VideoReader(vis_path, ctx=cpu(0))
     total_frame_num = len(vr)
     total_num_frm = min(total_frame_num, num_frm)
@@ -96,6 +97,7 @@ def main():
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
+        print("id: ", video_id)
         if os.path.exists(f"{clip_feat_path}/{video_id}.pkl"):  # Check if the file is already processed
             continue
         try:
