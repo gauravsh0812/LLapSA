@@ -114,22 +114,22 @@ def main():
 
         break
 
-            for i in range(n_iter):
-                # min_ind = i * infer_batch
-                # max_ind = (i + 1) * infer_batch
-                # video_batch = video_tensor[min_ind:max_ind].cuda()
+        for i in range(n_iter):
+            # min_ind = i * infer_batch
+            # max_ind = (i + 1) * infer_batch
+            # video_batch = video_tensor[min_ind:max_ind].cuda()
 
-                image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
-                sam_forward_outs = sam_model()
+            image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+            sam_forward_outs = sam_model()
 
 
-                select_hidden_state_layer = -2
-                select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
-                batch_features = select_hidden_state[:, 1:]
-                video_features[min_ind:max_ind] = batch_features.detach().cpu()
+            select_hidden_state_layer = -2
+            select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
+            batch_features = select_hidden_state[:, 1:]
+            video_features[min_ind:max_ind] = batch_features.detach().cpu()
 
-            video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
-            counter += 1
+        video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
+        counter += 1
 
         # except Exception as e:
         #     print(f"Can't process {video_path}")
