@@ -26,11 +26,11 @@ def load_video(vis_path, num_frm=100):
         img_array = torch.nn.functional.interpolate(img_array, size=(h, w))
         img_array = img_array.permute(0, 2, 3, 1).to(torch.uint8).numpy()
     img_array = img_array.reshape((1, total_num_frm, img_array.shape[-3], img_array.shape[-2], img_array.shape[-1]))
-    print(img_array.size)
 
     clip_imgs = []
     for j in range(total_num_frm):
         clip_imgs.append(Image.fromarray(img_array[0, j]))
+        print(Image.fromarray(img_array[0, j]).size)
 
     return clip_imgs
 
