@@ -73,7 +73,7 @@ def get_spatio_temporal_features(features, num_temporal_tokens=100):
 
 def main():
     # args = parse_args()
-    video_dir_path = "/data/shared/gauravs/llapsa/videos_clips"#args.video_dir_path
+    video_dir_path = "/data/shared/gauravs/llapsa/vcgpt_clips"#args.video_dir_path
     clip_feat_path = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos"#args.clip_feat_path
     infer_batch = 32#args.infer_batch
     os.makedirs(clip_feat_path, exist_ok=True)
