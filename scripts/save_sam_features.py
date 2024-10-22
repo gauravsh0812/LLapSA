@@ -79,31 +79,25 @@ def main():
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
-        if os.path.exists(f"{clip_feat_path}/{video_id}.pkl"):  # Check if the file is already processed
-            continue
-        # try:
-        video = load_video(video_path)
-        for i in range(len(video)):
-            clip = video[i] #(224,224)
-            sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
-            sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
-            sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
-            iou_score = sam_forward_outs.iou_scores #(1,1,3)
-            pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
-            hidden_states = sam_forward_outs.vision_hidden_states   
+        try:
+            video = load_video(video_path)
+            for i in range(len(video)):
+                clip = video[i] #(224,224)
+                sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
+                sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
+                sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
+                iou_score = sam_forward_outs.iou_scores #(1,1,3)
+                pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
+                last_hidden_states = sam_forward_outs.vision_hidden_states[-1]   
 
-            print(hidden_states[-1].shape, hidden_states[-2].shape)
-
-            with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
-                pickle.dump(pred_masks, f)
-            with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
-                pickle.dump(iou_score, f)
-            with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
-                pickle.dump(hidden_states, f)
-            
-            break
-            
-            
+                with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
+                    pickle.dump(pred_masks, f)
+                with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
+                    pickle.dump(iou_score, f)
+                with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
+                    pickle.dump(last_hidden_states, f)
+        except:
+            print(f"Can't process {video_path}")
 
 if __name__ == "__main__":
     main()
