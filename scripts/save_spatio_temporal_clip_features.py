@@ -10,7 +10,6 @@ from decord import VideoReader, cpu
 from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamImageProcessor, BitsAndBytesConfig
 import bitsandbytes as bnb
 
-
 torch.cuda.empty_cache()
 
 def load_video(vis_path, num_frm=100):
