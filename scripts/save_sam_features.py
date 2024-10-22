@@ -60,7 +60,12 @@ def get_spatio_temporal_features(features, num_temporal_tokens=100):
 def main():
     video_dir_path = "/data/shared/gauravs/llapsa/vcgpt_clips"
     clip_feat_path = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos"
-    os.makedirs(clip_feat_path, exist_ok=True)
+    sam_preds = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_preds"
+    sam_iou = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_iou"
+    sam_hidden = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states"
+    for i in [clip_feat_path,
+              sam_preds,sam_iou,sam_hidden]:
+        os.makedirs(i, exist_ok=True)
 
     sam_image_processor = SamImageProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50", torch_dtype=torch.float16)
     sam_model = SamModel.from_pretrained(
@@ -71,8 +76,6 @@ def main():
     sam_model.eval()
 
     all_videos = os.listdir(video_dir_path)
-    video_clip_features = {}
-    counter = 0
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
@@ -87,16 +90,20 @@ def main():
             sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
             iou_score = sam_forward_outs.iou_scores #(1,1,3)
             pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
-            hidden_states = sam_forward_outs.vision_hidden_states
-            print(iou_score)
-            break
-        
-    exit()    
-    for key in video_clip_features.keys():
-        features = video_clip_features[key]
-        with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
-            pickle.dump(features, f)
+            hidden_states = sam_forward_outs.vision_hidden_states   
 
+            print(hidden_states[-1].shape, hidden_states[-2].shape)
+
+            with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
+                pickle.dump(pred_masks, f)
+            with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
+                pickle.dump(iou_score, f)
+            with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
+                pickle.dump(hidden_states, f)
+            
+            break
+            
+            
 
 if __name__ == "__main__":
     main()
