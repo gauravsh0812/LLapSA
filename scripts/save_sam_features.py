@@ -85,35 +85,13 @@ def main():
             sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
             sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
             sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
-            iou_score = sam_forward_outs.iou_scores
-            pred_masks = sam_forward_outs.pred_masks
+            iou_score = sam_forward_outs.iou_scores #(1,1,3)
+            pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
             hidden_states = sam_forward_outs.vision_hidden_states
-            print(iou_score.shape)
-            print(pred_masks.shape)
-            print(hidden_states.shape)
-
-        break
-
-        select_hidden_state_layer = -2
-        select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
-        batch_features = select_hidden_state[:, 1:]
-        video_features[min_ind:max_ind] = batch_features.detach().cpu()
-
-        video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
-        counter += 1
-
-        # except Exception as e:
-        #     print(f"Can't process {video_path}")
-
-        break
+            print(iou_score)
+            break
         
-        if counter % 512 == 0:  # Save after every 512 videos, update this number as per your requirements
-            for key in video_clip_features.keys():
-                features = video_clip_features[key]
-                with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
-                    pickle.dump(features, f)
-            video_clip_features = {}
-    exit()
+    exit()    
     for key in video_clip_features.keys():
         features = video_clip_features[key]
         with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
