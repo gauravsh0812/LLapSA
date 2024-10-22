@@ -31,8 +31,7 @@ def load_video(vis_path, num_frm=100):
     for j in range(total_num_frm):
         clip_imgs.append(Image.fromarray(img_array[0, j]))
 
-    return clip_imgs, total_num_frm
-
+    return clip_imgs
 
 def get_seq_frames(total_num_frames, desired_num_frames):
     seg_size = float(total_num_frames - 1) / desired_num_frames
@@ -80,9 +79,10 @@ def main():
         if os.path.exists(f"{clip_feat_path}/{video_id}.pkl"):  # Check if the file is already processed
             continue
         # try:
-        video,total_num_frm = load_video(video_path)
-        print("video_shape: ", video.size)
-        for i in range(total_num_frm):
+        video = load_video(video_path)
+        print(len(video))
+        exit()
+        for i in range(len(video)):
             clip = video[i] #(224,224)
             sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
             sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
