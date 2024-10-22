@@ -90,6 +90,7 @@ def main():
     sam_model.eval()
 
     all_videos = os.listdir(video_dir_path)[0]
+    print(all_videos)
     video_clip_features = {}
     counter = 0
     for video_name in tqdm(all_videos):
