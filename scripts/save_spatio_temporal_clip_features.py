@@ -9,6 +9,7 @@ from tqdm import tqdm
 from decord import VideoReader, cpu
 from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamImageProcessor
 
+torch.cuda.empty_cache()
 
 def load_video(vis_path, num_frm=100):
     print("vis path: ", vis_path)
