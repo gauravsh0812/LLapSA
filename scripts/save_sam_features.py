@@ -30,7 +30,6 @@ def load_video(vis_path, num_frm=100):
     clip_imgs = []
     for j in range(total_num_frm):
         clip_imgs.append(Image.fromarray(img_array[0, j]))
-        print(Image.fromarray(img_array[0, j]).size)
 
     return clip_imgs
 
@@ -81,13 +80,12 @@ def main():
             continue
         # try:
         video = load_video(video_path)
-        exit()
         for i in range(len(video)):
             clip = video[i] #(224,224)
             sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
             sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
-            # print("sam tensor shape: ", sam_tensor.shape)
             sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True)
+            print(sam_forward_outs)
 
         break
 
