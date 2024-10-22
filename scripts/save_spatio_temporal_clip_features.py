@@ -79,15 +79,15 @@ def main():
     os.makedirs(clip_feat_path, exist_ok=True)
 
     # Initialize the CLIP model
-    image_processor = CLIPImageProcessor.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16)
-    vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
-                                                   low_cpu_mem_usage=True).cuda()
+    # image_processor = CLIPImageProcessor.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16)
+    # vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
+    #                                                low_cpu_mem_usage=True).cuda()
     
     sam_image_processor = SamImageProcessor.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16)
     sam_model = SamModel.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16,
                                                    low_cpu_mem_usage=True).cuda()
 
-    vision_tower.eval()
+    # vision_tower.eval()
     sam_model.eval()
 
     all_videos = os.listdir(video_dir_path)
