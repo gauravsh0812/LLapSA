@@ -99,20 +99,20 @@ def main():
         print("id: ", video_id)
         if os.path.exists(f"{clip_feat_path}/{video_id}.pkl"):  # Check if the file is already processed
             continue
-        try:
-            video = load_video(video_path)
-            video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
-            sam_tensor = sam_image_processor.preprocess(video, return_tensors="pt")['pixel_values']
-            video_tensor = video_tensor.half()
-            sam_tensor = sam_tensor.half()
-            
-            print("vcgpt, sam: ", video_tensor.shape, sam_tensor.shape)
+        # try:
+        video = load_video(video_path)
+        video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
+        sam_tensor = sam_image_processor.preprocess(video, return_tensors="pt")['pixel_values']
+        video_tensor = video_tensor.half()
+        sam_tensor = sam_tensor.half()
+        
+        print("vcgpt, sam: ", video_tensor.shape, sam_tensor.shape)
 
-            n_chunk = len(video_tensor)
-            video_features = torch.FloatTensor(n_chunk, 256, 1024).fill_(0)
-            n_iter = int(math.ceil(n_chunk / float(infer_batch)))
+        n_chunk = len(video_tensor)
+        video_features = torch.FloatTensor(n_chunk, 256, 1024).fill_(0)
+        n_iter = int(math.ceil(n_chunk / float(infer_batch)))
 
-            break
+        break
 
             for i in range(n_iter):
                 # min_ind = i * infer_batch
@@ -131,8 +131,8 @@ def main():
             video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
             counter += 1
 
-        except Exception as e:
-            print(f"Can't process {video_path}")
+        # except Exception as e:
+        #     print(f"Can't process {video_path}")
 
         break
         
