@@ -83,8 +83,8 @@ def main():
     # vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
     #                                                low_cpu_mem_usage=True).cuda()
     
-    sam_image_processor = SamImageProcessor.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16)
-    sam_model = SamModel.from_pretrained("facebook/sam-vit-huge", torch_dtype=torch.float16,
+    sam_image_processor = SamImageProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50", torch_dtype=torch.float16)
+    sam_model = SamModel.from_pretrained("Zigeng/SlimSAM-uniform-50", torch_dtype=torch.float16,
                                                    low_cpu_mem_usage=True).cuda()
 
     # vision_tower.eval()
