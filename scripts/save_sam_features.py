@@ -80,7 +80,7 @@ def main():
             continue
         # try:
         video = load_video(video_path)
-        print(len(video))
+        print(video[0].size)
         exit()
         for i in range(len(video)):
             clip = video[i] #(224,224)
