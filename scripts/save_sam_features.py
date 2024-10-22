@@ -58,6 +58,10 @@ def get_spatio_temporal_features(features, num_temporal_tokens=100):
     return sp_features
 
 def main():
+
+    x,y = 0, 4000
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
     video_dir_path = "/data/shared/gauravs/llapsa/vcgpt_clips"
     clip_feat_path = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos"
     sam_preds = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_preds"
@@ -75,7 +79,7 @@ def main():
 
     sam_model.eval()
 
-    all_videos = os.listdir(video_dir_path)
+    all_videos = os.listdir(video_dir_path)[x:y]
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
