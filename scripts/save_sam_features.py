@@ -81,10 +81,11 @@ def main():
             continue
         # try:
         video,total_num_frm = load_video(video_path)
+        print("video_shape: ", video.size)
         for i in range(total_num_frm):
-            clip = video[i]
-            sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values']
-            sam_tensor = sam_tensor.half().cuda()
+            clip = video[i] #(224,224)
+            sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
+            sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
             print("sam tensor shape: ", sam_tensor.shape)
             sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True)
 
