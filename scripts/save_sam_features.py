@@ -85,8 +85,12 @@ def main():
             sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
             sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
             sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
-            print(sam_forward_outs.__dict__.keys())
-            print(sam_forward_outs.pred_masks.shape)
+            iou_score = sam_forward_outs.iou_scores
+            pred_masks = sam_forward_outs.pred_masks
+            hidden_states = sam_forward_outs.vision_hidden_states
+            print(iou_score.shape)
+            print(pred_masks.shape)
+            print(hidden_states.shape)
 
         break
 
