@@ -85,8 +85,6 @@ def main():
             clip = video[i,:,:,:]
             sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values']
             sam_tensor = sam_tensor.half().cuda()
-
-            # image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
             sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True)
 
         break
