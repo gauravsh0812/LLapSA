@@ -86,7 +86,7 @@ def main():
             clip = video[i] #(224,224)
             sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
             sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
-            print("sam tensor shape: ", sam_tensor.shape)
+            # print("sam tensor shape: ", sam_tensor.shape)
             sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True)
 
         break
