@@ -96,7 +96,7 @@ def main():
             # try:
             video = load_video(video_path)
             for i in range(len(video)):
-                video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
+                video_tensor = image_processor.preprocess(video[i], return_tensors='pt')['pixel_values']
                 video_tensor = video_tensor.half().cuda()
 
                 image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
