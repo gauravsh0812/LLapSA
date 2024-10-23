@@ -8,9 +8,8 @@ from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
 from transformers import SamModel, SamImageProcessor
-import bitsandbytes as bnb
 
-torch.cuda.empty_cache()
+# torch.cuda.empty_cache()
 
 def load_video(vis_path, num_frm=100):
     vr = VideoReader(vis_path, ctx=cpu(0))
@@ -50,9 +49,6 @@ def parse_args():
                         default="/data/shared/gauravs/llapsa/vcgpt_clips")
     parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.",
                         default="/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos")
-    parser.add_argument("--infer_batch", required=False, type=int, default=32,
-                        help="Number of frames/images to perform batch inference.")
-
     args = parser.parse_args()
 
     return args
@@ -90,7 +86,7 @@ def main():
                 sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
                 iou_score = sam_forward_outs.iou_scores #(1,1,3)
                 pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
-                last_hidden_states = sam_forward_outs.vision_hidden_states[-1]   
+                last_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
 
                 with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
                     pickle.dump(pred_masks, f)
