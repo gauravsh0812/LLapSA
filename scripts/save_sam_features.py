@@ -33,6 +33,16 @@ def load_video(vis_path, num_frm=100):
 
     return clip_imgs
 
+def get_seq_frames(total_num_frames, desired_num_frames):
+    seg_size = float(total_num_frames - 1) / desired_num_frames
+    seq = []
+    for i in range(desired_num_frames):
+        start = int(np.round(seg_size * i))
+        end = int(np.round(seg_size * (i + 1)))
+        seq.append((start + end) // 2)
+
+    return seq
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Training")
 
@@ -48,7 +58,7 @@ def parse_args():
     return args
 
 def main():
-    
+
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path

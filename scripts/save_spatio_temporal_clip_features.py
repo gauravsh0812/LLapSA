@@ -31,6 +31,18 @@ def load_video(vis_path, num_frm=100):
 
     return clip_imgs
 
+
+def get_seq_frames(total_num_frames, desired_num_frames):
+    seg_size = float(total_num_frames - 1) / desired_num_frames
+    seq = []
+    for i in range(desired_num_frames):
+        start = int(np.round(seg_size * i))
+        end = int(np.round(seg_size * (i + 1)))
+        seq.append((start + end) // 2)
+
+    return seq
+
+
 def get_spatio_temporal_features(features, num_temporal_tokens=100):
     t, s, c = features.shape
 
@@ -79,6 +91,7 @@ def main():
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
+        print(video_id)
         if video_id in sam_videos_list:
             # try:
             video = load_video(video_path)
