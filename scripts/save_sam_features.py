@@ -59,7 +59,7 @@ def get_spatio_temporal_features(features, num_temporal_tokens=100):
 
 def main():
 
-    x,y = 4000, 8000
+    x,y = 8000, 12000
 
     video_dir_path = "/data/shared/gauravs/llapsa/vcgpt_clips"
     clip_feat_path = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos"
