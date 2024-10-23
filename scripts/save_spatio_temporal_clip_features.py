@@ -60,10 +60,11 @@ def get_spatio_temporal_features(features, num_temporal_tokens=100):
 def parse_args():
     parser = argparse.ArgumentParser(description="Training")
 
-    parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.",
-                        default="/data/shared/gauravs/llapsa/vcgpt_clips")
-    parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.",
-                        default="/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/")
+    parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
+    parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
+    parser.add_argument("--infer_batch", required=False, type=int, default=32,
+                        help="Number of frames/images to perform batch inference.")
+
     args = parser.parse_args()
 
     return args
@@ -73,10 +74,8 @@ def main():
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path
-    vcgpt_features = os.path.join(clip_feat_path, "vcgpt_features")
-    combined_features = os.path.join(clip_feat_path, "combined_features")
-    for i in [vcgpt_features, combined_features]:
-        os.makedirs(i, exist_ok=True)
+    infer_batch = args.infer_batch
+    os.makedirs(clip_feat_path, exist_ok=True)
 
     # Initialize the CLIP model
     image_processor = CLIPImageProcessor.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16)
@@ -84,35 +83,41 @@ def main():
                                                    low_cpu_mem_usage=True).cuda()
     vision_tower.eval()
 
-    sam_videos_list = os.listdir(os.path.join(args.clip_feat_path, "sam_hidden_states"))
     all_videos = os.listdir(video_dir_path)
     video_clip_features = {}
     counter = 0
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
-        print(video_id)
-        if video_id+".pkl" in sam_videos_list:
-            # try:
-            video = load_video(video_path)
-            for i in range(len(video)):
-                video_tensor = image_processor.preprocess(video[i], return_tensors='pt')['pixel_values']
-                video_tensor = video_tensor.half().cuda()
+        # if os.path.exists(f"{clip_feat_path}/{video_id}.pkl"):  # Check if the file is already processed
+        #     continue
+        # try:
+        video = load_video(video_path)
+        video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
+        video_tensor = video_tensor.half()
 
-                image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+        n_chunk = len(video_tensor)
+        video_features = torch.FloatTensor(n_chunk, 256, 1024).fill_(0)
+        n_iter = int(math.ceil(n_chunk / float(infer_batch)))
+        for i in range(n_iter):
+            min_ind = i * infer_batch
+            max_ind = (i + 1) * infer_batch
+            video_batch = video_tensor[min_ind:max_ind].cuda()
 
-                select_hidden_state_layer = -2
-                select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
-                
-                print(select_hidden_state.shape)
+            image_forward_outs = vision_tower(video_batch, output_hidden_states=True)
 
-                break
-            # video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
-            # counter += 1
+            select_hidden_state_layer = -2
+            select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
+            batch_features = select_hidden_state[:, 1:]
+            video_features[min_ind:max_ind] = batch_features.detach().cpu()
 
-            # except Exception as e:
-            #     print(f"Can't process {video_path}")
-        
+        video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
+        counter += 1
+        break
+
+        # except Exception as e:
+        #     print(f"Can't process {video_path}")
+
         break
         if counter % 512 == 0:  # Save after every 512 videos, update this number as per your requirements
             for key in video_clip_features.keys():
