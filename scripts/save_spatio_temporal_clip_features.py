@@ -95,17 +95,18 @@ def main():
         if video_id+".pkl" in sam_videos_list:
             # try:
             video = load_video(video_path)
-            video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
-            video_tensor = video_tensor.half().cuda()
+            for i in range(len(video)):
+                video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
+                video_tensor = video_tensor.half().cuda()
 
-            image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+                image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
 
-            select_hidden_state_layer = -2
-            select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
-            
-            print(select_hidden_state.shape)
+                select_hidden_state_layer = -2
+                select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
+                
+                print(select_hidden_state.shape)
 
-            break
+                break
             # video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
             # counter += 1
 
