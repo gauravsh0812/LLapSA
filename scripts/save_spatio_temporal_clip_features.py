@@ -118,6 +118,7 @@ def main():
 
         video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
         counter += 1
+        print(video_clip_features.shape)
         break
 
         # except Exception as e:
