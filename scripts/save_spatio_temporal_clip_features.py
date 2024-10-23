@@ -115,7 +115,7 @@ def main():
             video_features[min_ind:max_ind] = batch_features.detach().cpu()
             
             print("batch: ", video_features.shape)
-
+        print("final v featurte: ", video_features.shape)
         video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
         counter += 1
         print(video_clip_features[video_id].shape)
