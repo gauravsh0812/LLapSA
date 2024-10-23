@@ -108,8 +108,13 @@ def main():
 
             select_hidden_state_layer = -2
             select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
+
+            print(select_hidden_state.shape)
+
             batch_features = select_hidden_state[:, 1:]
             video_features[min_ind:max_ind] = batch_features.detach().cpu()
+            
+            print(video_features.shape)
 
         video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
         counter += 1
