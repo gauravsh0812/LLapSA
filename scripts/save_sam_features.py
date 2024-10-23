@@ -33,39 +33,28 @@ def load_video(vis_path, num_frm=100):
 
     return clip_imgs
 
-def get_seq_frames(total_num_frames, desired_num_frames):
-    seg_size = float(total_num_frames - 1) / desired_num_frames
-    seq = []
-    for i in range(desired_num_frames):
-        start = int(np.round(seg_size * i))
-        end = int(np.round(seg_size * (i + 1)))
-        seq.append((start + end) // 2)
+def parse_args():
+    parser = argparse.ArgumentParser(description="Training")
 
-    return seq
+    parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.",
+                        default="/data/shared/gauravs/llapsa/vcgpt_clips")
+    parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.",
+                        default="/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos")
+    parser.add_argument("--infer_batch", required=False, type=int, default=32,
+                        help="Number of frames/images to perform batch inference.")
 
+    args = parser.parse_args()
 
-def get_spatio_temporal_features(features, num_temporal_tokens=100):
-    t, s, c = features.shape
-
-    temporal_tokens = np.mean(features, axis=1)
-    padding_size = num_temporal_tokens - t
-    if padding_size > 0:
-        temporal_tokens = np.pad(temporal_tokens, ((0, padding_size), (0, 0)), mode='constant')
-
-    spatial_tokens = np.mean(features, axis=0)
-    sp_features = np.concatenate([temporal_tokens, spatial_tokens], axis=0)
-
-    return sp_features
+    return args
 
 def main():
-
-    x = 12000
-
-    video_dir_path = "/data/shared/gauravs/llapsa/vcgpt_clips"
-    clip_feat_path = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos"
-    sam_preds = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_preds"
-    sam_iou = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_iou"
-    sam_hidden = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states"
+    
+    args = parse_args()
+    video_dir_path = args.video_dir_path
+    clip_feat_path = args.clip_feat_path
+    sam_preds = os.path.join(clip_feat_path,"sam_preds")
+    sam_iou = os.path.join(clip_feat_path,"sam_iou")
+    sam_hidden = os.path.join(clip_feat_path,"sam_hidden_states")
     for i in [clip_feat_path,
               sam_preds,sam_iou,sam_hidden]:
         os.makedirs(i, exist_ok=True)
@@ -78,7 +67,7 @@ def main():
 
     sam_model.eval()
 
-    all_videos = os.listdir(video_dir_path)[x:]
+    all_videos = os.listdir(video_dir_path)
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]

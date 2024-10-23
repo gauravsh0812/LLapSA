@@ -7,13 +7,10 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
-from transformers import CLIPVisionModel, CLIPImageProcessor, SamModel, SamImageProcessor, BitsAndBytesConfig
-import bitsandbytes as bnb
+from transformers import CLIPVisionModel, CLIPImageProcessor
 
-torch.cuda.empty_cache()
 
 def load_video(vis_path, num_frm=100):
-    print("vis path: ", vis_path)
     vr = VideoReader(vis_path, ctx=cpu(0))
     total_frame_num = len(vr)
     total_num_frm = min(total_frame_num, num_frm)
@@ -34,18 +31,6 @@ def load_video(vis_path, num_frm=100):
 
     return clip_imgs
 
-
-def get_seq_frames(total_num_frames, desired_num_frames):
-    seg_size = float(total_num_frames - 1) / desired_num_frames
-    seq = []
-    for i in range(desired_num_frames):
-        start = int(np.round(seg_size * i))
-        end = int(np.round(seg_size * (i + 1)))
-        seq.append((start + end) // 2)
-
-    return seq
-
-
 def get_spatio_temporal_features(features, num_temporal_tokens=100):
     t, s, c = features.shape
 
@@ -60,100 +45,61 @@ def get_spatio_temporal_features(features, num_temporal_tokens=100):
     return sp_features
 
 
-# def parse_args():
-#     parser = argparse.ArgumentParser(description="Training")
+def parse_args():
+    parser = argparse.ArgumentParser(description="Training")
 
-#     parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
-#     parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
-#     parser.add_argument("--infer_batch", required=False, type=int, default=32,
-#                         help="Number of frames/images to perform batch inference.")
+    parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.",
+                        default="/data/shared/gauravs/llapsa/vcgpt_clips")
+    parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.",
+                        default="/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/")
+    args = parser.parse_args()
 
-#     args = parser.parse_args()
-
-#     return args
+    return args
 
 
 def main():
-    # args = parse_args()
-    video_dir_path = "/data/shared/gauravs/llapsa/vcgpt_clips"#args.video_dir_path
-    clip_feat_path = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos"#args.clip_feat_path
-    infer_batch = 32#args.infer_batch
-    os.makedirs(clip_feat_path, exist_ok=True)
+    args = parse_args()
+    video_dir_path = args.video_dir_path
+    clip_feat_path = args.clip_feat_path
+    vcgpt_features = os.path.join(clip_feat_path, "vcgpt_features")
+    combined_features = os.path.join(clip_feat_path, "combined_features")
+    for i in [vcgpt_features, combined_features]:
+        os.makedirs(i, exist_ok=True)
 
     # Initialize the CLIP model
-    # image_processor = CLIPImageProcessor.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16)
-    # vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
-    #                                                low_cpu_mem_usage=True).cuda()
-    
-    use_4bit = True
-    bnb_4bit_compute_dtype = "float16"
-    bnb_4bit_quant_type = "nf4"
-    use_nested_quant = False
-    compute_dtype = getattr(torch, bnb_4bit_compute_dtype)
-    
-    bnb_config = BitsAndBytesConfig(
-            load_in_4bit=use_4bit,
-            bnb_4bit_quant_type=bnb_4bit_quant_type,
-            bnb_4bit_compute_dtype=compute_dtype,
-            bnb_4bit_use_double_quant=use_nested_quant,
-    )
+    image_processor = CLIPImageProcessor.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16)
+    vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
+                                                   low_cpu_mem_usage=True).cuda()
+    vision_tower.eval()
 
-
-    sam_image_processor = SamImageProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50", torch_dtype=torch.float16)
-    sam_model = SamModel.from_pretrained(
-        "Zigeng/SlimSAM-uniform-50", 
-        torch_dtype=torch.float16,
-        low_cpu_mem_usage=True, 
-        quantization_config=bnb_config,).cuda()   
-
-    # vision_tower.eval()
-    sam_model.eval()
-
+    sam_videos_list = os.listdir(os.path.join(args.clip_feat_path, "sam_hidden_states"))
     all_videos = os.listdir(video_dir_path)
     video_clip_features = {}
     counter = 0
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
-        print("id: ", video_id)
-        if os.path.exists(f"{clip_feat_path}/{video_id}.pkl"):  # Check if the file is already processed
-            continue
-        # try:
-        video = load_video(video_path)
-        # video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
-        sam_tensor = sam_image_processor.preprocess(video, return_tensors="pt")['pixel_values']
-        # video_tensor = video_tensor.half().cuda()
-        sam_tensor = sam_tensor.half().cuda()
+        if video_id in sam_videos_list:
+            # try:
+            video = load_video(video_path)
+            video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
+            video_tensor = video_tensor.half()
+
+            image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+
+            select_hidden_state_layer = -2
+            select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
+            
+            print(select_hidden_state.shape)
+
+            break
+            # video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
+            # counter += 1
+
+            # except Exception as e:
+            #     print(f"Can't process {video_path}")
         
-        # print("vcgpt, sam: ", video_tensor.shape, sam_tensor.shape)
-
-        # n_chunk = len(video_tensor)
-        # video_features = torch.FloatTensor(n_chunk, 256, 1024).fill_(0)
-        # n_iter = int(math.ceil(n_chunk / float(infer_batch)))
-
-        # for i in range(n_iter):
-            # min_ind = i * infer_batch
-            # max_ind = (i + 1) * infer_batch
-            # video_batch = video_tensor[min_ind:max_ind].cuda()
-
-        # image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
-        sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True)
-
         break
-
-        select_hidden_state_layer = -2
-        select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
-        batch_features = select_hidden_state[:, 1:]
-        video_features[min_ind:max_ind] = batch_features.detach().cpu()
-
-        video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
-        counter += 1
-
-        # except Exception as e:
-        #     print(f"Can't process {video_path}")
-
-        break
-        
         if counter % 512 == 0:  # Save after every 512 videos, update this number as per your requirements
             for key in video_clip_features.keys():
                 features = video_clip_features[key]
