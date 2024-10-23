@@ -92,7 +92,7 @@ def main():
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
         print(video_id)
-        if video_id in sam_videos_list:
+        if video_id+".pkl" in sam_videos_list:
             # try:
             video = load_video(video_path)
             video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
