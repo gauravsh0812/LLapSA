@@ -109,28 +109,29 @@ def main():
             select_hidden_state_layer = -2
             select_hidden_state = image_forward_outs.hidden_states[select_hidden_state_layer]
 
-            print("hid: ", select_hidden_state.shape)
+            # print("hid: ", select_hidden_state.shape)
 
             batch_features = select_hidden_state[:, 1:]
             video_features[min_ind:max_ind] = batch_features.detach().cpu()
             
-            print("batch: ", video_features.shape)
+            # print("batch: ", video_features.shape)
         print("final v featurte: ", video_features.shape)
         video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
         counter += 1
         print(video_clip_features[video_id].shape)
-        break
+        if counter > 10:
+            break
 
         # except Exception as e:
         #     print(f"Can't process {video_path}")
 
-        break
-        if counter % 512 == 0:  # Save after every 512 videos, update this number as per your requirements
-            for key in video_clip_features.keys():
-                features = video_clip_features[key]
-                with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
-                    pickle.dump(features, f)
-            video_clip_features = {}
+        
+        # if counter % 512 == 0:  # Save after every 512 videos, update this number as per your requirements
+        #     for key in video_clip_features.keys():
+        #         features = video_clip_features[key]
+        #         with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
+        #             pickle.dump(features, f)
+        #     video_clip_features = {}
     exit()
     for key in video_clip_features.keys():
         features = video_clip_features[key]
