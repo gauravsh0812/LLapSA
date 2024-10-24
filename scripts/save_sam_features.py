@@ -99,9 +99,9 @@ def main():
             preds.append(pred_masks)
             sam_hids.append(sam_hidden_states)
         
-        stacked_ious = torch.stack(iou_scores, dim=0)
-        stacked_preds = torch.stack(preds, dim=0)
-        stacked_sam_hids = torch.stack(sam_hids, dim=0)
+        # stacked_ious = torch.stack(iou_scores, dim=0)
+        # stacked_preds = torch.stack(preds, dim=0)
+        # stacked_sam_hids = torch.stack(sam_hids, dim=0)
 
         with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
             pickle.dump(stacked_sam_hids, f)
