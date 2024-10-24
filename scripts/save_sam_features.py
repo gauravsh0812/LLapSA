@@ -81,8 +81,8 @@ def parse_args():
 
 def main():
 
-    x,y = 6000, 9000
-    n = 2
+    x,y = 9000, 12000
+    n = 3
 
     args = parse_args()
     video_dir_path = args.video_dir_path
