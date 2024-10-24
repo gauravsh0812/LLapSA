@@ -97,7 +97,7 @@ def main():
     all_videos = os.listdir(video_dir_path)
 
     x,y = 0,2500
-    all_videos = all_videos[x,y]
+    all_videos = all_videos[x:y]
 
 
     for video_name in tqdm(all_videos):
