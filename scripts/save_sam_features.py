@@ -81,7 +81,8 @@ def parse_args():
 
 def main():
 
-    x,y = 0,3000
+    x,y = 3000, 6000
+    n = 1
 
     args = parse_args()
     video_dir_path = args.video_dir_path
@@ -89,7 +90,7 @@ def main():
     sam_preds = os.path.join(clip_feat_path,"sam_preds")
     sam_iou = os.path.join(clip_feat_path,"sam_iou")
     sam_hidden = os.path.join(clip_feat_path,"sam_hidden_states")
-    temp = os.path.join(clip_feat_path, f"temp_{x}")
+    temp = os.path.join(clip_feat_path, f"temp_{n}")
     for i in [clip_feat_path,sam_preds,sam_iou,sam_hidden, temp]:
         os.makedirs(i, exist_ok=True)
 
