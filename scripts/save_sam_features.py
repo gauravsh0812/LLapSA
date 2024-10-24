@@ -74,11 +74,19 @@ def main():
     sam_model.eval()
 
     all_videos = os.listdir(video_dir_path)
+
+    x,y = 0, 2500
+    all_videos = all_videos[x:y]
+
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
         try:
             video = load_video(video_path)
+        
+            iou_scores = []
+            preds = []
+            sam_hids = []
             for i in range(len(video)):
                 clip = video[i] #(224,224)
                 sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
@@ -86,14 +94,22 @@ def main():
                 sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
                 iou_score = sam_forward_outs.iou_scores #(1,1,3)
                 pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
-                last_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
+                sam_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
+                iou_scores.append(iou_score)
+                preds.append(pred_masks)
+                sam_hids.append(sam_hidden_states)
+            
+            stacked_ious = torch.stack(iou_scores, dim=0)
+            stacked_preds = torch.stack(preds, dim=0)
+            stacked_sam_hids = torch.stack(sam_hids, dim=0)
 
-                with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
-                    pickle.dump(pred_masks, f)
-                with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
-                    pickle.dump(iou_score, f)
-                with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
-                    pickle.dump(last_hidden_states, f)
+            with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
+                pickle.dump(stacked_sam_hids, f)
+            with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
+                pickle.dump(stacked_preds, f)
+            with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
+                pickle.dump(stacked_ious, f)
+        
         except:
             print(f"Can't process {video_path}")
 
