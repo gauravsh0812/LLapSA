@@ -9,7 +9,7 @@ from tqdm import tqdm
 from decord import VideoReader, cpu
 from transformers import SamModel, SamImageProcessor
 
-# torch.cuda.empty_cache()
+torch.cuda.empty_cache()
 
 def load_video(vis_path, num_frm=100):
     vr = VideoReader(vis_path, ctx=cpu(0))
