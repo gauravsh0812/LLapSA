@@ -100,7 +100,7 @@ def main():
 
     all_videos = os.listdir(video_dir_path)
 
-    x,y = 7500,
+    x,y = 7500,10000
     all_videos = all_videos[x:y]
 
     for video_name in tqdm(all_videos):
