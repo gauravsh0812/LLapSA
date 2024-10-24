@@ -48,23 +48,23 @@ def load_and_stack_hidden_states(temp, video_id,
 
     # Iterate over each video ID
     for tnsr in ["sam_hidden","sam_preds","sam_iou"]:
+        hidden_states = []
         for i in range(counter):
-            hidden_states = []
             with open(os.path.join(temp, f"{tnsr}_{video_id}_{i}.pkl"), 'rb') as f:
                 hidden_state = pickle.load(f)
                 hidden_states.append(hidden_state)
 
-            stacked_states = torch.stack(hidden_states, dim=0)
+        stacked_states = torch.stack(hidden_states, dim=0)
             
-            if tnsr == "sam_hidden":
-                output_file = os.path.join(sam_hidden, f"{video_id}.pkl")
-            elif tnsr == "sam_preds":
-                output_file = os.path.join(sam_preds, f"{video_id}.pkl")
-            else:
-                output_file = os.path.join(sam_iou, f"{video_id}.pkl")
-            
-            with open(output_file, 'wb') as f:
-                    pickle.dump(stacked_states, f)
+        if tnsr == "sam_hidden":
+            output_file = os.path.join(sam_hidden, f"{video_id}.pkl")
+        elif tnsr == "sam_preds":
+            output_file = os.path.join(sam_preds, f"{video_id}.pkl")
+        else:
+            output_file = os.path.join(sam_iou, f"{video_id}.pkl")
+        
+        with open(output_file, 'wb') as f:
+            pickle.dump(stacked_states, f)
 
 
 def parse_args():
@@ -78,8 +78,8 @@ def parse_args():
 
     return args
 
-def main():
 
+def main():
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path
@@ -106,38 +106,37 @@ def main():
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
-        # try:
-        video = load_video(video_path)
-        counter = 0
-        for i in range(len(video)):
-            clip = video[i] #(224,224)
-            sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values']
-            sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
-            sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
-            iou_score = sam_forward_outs.iou_scores # (1,1,3)
-            pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
-            sam_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
+        try:
+            video = load_video(video_path)
+            counter = 0
+            for i in range(len(video)):
+                clip = video[i] #(224,224)
+                sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values']
+                sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
+                sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
+                iou_score = sam_forward_outs.iou_scores # (1,1,3)
+                pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
+                sam_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
 
-            with open(f"{temp}/sam_hidden_{video_id}_{i}.pkl", 'wb') as f:
-                pickle.dump(sam_hidden_states, f)
-            with open(f"{temp}/sam_preds_{video_id}_{i}.pkl", 'wb') as f:
-                pickle.dump(pred_masks, f)
-            with open(f"{temp}/sam_iou_{video_id}_{i}.pkl", 'wb') as f:
-                pickle.dump(iou_score, f)
+                with open(f"{temp}/sam_hidden_{video_id}_{i}.pkl", 'wb') as f:
+                    pickle.dump(sam_hidden_states, f)
+                with open(f"{temp}/sam_preds_{video_id}_{i}.pkl", 'wb') as f:
+                    pickle.dump(pred_masks, f)
+                with open(f"{temp}/sam_iou_{video_id}_{i}.pkl", 'wb') as f:
+                    pickle.dump(iou_score, f)
+                
+                counter +=1
             
-            counter +=1
+            assert counter == len(video)
+            load_and_stack_hidden_states(temp, video_id, counter, sam_hidden, sam_preds, sam_iou)
 
-        load_and_stack_hidden_states(temp, video_id, counter, sam_hidden, sam_preds, sam_iou)
+            # clear the temp
+            for item in os.listdir(temp):
+                item_path = os.path.join(temp, item)
+                os.remove(item_path)
         
-
-        
-        # stacked_ious = torch.stack(iou_scores, dim=0)
-        # stacked_preds = torch.stack(preds, dim=0)
-        # stacked_sam_hids = torch.stack(sam_hids, dim=0)
-
-        
-        # except:
-        #     print(f"Can't process {video_path}")
+        except:
+            print(f"Can't process {video_path}")
 
 if __name__ == "__main__":
     main()
