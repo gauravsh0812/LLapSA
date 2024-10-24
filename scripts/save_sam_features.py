@@ -103,12 +103,12 @@ def main():
         # stacked_preds = torch.stack(preds, dim=0)
         # stacked_sam_hids = torch.stack(sam_hids, dim=0)
 
-        with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
-            pickle.dump(stacked_sam_hids, f)
-        with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
-            pickle.dump(stacked_preds, f)
-        with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
-            pickle.dump(stacked_ious, f)
+        # with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
+        #     pickle.dump(stacked_sam_hids, f)
+        # with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
+        #     pickle.dump(stacked_preds, f)
+        # with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
+        #     pickle.dump(stacked_ious, f)
         
         # except:
         #     print(f"Can't process {video_path}")
