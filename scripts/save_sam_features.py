@@ -80,13 +80,16 @@ def parse_args():
 
 
 def main():
+
+    x,y = 0, 2500
+
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path
     sam_preds = os.path.join(clip_feat_path,"sam_preds")
     sam_iou = os.path.join(clip_feat_path,"sam_iou")
     sam_hidden = os.path.join(clip_feat_path,"sam_hidden_states")
-    temp = os.path.join(clip_feat_path, "temp")
+    temp = os.path.join(clip_feat_path, f"temp_{x}")
     for i in [clip_feat_path,sam_preds,sam_iou,sam_hidden, temp]:
         os.makedirs(i, exist_ok=True)
 
@@ -99,8 +102,6 @@ def main():
     sam_model.eval()
 
     all_videos = os.listdir(video_dir_path)
-
-    x,y = 7500,10000
     all_videos = all_videos[x:y]
 
     for video_name in tqdm(all_videos):
