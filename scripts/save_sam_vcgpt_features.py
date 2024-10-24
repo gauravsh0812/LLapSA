@@ -96,7 +96,7 @@ def main():
 
     all_videos = os.listdir(video_dir_path)
 
-    x,y = 0,2000
+    x,y = 0,2500
     all_videos = all_videos[x,y]
 
 
@@ -147,3 +147,6 @@ def main():
 
 if __name__ == "__main__":
     main()  
+
+
+# git pull; CUDA_VISIBLE_DEVICES=0 python scripts/save_sam_vcgpt_features.py --video_dir_path /data/shared/gauravs/llapsa/vcgpt_clips --clip_feat_path /data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos
