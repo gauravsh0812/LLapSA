@@ -42,6 +42,31 @@ def get_seq_frames(total_num_frames, desired_num_frames):
 
     return seq
 
+def load_and_stack_hidden_states(temp, video_id, 
+                                 counter, sam_hidden, 
+                                 sam_preds, sam_iou):
+
+    # Iterate over each video ID
+    for tnsr in ["sam_hidden","sam_preds","sam_iou"]:
+        for i in range(counter):
+            hidden_states = []
+            with open(os.path.join(temp, f"{tnsr}_{video_id}_{i}.pkl"), 'rb') as f:
+                hidden_state = pickle.load(f)
+                hidden_states.append(hidden_state)
+
+            stacked_states = torch.stack(hidden_states, dim=0)
+            
+            if tnsr == "sam_hidden":
+                output_file = os.path.join(sam_hidden, f"{video_id}.pkl")
+            elif tnsr == "sam_preds":
+                output_file = os.path.join(sam_preds, f"{video_id}.pkl")
+            else:
+                output_file = os.path.join(sam_iou, f"{video_id}.pkl")
+            
+            with open(output_file, 'wb') as f:
+                    pickle.dump(stacked_states, f)
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Training")
 
@@ -61,8 +86,8 @@ def main():
     sam_preds = os.path.join(clip_feat_path,"sam_preds")
     sam_iou = os.path.join(clip_feat_path,"sam_iou")
     sam_hidden = os.path.join(clip_feat_path,"sam_hidden_states")
-    for i in [clip_feat_path,
-              sam_preds,sam_iou,sam_hidden]:
+    temp = os.path.join(clip_feat_path, "temp")
+    for i in [clip_feat_path,sam_preds,sam_iou,sam_hidden, temp]:
         os.makedirs(i, exist_ok=True)
 
     sam_image_processor = SamImageProcessor.from_pretrained("Zigeng/SlimSAM-uniform-50", torch_dtype=torch.float16)
@@ -70,7 +95,7 @@ def main():
         "Zigeng/SlimSAM-uniform-50", 
         torch_dtype=torch.float16,
         low_cpu_mem_usage=True,).cuda()   
-
+    
     sam_model.eval()
 
     all_videos = os.listdir(video_dir_path)
@@ -83,33 +108,33 @@ def main():
         video_id = video_name.split('.')[0]
         # try:
         video = load_video(video_path)
-    
-        iou_scores = []
-        preds = []
-        sam_hids = []
+        counter = 0
         for i in range(len(video)):
             clip = video[i] #(224,224)
-            sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values'] 
+            sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values']
             sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
             sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
             iou_score = sam_forward_outs.iou_scores # (1,1,3)
             pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
             sam_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
-            print(i)
-            iou_scores.append(iou_score)
-            preds.append(pred_masks)
-            sam_hids.append(sam_hidden_states)
+
+            with open(f"{temp}/sam_hidden_{video_id}_{i}.pkl", 'wb') as f:
+                pickle.dump(sam_hidden_states, f)
+            with open(f"{temp}/sam_preds_{video_id}_{i}.pkl", 'wb') as f:
+                pickle.dump(pred_masks, f)
+            with open(f"{temp}/sam_iou_{video_id}_{i}.pkl", 'wb') as f:
+                pickle.dump(iou_score, f)
+            
+            counter +=1
+
+        load_and_stack_hidden_states(temp, video_id, counter, sam_hidden, sam_preds, sam_iou)
+        
+
         
         # stacked_ious = torch.stack(iou_scores, dim=0)
         # stacked_preds = torch.stack(preds, dim=0)
         # stacked_sam_hids = torch.stack(sam_hids, dim=0)
 
-        # with open(f"{sam_hidden}/{video_id}.pkl", 'wb') as f:
-        #     pickle.dump(stacked_sam_hids, f)
-        # with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
-        #     pickle.dump(stacked_preds, f)
-        # with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
-        #     pickle.dump(stacked_ious, f)
         
         # except:
         #     print(f"Can't process {video_path}")
