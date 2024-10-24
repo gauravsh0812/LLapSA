@@ -107,10 +107,10 @@ def main():
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
-        
-        video = load_video(video_path)
-        counter = 0
         try:
+            video = load_video(video_path)
+            counter = 0
+        
             for i in range(len(video)):
                 clip = video[i] #(224,224)
                 sam_tensor = sam_image_processor.preprocess(clip, return_tensors="pt")['pixel_values']
