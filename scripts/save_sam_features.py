@@ -95,6 +95,7 @@ def main():
             iou_score = sam_forward_outs.iou_scores # (1,1,3)
             pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
             sam_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
+            print(i)
             iou_scores.append(iou_score)
             preds.append(pred_masks)
             sam_hids.append(sam_hidden_states)
