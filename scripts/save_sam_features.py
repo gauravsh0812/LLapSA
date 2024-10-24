@@ -81,8 +81,8 @@ def parse_args():
 
 def main():
 
-    x,y = 9000, 12000
-    n = 3
+    x = 12000
+    n = 4
 
     args = parse_args()
     video_dir_path = args.video_dir_path
@@ -103,7 +103,7 @@ def main():
     sam_model.eval()
 
     all_videos = os.listdir(video_dir_path)
-    all_videos = all_videos[x:y]
+    all_videos = all_videos[x:]
 
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
