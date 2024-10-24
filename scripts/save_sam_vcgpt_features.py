@@ -104,46 +104,46 @@ def main():
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
         
-        try:
-            video = load_video(video_path)
-            
-            vcgpts = []
-            iou_scores = []
-            preds = []
-            sam_hids = []
-            for i in range(len(video)):
-                video_tensor = image_processor.preprocess(video[i], return_tensors='pt')['pixel_values']
-                video_tensor = video_tensor.half().cuda()
-                image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
-                vcgpt_hidden_state = image_forward_outs.hidden_states[-2]  # torch.Size([1, 257, 1024])
-                vcgpts.append(vcgpt_hidden_state)
+        # try:
+        video = load_video(video_path)
+        
+        vcgpts = []
+        iou_scores = []
+        preds = []
+        sam_hids = []
+        for i in range(len(video)):
+            video_tensor = image_processor.preprocess(video[i], return_tensors='pt')['pixel_values']
+            video_tensor = video_tensor.half().cuda()
+            image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+            vcgpt_hidden_state = image_forward_outs.hidden_states[-2]  # torch.Size([1, 257, 1024])
+            vcgpts.append(vcgpt_hidden_state)
 
-                sam_tensor = sam_image_processor.preprocess(video[i], return_tensors="pt")['pixel_values'] 
-                sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
-                sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
-                iou_score = sam_forward_outs.iou_scores #(1,1,3)
-                pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
-                sam_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
-                iou_scores.append(iou_score)
-                preds.append(pred_masks)
-                sam_hids.append(sam_hidden_states)
+            sam_tensor = sam_image_processor.preprocess(video[i], return_tensors="pt")['pixel_values'] 
+            sam_tensor = sam_tensor.half().cuda() # (1,3,1024,1024)
+            sam_forward_outs = sam_model(sam_tensor, output_hidden_states=True, return_dict=True)
+            iou_score = sam_forward_outs.iou_scores #(1,1,3)
+            pred_masks = sam_forward_outs.pred_masks  # torch.Size([1, 1, 3, 256, 256])
+            sam_hidden_states = sam_forward_outs.vision_hidden_states[-1]   # torch.Size([1, 64, 64, 384])
+            iou_scores.append(iou_score)
+            preds.append(pred_masks)
+            sam_hids.append(sam_hidden_states)
 
-            stacked_vcpgts = torch.stack(vcgpts, dim=0)
-            stacked_ious = torch.stack(iou_scores, dim=0)
-            stacked_preds = torch.stack(preds, dim=0)
-            stacked_sam_hids = torch.stack(sam_hids, dim=0)
+        stacked_vcpgts = torch.stack(vcgpts, dim=0)
+        stacked_ious = torch.stack(iou_scores, dim=0)
+        stacked_preds = torch.stack(preds, dim=0)
+        stacked_sam_hids = torch.stack(sam_hids, dim=0)
 
-            with open(f"{vcgpt_features}/{video_id}.pkl", 'wb') as f:
-                    pickle.dump(stacked_vcpgts, f)
-            with open(f"{sam_hidden_states}/{video_id}.pkl", 'wb') as f:
-                pickle.dump(stacked_sam_hids, f)
-            with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
-                pickle.dump(stacked_preds, f)
-            with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
-                pickle.dump(stacked_ious, f)
+        with open(f"{vcgpt_features}/{video_id}.pkl", 'wb') as f:
+                pickle.dump(stacked_vcpgts, f)
+        with open(f"{sam_hidden_states}/{video_id}.pkl", 'wb') as f:
+            pickle.dump(stacked_sam_hids, f)
+        with open(f"{sam_preds}/{video_id}.pkl", 'wb') as f:
+            pickle.dump(stacked_preds, f)
+        with open(f"{sam_iou}/{video_id}.pkl", 'wb') as f:
+            pickle.dump(stacked_ious, f)
     
-        except Exception as e:
-            print(f"Can't process {video_path}")
+        # except Exception as e:
+        #     print(f"Can't process {video_path}")
 
 if __name__ == "__main__":
     main()  
