@@ -70,8 +70,8 @@ def load_and_stack_hidden_states(temp, video_id,
 
 def main():
 
-    x,y = 2500,5000
-    n= 1
+    x,y = 7500, 10000
+    n= 3
 
     args = parse_args()
     video_dir_path = args.video_dir_path
