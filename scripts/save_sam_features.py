@@ -81,6 +81,7 @@ def parse_args():
 
 def main():
 
+    n=0
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path
