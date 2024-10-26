@@ -72,16 +72,9 @@ def parse_args():
 
 def main():
     args = parse_args()
-    video_dir_path = args.video_dir_path
+    root_path = args.root_path
     clip_feat_path = args.clip_feat_path
-    infer_batch = args.infer_batch
     os.makedirs(clip_feat_path, exist_ok=True)
-
-    # Initialize the CLIP model
-    image_processor = CLIPImageProcessor.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16)
-    vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
-                                                   low_cpu_mem_usage=True).cuda()
-    vision_tower.eval()
 
     all_videos = os.listdir(video_dir_path)
     video_clip_features = {}
@@ -114,9 +107,6 @@ def main():
             batch_features = select_hidden_state[:, 1:]
             video_features[min_ind:max_ind] = batch_features.detach().cpu()
             
-            # print("batch: ", video_features.shape)
-        if video_features.shape[0] != 100:
-            print("final v featurte: ", video_features.shape)
         video_clip_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
         counter += 1
         if counter > 50:
