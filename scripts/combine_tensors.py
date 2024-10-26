@@ -20,7 +20,7 @@ class CombineTensors(nn.Module):
         self.sam_pred_lin2 = nn.Linear(256, 1024)
 
         # combined tensor 
-        self.combined_tensor_lin = nn.Linear(257*3, 257)
+        self.combined_tensor_lin = nn.Linear(257*5, 257)
 
     def forward(self, video_id):
         # pkl paths 
