@@ -69,6 +69,7 @@ class CombineTensors(nn.Module):
         sam_hidden_states_tensor = self.sam_hid_lin2(sam_hidden_states_tensor) # (100, 257, 1024)
 
         # concatenating
+        print("shapes: ", sam_hidden_states_tensor.shape, sam_preds_tensor.shape, vcgpt_features_tensor.shape)
         combined_tesnor = torch.cat(
             (sam_hidden_states_tensor, sam_preds_tensor, vcgpt_features_tensor),
             dim=1)
