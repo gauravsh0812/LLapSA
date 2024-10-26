@@ -1,0 +1,1 @@
+git pull; CUDA_VISIBLE_DEVICES=0 python scripts/save_spatio_temporal_clip_features.py --root_path /data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos --clip_feat_path /data/shared/gauravs//llapsa/sam_vcgpt_encoded_videos/combined_sam_vcgpt_tensors
