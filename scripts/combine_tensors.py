@@ -36,13 +36,13 @@ class CombineTensors(nn.Module):
 
         # loading the tensors
         with open(sam_hidden_states_pkl_path, 'rb') as file:
-            sam_hidden_states_tensor = pickle.load(file)
+            sam_hidden_states_tensor = pickle.load(file).cuda()
 
         with open(sam_preds_pkl_path, 'rb') as file:
-            sam_preds_tensor = pickle.load(file)
+            sam_preds_tensor = pickle.load(file).cuda()
 
         with open(vcgpt_features_pkl_path, 'rb') as file:
-            vcgpt_features_tensor = pickle.load(file)
+            vcgpt_features_tensor = pickle.load(file).cuda()
         
         # modifying the preds
         squeezed_tensor = sam_preds_tensor.squeeze(1).squeeze(1)  # Now the shape is (100, 3, 256, 256)

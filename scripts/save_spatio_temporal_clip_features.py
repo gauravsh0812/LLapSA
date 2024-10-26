@@ -36,12 +36,12 @@ def main():
     clip_feat_path = args.clip_feat_path
     os.makedirs(clip_feat_path, exist_ok=True)
 
-    combine_tensors = CombineTensors(root_path)
+    combine_tensors = CombineTensors(root_path).cuda()
 
     video_features = {}
     counter = 0
     for video_id in tqdm(all_videos):
-        if os.path.exists(f"{clip_feat_path}/{video_id}.pkl"):  # Check if the file is already processed
+        if os.path.exists(f"{clip_feat_path}/{video_id}"):  # Check if the file is already processed
             continue
         
         combine_features = combine_tensors(video_id)
