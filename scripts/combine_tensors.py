@@ -47,7 +47,7 @@ class CombineTensors(nn.Module):
         # modifying the preds
         squeezed_tensor = sam_preds_tensor.squeeze(1).squeeze(1)  # Now the shape is (100, 3, 256, 256)
         # Split the tensor along the channel axis (dim=1) -- (100, 256,256)
-        mask1 = squeezed_tensor[:, 0, :, :].cuda()
+        mask1 = squeezed_tensor[:, 0, :, :].cuda().half()
         mask1 = self.sam_pred_lin1(mask1.permute(0,2,1)).permute(0,2,1)  # (100,257,256)
         mask1 = self.sam_pred_lin2(mask1)  # (100,257,1024)
 
