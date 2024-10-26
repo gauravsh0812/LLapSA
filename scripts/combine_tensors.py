@@ -70,10 +70,11 @@ class CombineTensors(nn.Module):
 
         # concatenating
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(1) # (100, 257, 1024)
-        print("shapes: ", sam_hidden_states_tensor.shape, mask1.shape, vcgpt_features_tensor.shape)
         combined_tesnor = torch.cat(
             (sam_hidden_states_tensor, mask1, mask2, mask3, vcgpt_features_tensor),
             dim=1)
+        
+        print(combined_tesnor.shape)
         combined_tesnor = self.combined_tensor_lin(combined_tesnor.permute(0,2,1)).permute(0,2,1) # (100, 257, 1024)
 
         return combined_tesnor
