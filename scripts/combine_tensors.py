@@ -25,13 +25,13 @@ class CombineTensors(nn.Module):
     def forward(self, video_id):
         # pkl paths 
         sam_hidden_states_pkl_path = os.path.join(
-            self.sam_hidden_states_path, f"{video_id}.pkl"
+            self.sam_hidden_states_path, f"{video_id}"
         )
         sam_preds_pkl_path = os.path.join(
-            self.sam_preds_path, f"{video_id}.pkl"
+            self.sam_preds_path, f"{video_id}"
         )
         vcgpt_features_pkl_path = os.path.join(
-            self.vcgpt_features_path, f"{video_id}.pkl"
+            self.vcgpt_features_path, f"{video_id}"
         )
 
         # loading the tensors
