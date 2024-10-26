@@ -1,4 +1,5 @@
 import os
+import torch
 import pickle
 import argparse
 import numpy as np
@@ -36,7 +37,7 @@ def main():
     clip_feat_path = args.clip_feat_path
     os.makedirs(clip_feat_path, exist_ok=True)
 
-    combine_tensors = CombineTensors(root_path).cuda()
+    combine_tensors = CombineTensors(root_path).cuda().to(torch.float16)
 
     video_features = {}
     counter = 0
