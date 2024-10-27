@@ -1,16 +1,18 @@
-import openai
-import time
-# from openai import OpenAI
-import os
+import openai, os
 import argparse
 import tqdm
 import json
 import ast
-from multiprocessing.pool import Pool
 
+parser = argparse.ArgumentParser(description="Training")
 
-# PUT here openai.api_key then work with it
-# client = OpenAI()
+parser.add_argument("--api_key", required=True, help="OpenAI API key")
+parser.add_argument("--openai_model", required=True, help="which openai model -- gpt-3.5-turbo or gpt-4o-mini")
+parser.add_argument("--predicted_file_path", required=True, help="file containing the predictions from trained model (Inference output file)")
+parser.add_argument("--output_dir", required=True, help="output directory")
+args = parser.parse_args()
+
+openai.api_key = args.api_key
 
 def annotate(qtn, pred, ans):
 
@@ -18,10 +20,11 @@ def annotate(qtn, pred, ans):
     Evaluates question and answer pairs using GPT-3
     Returns a score for correctness
     """
+
     try:
         # Compute the correctness score
         completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model=args.openai_model,
                 messages=[
                     {
                         "role": "system",
@@ -62,15 +65,19 @@ def main():
     """
     Main function to control the flow of the program.
     """
-
+    
     x, y = 6000,-1
     n = 3
-
-    pred_path="outputs/inference_output.json"
+    
+    pred_path=args.predicted_file_path
     with open(pred_path, 'r', encoding='utf-8') as file:
         pred_contents = json.load(file)[x:y]
 
-    scores = open(f"outputs/correctness/eval_1_correctness_scores_turbo3_{n}.lst", "w")
+    os.makedirs(f"{args.output_dir}", exist_ok=True)
+    os.makedirs(f"{args.output_dir}/correctness", exist_ok=True)
+
+    mtype = "turbo3" if args.openai_model == "gpt-3.5-turbo" else "mini4o"
+    scores = open(f"{args.output_dir}/correctness/correctness_scores_{mtype}_{n}.lst", "w")
     len_scores = 0
     total_score = 0
 
@@ -78,8 +85,6 @@ def main():
 
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
         try:
-            #if ind % 100 == 0:
-                #time.sleep(10)
             qtn = pc["q"]
             ans = pc["a"]
             pred = pc["pred"]

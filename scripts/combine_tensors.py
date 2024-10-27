@@ -11,16 +11,16 @@ class CombineTensors(nn.Module):
         # dealing with sam hidden states
         self.sam_hid_lin1 = nn.Sequential(
             nn.Linear(64*64, 1024), 
-            nn.Linear(1024, 257)
+            nn.Linear(1024, 256)
         )
         self.sam_hid_lin2 = nn.Linear(384, 1024)
 
         # dealing with sam preds states 
-        self.sam_pred_lin1 = nn.Linear(256, 257)
+        self.sam_pred_lin1 = nn.Linear(256, 256)
         self.sam_pred_lin2 = nn.Linear(256, 1024)
 
         # combined tensor 
-        self.combined_tensor_lin = nn.Linear(257*5, 257)
+        self.combined_tensor_lin = nn.Linear(256*5, 256)
 
     def forward(self, video_name):
         # pkl paths 
@@ -69,7 +69,7 @@ class CombineTensors(nn.Module):
         sam_hidden_states_tensor = self.sam_hid_lin2(sam_hidden_states_tensor) # (100, 257, 1024)
 
         # concatenating
-        vcgpt_features_tensor = vcgpt_features_tensor.squeeze(1) # (100, 257, 1024)
+        vcgpt_features_tensor = vcgpt_features_tensor.squeeze(1)[:, 1:,:] # (100, 256, 1024)
         combined_tesnor = torch.cat(
             (sam_hidden_states_tensor, mask1, mask2, mask3, vcgpt_features_tensor),
             dim=1)
