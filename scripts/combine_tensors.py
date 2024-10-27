@@ -22,16 +22,16 @@ class CombineTensors(nn.Module):
         # combined tensor 
         self.combined_tensor_lin = nn.Linear(257*5, 257)
 
-    def forward(self, video_id):
+    def forward(self, video_name):
         # pkl paths 
         sam_hidden_states_pkl_path = os.path.join(
-            self.sam_hidden_states_path, f"{video_id}"
+            self.sam_hidden_states_path, f"{video_name}"
         )
         sam_preds_pkl_path = os.path.join(
-            self.sam_preds_path, f"{video_id}"
+            self.sam_preds_path, f"{video_name}"
         )
         vcgpt_features_pkl_path = os.path.join(
-            self.vcgpt_features_path, f"{video_id}"
+            self.vcgpt_features_path, f"{video_name}"
         )
 
         # loading the tensors
@@ -74,7 +74,6 @@ class CombineTensors(nn.Module):
             (sam_hidden_states_tensor, mask1, mask2, mask3, vcgpt_features_tensor),
             dim=1)
         
-        print(combined_tesnor.shape)
         combined_tesnor = self.combined_tensor_lin(combined_tesnor.permute(0,2,1)).permute(0,2,1) # (100, 257, 1024)
 
         return combined_tesnor

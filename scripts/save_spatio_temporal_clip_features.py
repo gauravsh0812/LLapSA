@@ -41,11 +41,12 @@ def main():
 
     video_features = {}
     counter = 0
-    for video_id in tqdm(all_videos):
+    for video_name in tqdm(all_videos):
+        video_id = video_name.split(".")[0] 
         if os.path.exists(f"{clip_feat_path}/{video_id}"):  # Check if the file is already processed
             continue
         
-        combine_features = combine_tensors(video_id)
+        combine_features = combine_tensors(video_name)
         combine_features = combine_features.detach().cpu().numpy().astype("float16")
             
         video_features[video_id] = get_spatio_temporal_features(combine_features)
@@ -56,10 +57,10 @@ def main():
                 features = video_features[key]
                 with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
                     pickle.dump(features, f)
-            video_clip_features = {}
+            video_features = {}
 
-    for key in video_clip_features.keys():
-        features = video_clip_features[key]
+    for key in video_features.keys():
+        features = video_features[key]
         with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
             pickle.dump(features, f)
 
