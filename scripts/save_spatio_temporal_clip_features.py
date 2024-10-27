@@ -33,7 +33,7 @@ def parse_args():
 def main():
     args = parse_args()
     root_path = args.root_path
-    all_videos = os.listdir(os.path.join(root_path, "sam_hidden_states"))[3000:6000]
+    all_videos = os.listdir(os.path.join(root_path, "sam_hidden_states"))[9000:]
     clip_feat_path = args.clip_feat_path
     os.makedirs(clip_feat_path, exist_ok=True)
 
