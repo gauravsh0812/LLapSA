@@ -43,7 +43,7 @@ def main():
     counter = 0
     for video_name in tqdm(all_videos):
         video_id = video_name.split(".")[0] 
-        if os.path.exists(f"{clip_feat_path}/{video_id}"):  # Check if the file is already processed
+        if os.path.exists(f"{clip_feat_path}/{video_name}"):  # Check if the file is already processed
             continue
         
         combine_features = combine_tensors(video_name)
