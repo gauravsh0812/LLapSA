@@ -98,7 +98,7 @@ def video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower, to
         video_spatio_temporal_features = pickle.load(file)
 
     # Convert the NumPy array to a PyTorch tensor
-    video_spatio_temporal_features = torch.from_numpy(video_spatio_temporal_features).half()  # Assuming float16
+    video_spatio_temporal_features = torch.from_numpy(video_spatio_temporal_features)
 
     print("shape:   ", video_spatio_temporal_features.shape)
 
