@@ -96,7 +96,7 @@ def video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower, to
     """
     print("video_path:  ", video_path)
     with open(video_path, 'rb') as file:
-        video_spatio_temporal_features = pickle.load(file).cuda()
+        video_spatio_temporal_features = pickle.load(file)
 
     # Move inputs to GPU
     input_ids = torch.as_tensor(inputs.input_ids).cuda()
