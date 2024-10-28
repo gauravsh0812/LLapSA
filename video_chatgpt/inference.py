@@ -94,6 +94,7 @@ def video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower, to
     """
     ADDING CODE TO DIRECTLY IMPORT THE VIDEO TENSORS
     """
+    print("video_path:  ", video_path)
     with open(video_path, 'rb') as file:
         video_spatio_temporal_features = pickle.load(file).cuda()
 
