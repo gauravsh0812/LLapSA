@@ -49,7 +49,7 @@ def run_inference(args):
 
     # Iterate over each sample in the ground truth file
     for sample in tqdm(gt_contents):
-        video_name = sample['video_name']+".pkl"
+        video_name = sample['video_id']+".pkl"
         sample_set = sample
         question = sample['q']
 
