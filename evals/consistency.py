@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 openai.api_key = args.api_key
 
-def annotate(qtn, pred, ans):
+def annotate(qtn1, qtn2, pred1, pred2, ans):
 
     """
     Evaluates question and answer pairs using GPT-3
@@ -43,9 +43,9 @@ def annotate(qtn, pred, ans):
                         "role": "user",
                         "content":
                             "Please evaluate the following video-based question-answer pair:\n\n"
-                            f"Question 1: {question1}\n"
-                            f"Question 2: {question2}\n"
-                            f"Correct Answer: {answer}\n"
+                            f"Question 1: {qtn1}\n"
+                            f"Question 2: {qtn2}\n"
+                            f"Correct Answer: {ans}\n"
                             f"Predicted Answer to Question 1: {pred1}\n"
                             f"Predicted Answer to Question 2: {pred2}\n\n"
                             "Provide your evaluation only as a consistency score where the consistency score is an integer value between 0 and 5, with 5 indicating the highest level of consistency. "

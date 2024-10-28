@@ -45,28 +45,31 @@ def run_inference(args):
     output_list = []  # List to store the output results
     conv_mode = args.conv_mode
 
-    video_formats = ['.mp4', '.avi', '.mov', '.mkv']
+    # video_formats = ['.mp4', '.avi', '.mov', '.mkv']
 
     # Iterate over each sample in the ground truth file
     for sample in tqdm(gt_contents):
-        video_name = sample['video_name']
+        video_name = sample['video_name']+".pkl"
         sample_set = sample
-        question = sample['Q']
+        question = sample['q']
 
         # Load the video file
-        for fmt in video_formats:  # Added this line
-            temp_path = os.path.join(args.video_dir, f"{video_name}{fmt}")
-            if os.path.exists(temp_path):
-                video_path = temp_path
-                break
+        # for fmt in video_formats:  # Added this line
+        # temp_path = os.path.join(args.video_dir, f"{video_name}{fmt}")
+        # if os.path.exists(temp_path):
+        #     video_path = temp_path
+        #     break
 
         # Check if the video exists
-        if video_path is not None:  # Modified this line
-            video_frames = load_video(video_path)
+        # if video_path is not None:  # Modified this line
+        #     video_frames = load_video(video_path)
 
         try:
             # Run inference on the video and add the output to the list
-            output = video_chatgpt_infer(video_frames, question, conv_mode, model, vision_tower,
+            # output = video_chatgpt_infer(video_frames, question, conv_mode, model, vision_tower,
+            #                                  tokenizer, image_processor, video_token_len)
+            video_path = os.path.join(args.video_dir, video_name)
+            output = video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower,
                                              tokenizer, image_processor, video_token_len)
             sample_set['pred'] = output
             output_list.append(sample_set)

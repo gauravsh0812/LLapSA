@@ -1,6 +1,6 @@
 from video_chatgpt.video_conversation import conv_templates, SeparatorStyle
 from video_chatgpt.model.utils import KeywordsStoppingCriteria
-import torch
+import torch, pickle
 
 # Define constants
 DEFAULT_VIDEO_TOKEN = "<video>"
@@ -43,7 +43,9 @@ def get_spatio_temporal_features_torch(features):
     return concat_tokens
 
 
-def video_chatgpt_infer(video_frames, question, conv_mode, model, vision_tower, tokenizer, image_processor, video_token_len):
+# def video_chatgpt_infer(video_frames, question, conv_mode, model, vision_tower, tokenizer, image_processor, video_token_len):
+def video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower, tokenizer, image_processor, video_token_len):
+    
     """
     Run inference using the Video-ChatGPT model.
 
@@ -77,17 +79,23 @@ def video_chatgpt_infer(video_frames, question, conv_mode, model, vision_tower, 
     # Tokenize the prompt
     inputs = tokenizer([prompt])
 
-    # Preprocess video frames and get image tensor
-    image_tensor = image_processor.preprocess(video_frames, return_tensors='pt')['pixel_values']
+    # # Preprocess video frames and get image tensor
+    # image_tensor = image_processor.preprocess(video_frames, return_tensors='pt')['pixel_values']
 
-    # Move image tensor to GPU and reduce precision to half
-    image_tensor = image_tensor.half().cuda()
+    # # Move image tensor to GPU and reduce precision to half
+    # image_tensor = image_tensor.half().cuda()
 
-    # Generate video spatio-temporal features
-    with torch.no_grad():
-        image_forward_outs = vision_tower(image_tensor, output_hidden_states=True)
-        frame_features = image_forward_outs.hidden_states[-2][:, 1:] # Use second to last layer as in LLaVA
-    video_spatio_temporal_features = get_spatio_temporal_features_torch(frame_features)
+    # # Generate video spatio-temporal features
+    # with torch.no_grad():
+    #     image_forward_outs = vision_tower(image_tensor, output_hidden_states=True)
+    #     frame_features = image_forward_outs.hidden_states[-2][:, 1:] # Use second to last layer as in LLaVA
+    # video_spatio_temporal_features = get_spatio_temporal_features_torch(frame_features)
+
+    """
+    ADDING CODE TO DIRECTLY IMPORT THE VIDEO TENSORS
+    """
+    with open(video_path, 'rb') as file:
+        video_spatio_temporal_features = pickle.load(file).cuda()
 
     # Move inputs to GPU
     input_ids = torch.as_tensor(inputs.input_ids).cuda()
