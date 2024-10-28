@@ -64,17 +64,17 @@ def run_inference(args):
         # if video_path is not None:  # Modified this line
         #     video_frames = load_video(video_path)
 
-        try:
+        # try:
             # Run inference on the video and add the output to the list
             # output = video_chatgpt_infer(video_frames, question, conv_mode, model, vision_tower,
             #                                  tokenizer, image_processor, video_token_len)
-            video_path = os.path.join(args.video_dir, video_name)
-            output = video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower,
-                                             tokenizer, image_processor, video_token_len)
-            sample_set['pred'] = output
-            output_list.append(sample_set)
-        except Exception as e:
-            print(f"Error processing video file '{video_name}': {e}")
+        video_path = os.path.join(args.video_dir, video_name)
+        output = video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower,
+                                            tokenizer, image_processor, video_token_len)
+        sample_set['pred'] = output
+        output_list.append(sample_set)
+        # except Exception as e:
+        #     print(f"Error processing video file '{video_name}': {e}")
 
     # Save the output list to a JSON file
     with open(os.path.join(args.output_dir, f"{args.output_name}.json"), 'w') as file:
