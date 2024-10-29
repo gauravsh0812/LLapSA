@@ -65,8 +65,8 @@ class CombineTensors(nn.Module):
                                                  start_dim=1, end_dim=2) # (100, 64*64, 384)
         
         sam_hidden_states_tensor = sam_hidden_states_tensor.permute(0,2,1)
-        sam_hidden_states_tensor = self.sam_hid_lin1(sam_hidden_states_tensor).permute(0,2,1) # (100, 257, 384)
-        sam_hidden_states_tensor = self.sam_hid_lin2(sam_hidden_states_tensor) # (100, 257, 1024)
+        sam_hidden_states_tensor = self.sam_hid_lin1(sam_hidden_states_tensor).permute(0,2,1) # (100, 256, 384)
+        sam_hidden_states_tensor = self.sam_hid_lin2(sam_hidden_states_tensor) # (100, 256, 1024)
 
         # concatenating
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(1)[:, 1:,:] # (100, 256, 1024)
@@ -74,6 +74,6 @@ class CombineTensors(nn.Module):
             (sam_hidden_states_tensor, mask1, mask2, mask3, vcgpt_features_tensor),
             dim=1)
         
-        combined_tesnor = self.combined_tensor_lin(combined_tesnor.permute(0,2,1)).permute(0,2,1) # (100, 257, 1024)
+        combined_tesnor = self.combined_tensor_lin(combined_tesnor.permute(0,2,1)).permute(0,2,1) # (100, 256, 1024)
 
         return combined_tesnor
