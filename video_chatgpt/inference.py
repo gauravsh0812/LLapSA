@@ -116,7 +116,7 @@ def video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower, to
     with torch.inference_mode():
         output_ids = model.generate(
             input_ids,
-            video_spatio_temporal_features=video_spatio_temporal_features,#.unsqueeze(0),
+            video_spatio_temporal_features=video_spatio_temporal_features.unsqueeze(0),
             do_sample=True,
             temperature=0.2,
             max_new_tokens=1024,
