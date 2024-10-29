@@ -66,8 +66,8 @@ def main():
     Main function to control the flow of the program.
     """
     
-    x, y = 6000,-1
-    n = 3
+    x, y = 0,2000
+    n = 0
     
     pred_path=args.predicted_file_path
     with open(pred_path, 'r', encoding='utf-8') as file:

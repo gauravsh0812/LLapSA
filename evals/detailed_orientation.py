@@ -8,7 +8,8 @@ parser = argparse.ArgumentParser(description="Training")
 
 parser.add_argument("--api_key", required=True, help="OpenAI API key")
 parser.add_argument("--openai_model", required=True, help="which openai model -- gpt-3.5-turbo or gpt-4o-mini")
-parser.add_argument("--predicted_file_path", required=True, help="file containing the predictions from trained model (Inference output file)")
+parser.add_argument("--predicted_file_path", required=True, help="file containing the predictions from trained model (Inference output file). \
+                    For example: outputs/inference_output.json")
 parser.add_argument("--output_dir", required=True, help="output directory")
 args = parser.parse_args()
 
