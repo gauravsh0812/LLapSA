@@ -80,11 +80,11 @@ class VideoChatGPTLlamaModel(LlamaModel):
 
         if (input_ids.shape[1] != 1 or self.training) and video_spatio_temporal_features is not None:
             
-            print("line 85 video_spatio_temporal_features shape: ", video_spatio_temporal_features.shape)
+            # print("line 85 video_spatio_temporal_features shape: ", video_spatio_temporal_features.shape)
             
             video_features = self.mm_projector(video_spatio_temporal_features)
 
-            print("line 85 video_features shape: ", video_features.shape)
+            # print("line 85 video_features shape: ", video_features.shape)
 
             dummy_video_features = torch.zeros(video_features.shape[1], 1024, device=inputs_embeds.device,
                                                dtype=inputs_embeds.dtype)
@@ -98,26 +98,26 @@ class VideoChatGPTLlamaModel(LlamaModel):
                 if (cur_input_ids == self.vision_config.vid_patch_token).sum() == 0:
                     # Multimodal LLM, but the current sample is not multimodal
 
-                    print("in condition 1......")
+                    # print("in condition 1......")
 
                     cur_input_embeds = cur_input_embeds + (0. * dummy_video_features).sum()
                     new_input_embeds.append(cur_input_embeds)
                     cur_video_idx += 1
                     continue
                 if self.vision_config.use_vid_start_end:
-                    print("in condition 2......")
+                    # print("in condition 2......")
                     if (cur_input_ids == self.vision_config.vid_start_token).sum() != (
                             cur_input_ids == self.vision_config.vid_end_token).sum():
                         raise ValueError("The number of video start tokens and video end tokens should be the same.")
                     video_start_tokens = torch.where(cur_input_ids == self.vision_config.vid_start_token)[0]
 
-                    print("video_start_tokens: ", video_start_tokens.shape)
+                    # print("video_start_tokens: ", video_start_tokens.shape)
 
                     for video_start_token_pos in video_start_tokens:
                         cur_video_features = video_features[cur_video_idx].to(device=cur_input_embeds.device)
                         num_patches = cur_video_features.shape[0]
 
-                        print("checking...", num_patches, video_start_token_pos)
+                        # print("checking...", num_patches, video_start_token_pos)
 
                         if cur_input_ids[video_start_token_pos + num_patches + 1] != self.vision_config.vid_end_token:
                             raise ValueError("The video end token should follow the video start token.")
@@ -140,7 +140,7 @@ class VideoChatGPTLlamaModel(LlamaModel):
                         cur_video_idx += 1
                     new_input_embeds.append(cur_new_input_embeds)
                 else:
-                    print("in condition 3......")
+                    # print("in condition 3......")
                     cur_video_features = video_features[cur_video_idx]
                     num_patches = cur_video_features.shape[0]
                     if (cur_input_ids == self.vision_config.vid_patch_token).sum() != num_patches:

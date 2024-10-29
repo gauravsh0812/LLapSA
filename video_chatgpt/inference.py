@@ -100,7 +100,7 @@ def video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower, to
     # Convert the NumPy array to a PyTorch tensor
     video_spatio_temporal_features = torch.from_numpy(video_spatio_temporal_features)
 
-    print("shape:   ", video_spatio_temporal_features.shape)
+    # print("shape:   ", video_spatio_temporal_features.shape)
 
     # Move to GPU if needed
     video_spatio_temporal_features = video_spatio_temporal_features.cuda()
