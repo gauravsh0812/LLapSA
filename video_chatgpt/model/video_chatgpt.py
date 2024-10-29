@@ -105,6 +105,9 @@ class VideoChatGPTLlamaModel(LlamaModel):
                             cur_input_ids == self.vision_config.vid_end_token).sum():
                         raise ValueError("The number of video start tokens and video end tokens should be the same.")
                     video_start_tokens = torch.where(cur_input_ids == self.vision_config.vid_start_token)[0]
+
+                    print("video_start_tokens: ", video_start_tokens.shape)
+
                     for video_start_token_pos in video_start_tokens:
                         cur_video_features = video_features[cur_video_idx].to(device=cur_input_embeds.device)
                         num_patches = cur_video_features.shape[0]
