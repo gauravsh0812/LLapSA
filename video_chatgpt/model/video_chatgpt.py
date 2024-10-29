@@ -88,8 +88,8 @@ class VideoChatGPTLlamaModel(LlamaModel):
             new_input_embeds = []
             cur_video_idx = 0
             for cur_input_ids, cur_input_embeds in zip(input_ids, inputs_embeds):
-                print(cur_input_ids.shape)
-                print(cur_input_embeds.shape)
+                # print(cur_input_ids.shape)
+                # print(cur_input_embeds.shape)
                 if (cur_input_ids == self.vision_config.vid_patch_token).sum() == 0:
                     # Multimodal LLM, but the current sample is not multimodal
 
