@@ -79,7 +79,9 @@ class VideoChatGPTLlamaModel(LlamaModel):
             inputs_embeds = self.embed_tokens(input_ids)
 
         if (input_ids.shape[1] != 1 or self.training) and video_spatio_temporal_features is not None:
-
+            
+            print("line 85 video_spatio_temporal_features shape: ", video_spatio_temporal_features.shape)
+            
             video_features = self.mm_projector(video_spatio_temporal_features)
 
             print("line 85 video_features shape: ", video_features.shape)
