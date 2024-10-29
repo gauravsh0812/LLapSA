@@ -108,6 +108,9 @@ class VideoChatGPTLlamaModel(LlamaModel):
                     for video_start_token_pos in video_start_tokens:
                         cur_video_features = video_features[cur_video_idx].to(device=cur_input_embeds.device)
                         num_patches = cur_video_features.shape[0]
+
+                        print("checking...", num_patches, video_start_token_pos)
+
                         if cur_input_ids[video_start_token_pos + num_patches + 1] != self.vision_config.vid_end_token:
                             raise ValueError("The video end token should follow the video start token.")
                         if orig_embeds_params is not None:
