@@ -152,10 +152,9 @@ class CombineTensors(nn.Module):
             combined_tesnor = torch.cat((s,v),dim=1)  # (20, 256*2, 1024)
             combined_tesnor = self.combined_tensor_lin(combined_tesnor.permute(0,2,1)).permute(0,2,1)  # (20, 256, 1024)
             combined_outputs = self.xfmer_enc(combined_tesnor)
-            print("combvined_output sahpe: ", combined_outputs.shape)
+            tnsrs.append(combined_outputs)
 
-            exit()
-            tnsrs.append(combined_tesnor)
+        final_output = torch.stack(tnsrs, dim=0)
+        print(final_output.shape)
         exit()
-
         return combined_tesnor
