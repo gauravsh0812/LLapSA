@@ -97,7 +97,7 @@ class VideoChatGPTLlamaModel(LlamaModel):
             batch_size = video_features.size(0)  # Get batch size
             hidden_size = video_features.size(2)  # Get hidden size
             num_queries = self.query_embeds.size(0)  # Number of queries (should match what model expects)
-
+            print("qembeds: ", self.query_embeds.shape)
             qembeds = self.query_embeds.unsqueeze(0).expand(batch_size,num_queries,hidden_size)
             video_features = self.qmodel(encoderencoder_hidden_states=video_features,
                                         query_embeds=qembeds)
