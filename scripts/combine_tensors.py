@@ -154,7 +154,7 @@ class CombineTensors(nn.Module):
             combined_outputs = self.xfmer_enc(combined_tesnor)
             tnsrs.append(combined_outputs)
 
-        final_output = torch.stack(tnsrs, dim=0)
+        final_output = torch.stack(tnsrs, dim=0).reshape(100,256,1024)
         print(final_output.shape)
         exit()
         return combined_tesnor
