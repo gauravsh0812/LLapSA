@@ -47,6 +47,7 @@ def main():
             continue
         
         combine_features = combine_tensors(video_name)
+        break
         combine_features = combine_features.detach().cpu().numpy().astype("float16")
             
         video_features[video_id] = get_spatio_temporal_features(combine_features)
@@ -58,7 +59,7 @@ def main():
                 with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
                     pickle.dump(features, f)
             video_features = {}
-
+    exit()
     for key in video_features.keys():
         features = video_features[key]
         with open(f"{clip_feat_path}/{key}.pkl", 'wb') as f:
