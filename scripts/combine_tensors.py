@@ -30,13 +30,11 @@ class Transformer_Encoder(nn.Module):
         hid_dim,
         nheads,
         dropout,
-        device,
         n_xfmer_encoder_layers,
         dim_feedfwd,
     ):
         super(Transformer_Encoder, self).__init__()
         self.hid_dim = hid_dim
-        self.device = device
         max_len = 256
         self.pos = PositionalEncoding(hid_dim, dropout, max_len)
 
