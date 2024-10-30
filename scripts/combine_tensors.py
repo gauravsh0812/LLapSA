@@ -56,7 +56,7 @@ class Transformer_Encoder(nn.Module):
 
     def forward(self, x):
         # x: (B, 256, 1024)
-        x *= math.sqrt(self.dec_hid_dim)  # (256, B, 1024)
+        x *= math.sqrt(self.hid_dim)  # (256, B, 1024)
 
         # adding positoinal encoding
         pos_src = self.pos(x)  # (256, B,1024)
@@ -74,7 +74,7 @@ class CombineTensors(nn.Module):
         self.vcgpt_features_path = os.path.join(root_path, "vcgpt_features")
 
         self.xfmer_enc = Transformer_Encoder(hid_dim=1024, nheads=4, dropout=0.1,
-                                             n_xfmer_encoder_layers=4, dim_feedfwd=1024)
+                                             n_xfmer_encoder_layers=4, dim_feedfwd=1024).cuda()
         for param in self.xfmer_enc.parameters():
             param.requires_grad = False  # Freeze all parameters
 
