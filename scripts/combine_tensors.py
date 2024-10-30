@@ -155,6 +155,4 @@ class CombineTensors(nn.Module):
             tnsrs.append(combined_outputs)
 
         final_output = torch.stack(tnsrs, dim=0).reshape(100,256,1024)
-        print(final_output.shape)
-        exit()
-        return combined_tesnor
+        return final_output
