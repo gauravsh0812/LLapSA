@@ -87,7 +87,7 @@ class CombineTensors(nn.Module):
         tnsrs = []
         for s,v in zip(sam_tnsrs, vcgpt_tsnrs):
             combined_tesnor = torch.cat((s,v),dim=1)  # (20, 256*2, 1024)
-            combined_tesnor = self.combined_tensor_lin(combined_tesnor)  # (20, 256, 1024)
+            combined_tesnor = self.combined_tensor_lin(combined_tesnor.permute(0,2,1)).permute(0,2,1)  # (20, 256, 1024)
             combined_outputs = self.vit_model(combined_tesnor)
             print("combvined_output sahpe: ", combined_outputs.shape)
 

@@ -23,7 +23,7 @@ def get_spatio_temporal_features(features, num_temporal_tokens=100):
 def parse_args():
     parser = argparse.ArgumentParser(description="Training")
 
-    parser.add_argument("--root_path", required=True, help="Path to read the videos from.")
+    parser.add_argument("--root_path", required=True, help="Path to directory where all sam and vcgpt features are saved.")
     parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
     args = parser.parse_args()
 
