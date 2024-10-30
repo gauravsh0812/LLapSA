@@ -45,10 +45,10 @@ class VideoChatGPTLlamaModel(LlamaModel):
 
         # INITIALIZING Q-FORMER 
         qconfig = Blip2QFormerConfig(
-            hidden_size=1024,
-            num_hidden_layers=8,
-            num_attention_heads=8,
-            encoder_hidden_size=1024,
+            hidden_size=1024*4,
+            num_hidden_layers=16,
+            num_attention_heads=16,
+            encoder_hidden_size=1024*4,
         )
         self.qmodel = Blip2QFormerModel(qconfig)
         self.query_embeds = nn.Parameter(torch.randn(356,1024))
