@@ -92,7 +92,8 @@ class VideoChatGPTLlamaModel(LlamaModel):
 
         if (input_ids.shape[1] != 1 or self.training) and video_spatio_temporal_features is not None:
             video_features = self.mm_projector(video_spatio_temporal_features)
-            
+            print("vf shape: ", video_features.shape)
+
             # ADDING Q-FORMER
             batch_size = video_features.size(0)  # Get batch size
             hidden_size = video_features.size(2)  # Get hidden size
