@@ -46,8 +46,8 @@ class VideoChatGPTLlamaModel(LlamaModel):
         # INITIALIZING Q-FORMER 
         qconfig = Blip2QFormerConfig(
             hidden_size=1024,
-            num_hidden_layers=12,
-            num_attention_heads=12,
+            num_hidden_layers=8,
+            num_attention_heads=8,
             encoder_hidden_size=1024,
         )
         self.qmodel = Blip2QFormerModel(qconfig)
