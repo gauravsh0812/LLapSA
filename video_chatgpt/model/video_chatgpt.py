@@ -51,7 +51,7 @@ class VideoChatGPTLlamaModel(LlamaModel):
             encoder_hidden_size=1024*4,
         )
         self.qmodel = Blip2QFormerModel(qconfig)
-        self.query_embeds = nn.Parameter(torch.randn(356,1024))
+        self.query_embeds = nn.Parameter(torch.randn(356,1024*4))
 
 
     def initialize_vision_modules(self, pretrain_mm_mlp_adapter=None, tune_mm_mlp_adapter=False):
@@ -99,7 +99,7 @@ class VideoChatGPTLlamaModel(LlamaModel):
             hidden_size = video_features.size(2)  # Get hidden size
             num_queries = self.query_embeds.size(0)  # Number of queries (should match what model expects)
             qembeds = self.query_embeds.unsqueeze(0).expand(batch_size,num_queries,hidden_size)
-            video_features = self.qmodel(encoderencoder_hidden_states=video_features,
+            video_features = self.qmodel(encoder_hidden_states=video_features,
                                         query_embeds=qembeds)
 
             print("after q-former: ", video_features.shape)
