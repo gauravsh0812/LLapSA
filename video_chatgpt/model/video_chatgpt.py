@@ -2,7 +2,13 @@ from typing import List, Optional, Tuple, Union
 import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss
-from transformers import AutoConfig, AutoModelForCausalLM, LlamaConfig, LlamaModel, LlamaForCausalLM
+from transformers import (AutoConfig, 
+                          AutoModelForCausalLM, 
+                          LlamaConfig, 
+                          LlamaModel, 
+                          LlamaForCausalLM, 
+                          Blip2QFormerModel, 
+                          Blip2QFormerConfig)
 from transformers.modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast
 
 DEFAULT_VIDEO_TOKEN = "<video>"
@@ -21,7 +27,6 @@ class VisionConfig:
         self.vid_end_token = None
         self.vid_patch_token = None
 
-
 class VideoChatGPTConfig(LlamaConfig):
     model_type = "VideoChatGPT"
 
@@ -37,6 +42,17 @@ class VideoChatGPTLlamaModel(LlamaModel):
 
         if hasattr(config, "use_mm_proj"):
             self.mm_projector = nn.Linear(config.mm_hidden_size, config.hidden_size)
+
+        # INITIALIZING Q-FORMER 
+        qconfig = Blip2QFormerConfig(
+            hidden_size=1024,
+            num_hidden_layers=12,
+            num_attention_heads=12,
+            encoder_hidden_size=1024,
+        )
+        self.qmodel = Blip2QFormerModel(qconfig)
+        self.query_embeds = nn.Parameter(torch.randn(356,1024))
+
 
     def initialize_vision_modules(self, pretrain_mm_mlp_adapter=None, tune_mm_mlp_adapter=False):
         vision_config = self.vision_config
@@ -70,21 +86,23 @@ class VideoChatGPTLlamaModel(LlamaModel):
             return_dict: Optional[bool] = None,
     ) -> Union[Tuple, BaseModelOutputWithPast]:
         orig_embeds_params = getattr(self, 'orig_embeds_params', None)
-        # if orig_embeds_params is not None:
-        #     orig_embeds_params = orig_embeds_params[0]
-        #     with torch.no_grad():
-        #         self.get_input_embeddings().weight.data[:-2] = orig_embeds_params[:-2].data
 
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)
 
         if (input_ids.shape[1] != 1 or self.training) and video_spatio_temporal_features is not None:
-            
-            # print("line 85 video_spatio_temporal_features shape: ", video_spatio_temporal_features.shape)
-            
             video_features = self.mm_projector(video_spatio_temporal_features)
+            
+            # ADDING Q-FORMER
+            batch_size = video_features.size(0)  # Get batch size
+            hidden_size = video_features.size(2)  # Get hidden size
+            num_queries = self.query_embeds.size(0)  # Number of queries (should match what model expects)
 
-            # print("line 85 video_features shape: ", video_features.shape)
+            qembeds = self.query_embeds.unsqueeze(0).expand(batch_size,num_queries,hidden_size)
+            video_features = self.qmodel(encoderencoder_hidden_states=video_features,
+                                        query_embeds=qembeds)
+
+            print("after q-former: ", video_features.shape)
 
             dummy_video_features = torch.zeros(video_features.shape[1], 1024, device=inputs_embeds.device,
                                                dtype=inputs_embeds.dtype)
@@ -93,31 +111,21 @@ class VideoChatGPTLlamaModel(LlamaModel):
             new_input_embeds = []
             cur_video_idx = 0
             for cur_input_ids, cur_input_embeds in zip(input_ids, inputs_embeds):
-                # print(cur_input_ids.shape)
-                # print(cur_input_embeds.shape)
                 if (cur_input_ids == self.vision_config.vid_patch_token).sum() == 0:
-                    # Multimodal LLM, but the current sample is not multimodal
-
-                    # print("in condition 1......")
-
                     cur_input_embeds = cur_input_embeds + (0. * dummy_video_features).sum()
                     new_input_embeds.append(cur_input_embeds)
                     cur_video_idx += 1
                     continue
+
                 if self.vision_config.use_vid_start_end:
-                    # print("in condition 2......")
                     if (cur_input_ids == self.vision_config.vid_start_token).sum() != (
                             cur_input_ids == self.vision_config.vid_end_token).sum():
                         raise ValueError("The number of video start tokens and video end tokens should be the same.")
                     video_start_tokens = torch.where(cur_input_ids == self.vision_config.vid_start_token)[0]
 
-                    # print("video_start_tokens: ", video_start_tokens.shape)
-
                     for video_start_token_pos in video_start_tokens:
                         cur_video_features = video_features[cur_video_idx].to(device=cur_input_embeds.device)
                         num_patches = cur_video_features.shape[0]
-
-                        # print("checking...", num_patches, video_start_token_pos)
 
                         if cur_input_ids[video_start_token_pos + num_patches + 1] != self.vision_config.vid_end_token:
                             raise ValueError("The video end token should follow the video start token.")
