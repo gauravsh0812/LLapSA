@@ -1,5 +1,7 @@
 import os, torch, pickle
 import torch.nn as nn
+from transformers import ViTModel
+
 
 class CombineTensors(nn.Module):
     def __init__(self, root_path):
@@ -7,7 +9,12 @@ class CombineTensors(nn.Module):
         self.sam_hidden_states_path = os.path.join(root_path, "sam_hidden_states")
         self.sam_preds_path = os.path.join(root_path, "sam_preds")
         self.vcgpt_features_path = os.path.join(root_path, "vcgpt_features")
-        
+
+        self.vit_model = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k")
+        self.vit_model.eval()
+        for param in self.vit_model.parameters():
+            param.requires_grad = False  # Freeze all parameters
+
         # dealing with sam hidden states
         self.sam_hid_lin1 = nn.Sequential(
             nn.Linear(64*64, 1024), 
@@ -20,7 +27,12 @@ class CombineTensors(nn.Module):
         self.sam_pred_lin2 = nn.Linear(256, 1024)
 
         # combined tensor 
-        self.combined_tensor_lin = nn.Linear(256*5, 256)
+        self.combined_tensor_lin = nn.Linear(256*2, 256)
+
+    def split_tensor(self,tensor):
+        # Split into 5 tensors of shape (20, x, y)
+        split_tensors = torch.split(tensor, 20, dim=0)
+        return split_tensors
 
     def forward(self, video_name):
         # pkl paths 
@@ -70,10 +82,17 @@ class CombineTensors(nn.Module):
 
         # concatenating
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(1)[:, 1:,:] # (100, 256, 1024)
-        combined_tesnor = torch.cat(
-            (sam_hidden_states_tensor, mask1, mask2, mask3, vcgpt_features_tensor),
-            dim=1)
-        
-        combined_tesnor = self.combined_tensor_lin(combined_tesnor.permute(0,2,1)).permute(0,2,1) # (100, 256, 1024)
+
+        sam_tnsrs, vcgpt_tsnrs = self.split_tensor(sam_hidden_states_tensor), self.split_tensor(vcgpt_features_tensor)
+        tnsrs = []
+        for s,v in zip(sam_tnsrs, vcgpt_tsnrs):
+            combined_tesnor = torch.cat((s,v),dim=1)  # (20, 256*2, 1024)
+            combined_tesnor = self.combined_tensor_lin(combined_tesnor)  # (20, 256, 1024)
+            combined_outputs = self.vit_model(combined_tesnor)
+            print("combvined_output sahpe: ", combined_outputs.shape)
+
+            exit()
+            tnsrs.append(combined_tesnor)
+        exit()
 
         return combined_tesnor
