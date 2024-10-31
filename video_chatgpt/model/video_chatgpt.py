@@ -93,6 +93,13 @@ class VideoChatGPTLlamaModel(LlamaModel):
         if (input_ids.shape[1] != 1 or self.training) and video_spatio_temporal_features is not None:
             video_features = self.mm_projector(video_spatio_temporal_features)  
 
+            if torch.isinf(video_spatio_temporal_features).any() or torch.isnan(video_spatio_temporal_features).any():
+                print("Warning: video_features contains inf or nan values!")
+                print(f"Inf count: {torch.isinf(video_spatio_temporal_features).sum().item()}")
+                print(f"Nan count: {torch.isnan(video_spatio_temporal_features).sum().item()}")
+            else:
+                print("NO INF OR NAN.......")   
+
             # ADDING Q-FORMER
             batch_size = video_features.size(0)  # Get batch size
             hidden_size = video_features.size(2)  # Get hidden size
