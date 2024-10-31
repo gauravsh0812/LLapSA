@@ -96,6 +96,9 @@ def video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower, to
     """
     with open(video_path, 'rb') as file:
         video_spatio_temporal_features = pickle.load(file)
+
+    # Convert the NumPy array to a PyTorch tensor
+    video_spatio_temporal_features = torch.from_numpy(video_spatio_temporal_features)
     
     if torch.isinf(video_spatio_temporal_features).any() or torch.isnan(video_spatio_temporal_features).any():
         print("Warning: video_features contains inf or nan values!")
@@ -103,9 +106,6 @@ def video_chatgpt_infer(video_path, question, conv_mode, model, vision_tower, to
         print(f"Nan count: {torch.isnan(video_spatio_temporal_features).sum().item()}")
     else:
         print("NO INF OR NAN.......")    
-
-    # Convert the NumPy array to a PyTorch tensor
-    video_spatio_temporal_features = torch.from_numpy(video_spatio_temporal_features)
 
     # print("shape:   ", video_spatio_temporal_features.shape)
 
