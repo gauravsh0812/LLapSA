@@ -1,9 +1,11 @@
-import os, pickle, tqdm, multiprocessing
+from tqdm import tqdm
+import os, pickle
+import multiprocessing
 
 def main(s):
     sam_hids = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states"
     vcgpt = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/vcgpt_features"
-    
+
     with open(os.path.join(sam_hids,s), 'rb') as file:
         sam_tnsr = pickle.load(file).cuda()
     
@@ -15,7 +17,7 @@ def main(s):
     with open(f"/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/stacked_sam_vcgpt/{s}.pkl", 'wb') as f:
         pickle.dump(final, f)    
 
-with multiprocessing.Pool(150) as pool:
-    sam_hids = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states"
-    pool.map(main, os.listdir(sam_hids))
-
+if __name__ == '__main__':
+	with multiprocessing.Pool(processes=150) as pool:
+	    filenames = os.listdir("/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states")
+        results = list(tqdm(pool.imap(main, filenames), total=len(filenames)))
