@@ -4,7 +4,8 @@ import pickle
 import argparse
 import numpy as np
 from tqdm import tqdm
-from scripts.combine_tensors import CombineTensors
+# from scripts.combine_tensors import CombineTensors
+from scripts.tensor_fusion import TensorFusion
 
 def get_spatio_temporal_features(features, num_temporal_tokens=100):
     t, s, c = features.shape
@@ -37,7 +38,8 @@ def main():
     clip_feat_path = args.clip_feat_path
     os.makedirs(clip_feat_path, exist_ok=True)
 
-    combine_tensors = CombineTensors(root_path).cuda().to(torch.float16)
+    # combine_tensors = CombineTensors(root_path).cuda().to(torch.float16)
+    combine_tensors = TensorFusion(root_path).cuda().to(torch.float16)
 
     video_features = {}
     counter = 0
@@ -46,7 +48,8 @@ def main():
         if os.path.exists(f"{clip_feat_path}/{video_name}"):  # Check if the file is already processed
             continue
         
-        combine_features = combine_tensors(video_name)
+        # combine_features = combine_tensors(video_name)
+        combine_features = TensorFusion(video_name)
         
         combine_features = combine_features.detach().cpu().numpy().astype("float16")
             

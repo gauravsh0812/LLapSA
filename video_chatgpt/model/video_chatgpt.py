@@ -94,19 +94,19 @@ class VideoChatGPTLlamaModel(LlamaModel):
             video_features = self.mm_projector(video_spatio_temporal_features)     
 
             # ADDING Q-FORMER
-            batch_size = video_features.size(0)  # Get batch size
-            hidden_size = video_features.size(2)  # Get hidden size
-            num_queries = self.query_embeds.size(0)  # Number of queries (should match what model expects)
-            qembeds = self.query_embeds.unsqueeze(0).expand(batch_size,num_queries,hidden_size)
-            video_features = self.qmodel(encoder_hidden_states=video_features,
-                                        query_embeds=qembeds).last_hidden_state  # (4, 356, 4096) same as video_features
+            # batch_size = video_features.size(0)  # Get batch size
+            # hidden_size = video_features.size(2)  # Get hidden size
+            # num_queries = self.query_embeds.size(0)  # Number of queries (should match what model expects)
+            # qembeds = self.query_embeds.unsqueeze(0).expand(batch_size,num_queries,hidden_size)
+            # video_features = self.qmodel(encoder_hidden_states=video_features,
+            #                             query_embeds=qembeds).last_hidden_state  # (4, 356, 4096) same as video_features
             
-            if torch.isinf(video_features).any() or torch.isnan(video_features).any():
-                print("Warning: video_features contains inf or nan values!")
-                print(f"Inf count: {torch.isinf(video_features).sum().item()}")
-                print(f"Nan count: {torch.isnan(video_features).sum().item()}")
-            else:
-                print("NO INF OR NAN.......")
+            # if torch.isinf(video_features).any() or torch.isnan(video_features).any():
+            #     print("Warning: video_features contains inf or nan values!")
+            #     print(f"Inf count: {torch.isinf(video_features).sum().item()}")
+            #     print(f"Nan count: {torch.isnan(video_features).sum().item()}")
+            # else:
+            #     print("NO INF OR NAN.......")
 
 
             dummy_video_features = torch.zeros(video_features.shape[1], 1024, device=inputs_embeds.device,
