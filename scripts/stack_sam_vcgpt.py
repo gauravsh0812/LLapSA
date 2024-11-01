@@ -1,9 +1,9 @@
-import os, torch, pickle
+import os, torch, pickle, tqdm
 
 sam_hids = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states"
 vcgpt = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/vcgpt_features"
 
-for s in os.listdir(sam_hids):
+for s in tqdm.tqdm(os.listdir(sam_hids)):
 
     with open(os.path.join(sam_hids,s), 'rb') as file:
         sam_tnsr = pickle.load(file).cuda()
