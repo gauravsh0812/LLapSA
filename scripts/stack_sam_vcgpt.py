@@ -11,7 +11,7 @@ for s in tqdm.tqdm(os.listdir(sam_hids)):
     with open(os.path.join(vcgpt,s), 'rb') as file:
         vcgpt_tnsr = pickle.load(file).cuda()
 
-    final = torch.stack((sam_tnsr, vcgpt_tnsr), dim=0)
+    final = (sam_tnsr, vcgpt_tnsr)
 
     with open(f"/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/stacked_sam_vcgpt/{s}.pkl", 'wb') as f:
         pickle.dump(final, f)    
