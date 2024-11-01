@@ -420,7 +420,7 @@ class LazySupervisedDataset(Dataset):
         # video exist in the data
         if 'video' in self.list_data_dict[i]:
             data_dict["video"] = features
-
+            
         return data_dict
 
 
