@@ -17,7 +17,6 @@ def main(s):
     with open(f"/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/stacked_sam_vcgpt/{s}.pkl", 'wb') as f:
         pickle.dump(final, f)    
 
-if __name__ == '__main__':
-	with multiprocessing.Pool(processes=150) as pool:
-	    filenames = os.listdir("/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states")
-        results = list(tqdm(pool.imap(main, filenames), total=len(filenames)))
+filenames = os.listdir("/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states")
+with multiprocessing.Pool(processes=150) as pool:
+    results = list(tqdm(pool.imap(main, filenames), total=len(filenames)))
