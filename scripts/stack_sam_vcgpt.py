@@ -19,4 +19,5 @@ def main(s):
 
 filenames = os.listdir("/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states")[:10]
 for s in tqdm.tqdm(filenames):
+    print(s)
     main(s)
