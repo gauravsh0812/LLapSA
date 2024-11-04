@@ -1,4 +1,4 @@
-from tqdm import tqdm
+import tqdm
 import os, pickle
 
 sam_hids = "/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states"
@@ -18,6 +18,6 @@ def main(s):
         pickle.dump(final, f)    
 
 filenames = os.listdir("/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states")[:3]
-for s in tqdm.tqdm(filenames):
+for s in tqdm.tqdm(filenames, total=len(filenames)):
     print(s)
     main(s)
