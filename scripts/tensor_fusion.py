@@ -94,13 +94,9 @@ class TensorFusion(nn.Module):
         sam_hidden_states_tensor = sam_hidden_states_tensor.squeeze(2) # (B, 100, 64, 64, 384)
         sam_hidden_states_tensor = torch.flatten(sam_hidden_states_tensor, 
                                                  start_dim=2, end_dim=3) # (B, 100, 64*64, 384)
-        
-        sam_hidden_states_tensor = self.projection1(sam_hidden_states_tensor)
-        sam_hidden_states_tensor = self.projection2(sam_hidden_states_tensor.permute(0,1,3,2)).permute(0,1,3,2) # (B, 100, 256, 384)
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(2)[:,:,1:,:] # (B, 100, 256, 1024)
 
         # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
-
         
         final_vision_tensor = []
         for b in range(sam_hidden_states_tensor.shape[0]):
@@ -108,6 +104,9 @@ class TensorFusion(nn.Module):
             # it will have same shape as of vcgpt_features_tensor -- (100, 256, 1024)
             temp_vcgpt_features_tensor = vcgpt_features_tensor[b,:,:,:]
             temp_sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
+
+            temp_sam_hidden_states_tensor = self.projection1(temp_sam_hidden_states_tensor)
+            temp_sam_hidden_states_tensor = self.projection2(temp_sam_hidden_states_tensor.permute(0,2,1)).permute(0,2,1) # (100, 256, 1024)
 
             fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)
             
