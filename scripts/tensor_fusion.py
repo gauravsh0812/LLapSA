@@ -114,8 +114,9 @@ class TensorFusion(nn.Module):
             for i in range(0,temp_vcgpt_features_tensor.shape[0],25):
                 print("i: ", i)
                 _fc = self.attention_module(temp_vcgpt_features_tensor[i:i+25,:,:], temp_sam_hidden_states_tensor[i:i+25, :, :])
-                print(_fc.shape)
-
+                fc.append(_fc)
+            fc = torch.stack(fc, dim=0)
+            
             # cross attention on sam features using clip features
             # the shape will be == sam_hidden... shape -- (100, 4096, 1024)
             fs = self.attention_module(temp_sam_hidden_states_tensor, temp_vcgpt_features_tensor)
