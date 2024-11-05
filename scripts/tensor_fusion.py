@@ -116,14 +116,14 @@ class TensorFusion(nn.Module):
             fcs = []
             fss = []
             for i in range(0, temp_sam_hidden_states_tensor.shape[0], 20):
-                _fc = self.attention_module(temp_vcgpt_features_tensor[i:i+25, :, :], 
-                                            temp_sam_hidden_states_tensor[i:i+25, :, :])
+                _fc = self.attention_module(temp_vcgpt_features_tensor[i:i+20, :, :], 
+                                            temp_sam_hidden_states_tensor[i:i+20, :, :])
                 fcs.append(_fc)
             
                 # cross attention on sam features using clip features
                 # the shape will be == sam_hidden... shape -- (100, 256, 1024)
-                _fs = self.attention_module(temp_sam_hidden_states_tensor[i:i+25, :, :], 
-                                            temp_vcgpt_features_tensor[i:i+25, :, :])
+                _fs = self.attention_module(temp_sam_hidden_states_tensor[i:i+20, :, :], 
+                                            temp_vcgpt_features_tensor[i:i+20, :, :])
                 fss.append(_fs)
 
             fc = torch.cat([fcs[0], fcs[1], fcs[2], fcs[3], fcs[4]], dim=0)
@@ -155,6 +155,7 @@ class TensorFusion(nn.Module):
 
         final_vision_tensor = torch.stack(final_vision_tensor, dim=0) # (B, 100+256, 1024)
         print(final_vision_tensor.shape)
+        exit()
         return final_vision_tensor
 
 
