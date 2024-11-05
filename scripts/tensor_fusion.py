@@ -36,7 +36,11 @@ class TensorFusion(nn.Module):
         super(TensorFusion,self).__init__()
 
         # Instantiate and use the attention module
-        self.projection = nn.Linear(384, 1024)
+        self.projection1 = nn.Linear(384, 1024)
+        self.projection2 = nn.Sequential(
+            nn.Linear(64*64, 1024),
+            nn.Linear(1024, 256),
+        )
         self.attention_module = AttentionModule(embed_dim_f1=1024)        
         self.lin_mat = nn.Linear(4096, 1024)
         self.final_lin = nn.Sequential(
@@ -97,7 +101,8 @@ class TensorFusion(nn.Module):
         sam_hidden_states_tensor = torch.flatten(sam_hidden_states_tensor, 
                                                  start_dim=2, end_dim=3) # (B, 100, 64*64, 384)
         
-        sam_hidden_states_tensor = self.projection(sam_hidden_states_tensor)
+        sam_hidden_states_tensor = self.projection1(sam_hidden_states_tensor)
+        sam_hidden_states_tensor = self.projection2(sam_hidden_states_tensor.permute(0,1,3,2)).permute(0,1,3,2) # (B, 100, 256, 384)
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(2)[:,:,1:,:] # (B, 100, 256, 1024)
 
         # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
@@ -110,23 +115,16 @@ class TensorFusion(nn.Module):
             temp_vcgpt_features_tensor = vcgpt_features_tensor[b,:,:,:]
             temp_sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
 
-            fc = []
-            for i in range(0,temp_vcgpt_features_tensor.shape[0],25):
-                print("i: ", i)
-                _fc = self.attention_module(temp_vcgpt_features_tensor[i:i+25,:,:], temp_sam_hidden_states_tensor[i:i+25, :, :])
-                fc.append(_fc)
-            fc = torch.stack(fc, dim=0)
+            fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)
             
             # cross attention on sam features using clip features
-            # the shape will be == sam_hidden... shape -- (100, 4096, 1024)
+            # the shape will be == sam_hidden... shape -- (100, 256, 1024)
             fs = self.attention_module(temp_sam_hidden_states_tensor, temp_vcgpt_features_tensor)
 
-            # print(fs.shape)
+            print("fc, fs: ", fc.shape, fs.shape)
 
             # element wise multiplication
-            # Repeat tensor1 along the sequence length dimension to match tensor2
-            fc_expanded = fc.repeat_interleave(16, dim=1)  # Shape becomes (100, 4096, 1024)
-            elementwise_result = fc_expanded * fs  # torch.Size([100, 4096, 1024])
+            elementwise_result = fc * fs  # torch.Size([100, 256, 1024])
             # print("Element-wise multiplication result shape:", elementwise_result.shape)
 
             # bmm
