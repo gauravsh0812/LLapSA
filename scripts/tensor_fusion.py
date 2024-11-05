@@ -104,7 +104,7 @@ class TensorFusion(nn.Module):
         
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(2)[:,:,1:,:] # (B, 100, 256, 1024)
 
-        # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
+        print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
         final_vision_tensor = []
         for b in range(sam_hidden_states_tensor.shape[0]):
             # cross attention on clip feature using sam features
