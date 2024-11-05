@@ -96,18 +96,21 @@ class TensorFusion(nn.Module):
                                                  start_dim=2, end_dim=3) # (B, 100, 64*64, 384)
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(2)[:,:,1:,:] # (B, 100, 256, 1024)
 
-        # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
-        
+        sams = []
+        for i in (0, range(sam_hidden_states_tensor.shape[1]),25):
+            _sam_hidden_states_tensor = sam_hidden_states_tensor[:, i:i+25, :, :]
+            _sam_hidden_states_tensor = self.projection1(_sam_hidden_states_tensor)
+            _sam_hidden_states_tensor = self.projection2(_sam_hidden_states_tensor.permute(0,2,1)).permute(0,2,1) # (100, 256, 1024)
+        sams.append(_sam_hidden_states_tensor)
+        sam_hidden_states_tensor = torch.stack(sams, dim=0)
+        print(sam_hidden_states_tensor.shape)
+
         final_vision_tensor = []
         for b in range(sam_hidden_states_tensor.shape[0]):
             # cross attention on clip feature using sam features
             # it will have same shape as of vcgpt_features_tensor -- (100, 256, 1024)
             temp_vcgpt_features_tensor = vcgpt_features_tensor[b,:,:,:]
             temp_sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
-
-            temp_sam_hidden_states_tensor = self.projection2(temp_sam_hidden_states_tensor.permute(0,2,1)).permute(0,2,1) # (100, 256, 1024)
-            temp_sam_hidden_states_tensor = self.projection1(temp_sam_hidden_states_tensor)
-            
 
             fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)
             
