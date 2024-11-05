@@ -146,9 +146,11 @@ class TensorFusion(nn.Module):
 
             # getting to the final format of (100, 256, 1024)
             final_tensor = self.final_lin(mat_results.permute(0,2,1)).permute(0,2,1)
+            print("ft 1: ", final_tensor.shape)
 
             # spatial and temporal pooling
             final_tensor = self.get_spatio_temporal_features(final_tensor)
+            print("ft 2: ", final_tensor.shape)
             final_vision_tensor.append(final_tensor)
 
         final_vision_tensor = torch.stack(final_vision_tensor, dim=0) # (B, 100+256, 1024)
