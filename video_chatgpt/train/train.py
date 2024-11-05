@@ -459,12 +459,15 @@ class DataCollatorForSupervisedDataset(object):
             
             if ((all(x[0] is not None and x[0].shape == features[0][0].shape for x in features)) and
                 (all(x[1] is not None and x[1].shape == features[0][1].shape for x in features))):
-                print("THIS CONDITION:.......")
-                batch['video_sam_features'] = torch.stack([x[0] for x in features])
-                batch['video_vcgpt_features'] = torch.stack([x[1] for x in features])
+                # batch['video_sam_features'] = torch.stack([x[0] for x in features])
+                # batch['video_vcgpt_features'] = torch.stack([x[1] for x in features])
+                batch['video_spatio_temporal_features'] = (torch.stack([x[0] for x in features]),
+                                                           torch.stack([x[1] for x in features]))
             else:
-                batch['video_sam_features'] = [x[0] for x in features]
-                batch['video_vcgpt_features'] = [x[1] for x in features]
+                # batch['video_sam_features'] = [x[0] for x in features]
+                # batch['video_vcgpt_features'] = [x[1] for x in features]
+                batch['video_spatio_temporal_features'] = ([x[0] for x in features],
+                                                           [x[1] for x in features])
 
             # ORIGINAL
 
