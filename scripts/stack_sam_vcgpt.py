@@ -14,7 +14,7 @@ def main(s):
 
     final = (sam_tnsr, vcgpt_tnsr)
 
-    with open(f"/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/stacked_sam_vcgpt/{s}.pkl", 'wb') as f:
+    with open(f"/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/stacked_sam_vcgpt/{s}", 'wb') as f:
         pickle.dump(final, f)    
 
 filenames = os.listdir("/data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos/sam_hidden_states")[:5000]
