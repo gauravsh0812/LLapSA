@@ -23,7 +23,6 @@ class AttentionModule(nn.Module):
         
         # Step 2: Cross-Attention with layer normalization
         Fc_1_ln = self.layer_norm_fc1(Fc_1)  # Layer normalization on Fc_1
-        # print(Fc_1_ln.shape, Fs.shape)
         Fc_cross_att, _ = self.cross_attention(Fc_1_ln.transpose(0, 1), 
                                          Fs.transpose(0, 1), 
                                          Fs.transpose(0, 1))  # Cross-attention on Fc_1_ln and Fs
@@ -110,7 +109,11 @@ class TensorFusion(nn.Module):
             # it will have same shape as of vcgpt_features_tensor -- (100, 256, 1024)
             temp_vcgpt_features_tensor = vcgpt_features_tensor[b,:,:,:]
             temp_sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
-            fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)        
+
+            fc = []
+            for i in (0, range(temp_vcgpt_features_tensor.shape[0]), 25):
+                _fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)
+                print(_fc.shape)
 
             # cross attention on sam features using clip features
             # the shape will be == sam_hidden... shape -- (100, 4096, 1024)
