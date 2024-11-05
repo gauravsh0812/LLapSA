@@ -1,6 +1,5 @@
 import torch 
-import os 
-import pickle
+import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -51,51 +50,75 @@ class TensorFusion(nn.Module):
                             nn.BatchNorm1d(1024),
                             nn.ReLU())
 
+    def get_spatio_temporal_features(self, features, num_temporal_tokens=100):
+        t, s, c = features.shape
+
+        temporal_tokens = np.mean(features, axis=1)
+        padding_size = num_temporal_tokens - t
+        if padding_size > 0:
+            temporal_tokens = np.pad(temporal_tokens, ((0, padding_size), (0, 0)), mode='constant')
+
+        spatial_tokens = np.mean(features, axis=0)
+        sp_features = np.concatenate([temporal_tokens, spatial_tokens], axis=0)
+
+        return sp_features
+
+
     def forward(self, video_features):
 
         sam_hidden_states_tensor, vcgpt_features_tensor = video_features 
-        print("shapes: ", sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
+        # print("shapes: ", sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
+        # shapes:  torch.Size([4, 100, 1, 64, 64, 384]) torch.Size([4, 100, 1, 257, 1024])
 
-        exit()
-
-        sam_hidden_states_tensor = sam_hidden_states_tensor.squeeze(1) # (100, 64, 64, 384)
+        sam_hidden_states_tensor = sam_hidden_states_tensor.squeeze(2) # (B, 100, 64, 64, 384)
         sam_hidden_states_tensor = torch.flatten(sam_hidden_states_tensor, 
-                                                 start_dim=1, end_dim=2) # (100, 64*64, 384)
+                                                 start_dim=2, end_dim=3) # (B, 100, 64*64, 384)
         
         sam_hidden_states_tensor = self.projection(sam_hidden_states_tensor)
 
         
-        vcgpt_features_tensor = vcgpt_features_tensor.squeeze(1)[:, 1:,:] # (100, 256, 1024)
+        vcgpt_features_tensor = vcgpt_features_tensor.squeeze(2)[:,:,1:,:] # (B, 100, 256, 1024)
 
         # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
-        
-        # cross attention on clip feature using sam features
-        # it will have same shape as of vcgpt_features_tensor -- (100, 256, 1024)
-        fc = self.attention_module(vcgpt_features_tensor, sam_hidden_states_tensor)        
+        final_vision_tensor = []
+        for b in range(sam_hidden_states_tensor.shape[0]):
+            # cross attention on clip feature using sam features
+            # it will have same shape as of vcgpt_features_tensor -- (100, 256, 1024)
+            vcgpt_features_tensor = vcgpt_features_tensor[b,:,:,:].squeeze(0)
+            sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:].squeeze(0)
+            fc = self.attention_module(vcgpt_features_tensor, sam_hidden_states_tensor)        
 
-        # cross attention on sam features using clip features
-        # the shape will be == sam_hidden... shape -- (100, 4096, 1024)
-        fs = self.attention_module(sam_hidden_states_tensor, vcgpt_features_tensor)
+            # cross attention on sam features using clip features
+            # the shape will be == sam_hidden... shape -- (100, 4096, 1024)
+            fs = self.attention_module(sam_hidden_states_tensor, vcgpt_features_tensor)
 
-        # print(fs.shape)
+            # print(fs.shape)
 
-        # element wise multiplication
-        # Repeat tensor1 along the sequence length dimension to match tensor2
-        fc_expanded = fc.repeat_interleave(16, dim=1)  # Shape becomes (100, 4096, 1024)
-        elementwise_result = fc_expanded * fs  # torch.Size([100, 4096, 1024])
-        # print("Element-wise multiplication result shape:", elementwise_result.shape)
+            # element wise multiplication
+            # Repeat tensor1 along the sequence length dimension to match tensor2
+            fc_expanded = fc.repeat_interleave(16, dim=1)  # Shape becomes (100, 4096, 1024)
+            elementwise_result = fc_expanded * fs  # torch.Size([100, 4096, 1024])
+            # print("Element-wise multiplication result shape:", elementwise_result.shape)
 
-        # bmm
-        matrix_multiplication_result = torch.bmm(fc, fs.transpose(1, 2))  # Shape: (100, 256, 4096)
-        # print("Matrix multiplication result shape:", matrix_multiplication_result.shape)
+            # bmm
+            matrix_multiplication_result = torch.bmm(fc, fs.transpose(1, 2))  # Shape: (100, 256, 4096)
+            # print("Matrix multiplication result shape:", matrix_multiplication_result.shape)
 
-        # concatenate both multiplication results
-        matrix_multiplication_result = self.lin_mat(matrix_multiplication_result) # (100, 256, 1024)
-        mat_results = torch.cat((elementwise_result, matrix_multiplication_result),dim=1) # (100, 4096+256, 1024)
+            # concatenate both multiplication results
+            matrix_multiplication_result = self.lin_mat(matrix_multiplication_result) # (100, 256, 1024)
+            mat_results = torch.cat((elementwise_result, matrix_multiplication_result),dim=1) # (100, 4096+256, 1024)
 
-        # getting to the final format of (100, 256, 1024)
-        final_vision_tensor = self.final_lin(mat_results.permute(0,2,1)).permute(0,2,1)
+            # getting to the final format of (100, 256, 1024)
+            final_tensor = self.final_lin(mat_results.permute(0,2,1)).permute(0,2,1)
+
+            # spatial and temporal pooling
+            final_tensor = self.get_spatio_temporal_features(final_tensor)
+            final_vision_tensor.append(final_tensor)
+
+        final_vision_tensor = torch.stack(final_vision_tensor, dim=0) # (B, 100+256, 1024)
+
         print(final_vision_tensor.shape)
+        exit()
         return final_vision_tensor
 
 
