@@ -111,7 +111,8 @@ class TensorFusion(nn.Module):
             temp_sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
 
             fc = []
-            for i in (0, range(temp_vcgpt_features_tensor.shape[0]), 25):
+            for i in range(0,temp_vcgpt_features_tensor.shape[0],25):
+                print("i: ", i)
                 _fc = self.attention_module(temp_vcgpt_features_tensor[i:i+25,:,:], temp_sam_hidden_states_tensor[i:i+25, :, :])
                 print(_fc.shape)
 
