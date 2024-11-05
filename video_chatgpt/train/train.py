@@ -450,8 +450,8 @@ class DataCollatorForSupervisedDataset(object):
 
         if 'video' in instances[0]:
             # ADDED BY GAURAV
-            features = [(torch.tensor(instance['video'][0]), 
-                         torch.tensor(instance['video'][1])) for instance in instances]
+            features = [(torch.tensor(instance['video'][0], device="cpu"), 
+                         torch.tensor(instance['video'][1], device="cpu")) for instance in instances]
             
             for i, (feature_spatial, feature_temporal) in enumerate(features):
                 print(f"Spatial feature {i} device: {feature_spatial.device}")
