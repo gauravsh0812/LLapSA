@@ -11,6 +11,9 @@ from transformers import (AutoConfig,
                         #   Blip2QFormerConfig)
 from transformers.modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast
 
+# ADDED BY GAURAV
+from scripts.tensor_fusion import TensorFusion
+
 DEFAULT_VIDEO_TOKEN = "<video>"
 DEFAULT_VIDEO_PATCH_TOKEN = "<vid_patch>"
 DEFAULT_VID_START_TOKEN = "<vid_start>"
@@ -88,6 +91,7 @@ class VideoChatGPTLlamaModel(LlamaModel):
         orig_embeds_params = getattr(self, 'orig_embeds_params', None)
 
         print("finally reached here.........")
+        TensorFusion(video_spatio_temporal_features)
 
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)

@@ -54,29 +54,18 @@ class TensorFusion(nn.Module):
                             nn.BatchNorm1d(1024),
                             nn.ReLU())
 
-    def forward(self, video_name):
-    # def forward(self, sam_hidden_states_tensor, vcgpt_features_tensor):
-        # pkl paths 
-        sam_hidden_states_pkl_path = os.path.join(
-            self.sam_hidden_states_path, f"{video_name}"
-        )
-        vcgpt_features_pkl_path = os.path.join(
-            self.vcgpt_features_path, f"{video_name}"
-        )
+    def forward(self, video_features):
 
-        # loading the tensors
-        with open(sam_hidden_states_pkl_path, 'rb') as file:
-            sam_hidden_states_tensor = pickle.load(file).cuda()
-        
+        sam_hidden_states_tensor, vcgpt_features_tensor = video_features 
+        print("shapes: ", sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
+
         sam_hidden_states_tensor = sam_hidden_states_tensor.squeeze(1) # (100, 64, 64, 384)
         sam_hidden_states_tensor = torch.flatten(sam_hidden_states_tensor, 
                                                  start_dim=1, end_dim=2) # (100, 64*64, 384)
         
         sam_hidden_states_tensor = self.projection(sam_hidden_states_tensor)
 
-        with open(vcgpt_features_pkl_path, 'rb') as file:
-            vcgpt_features_tensor = pickle.load(file).cuda()
-
+        
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(1)[:, 1:,:] # (100, 256, 1024)
 
         # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
@@ -107,7 +96,7 @@ class TensorFusion(nn.Module):
 
         # getting to the final format of (100, 256, 1024)
         final_vision_tensor = self.final_lin(mat_results.permute(0,2,1)).permute(0,2,1)
-        # print(final_vision_tensor.shape)
+        print(final_vision_tensor.shape)
         return final_vision_tensor
 
 
