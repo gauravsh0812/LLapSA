@@ -456,7 +456,7 @@ class DataCollatorForSupervisedDataset(object):
             # ADDED BY GAURAV
             features = [(torch.tensor(instance['video'][0]), 
                          torch.tensor(instance['video'][1])) for instance in instances]
-            if all((all(x[0] is not None and x[0].shape == features[0][0].shape for x in features)) and
+            if ((all(x[0] is not None and x[0].shape == features[0][0].shape for x in features)) and
                 (all(x[1] is not None and x[1].shape == features[0][1].shape for x in features))):
                 batch['video_sam_features'] = torch.stack([x[0] for x in features])
                 batch['video_vcgpt_features'] = torch.stack([x[1] for x in features])
