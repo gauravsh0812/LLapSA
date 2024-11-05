@@ -105,8 +105,9 @@ class TensorFusion(nn.Module):
             temp_vcgpt_features_tensor = vcgpt_features_tensor[b,:,:,:]
             temp_sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
 
-            temp_sam_hidden_states_tensor = self.projection1(temp_sam_hidden_states_tensor)
             temp_sam_hidden_states_tensor = self.projection2(temp_sam_hidden_states_tensor.permute(0,2,1)).permute(0,2,1) # (100, 256, 1024)
+            temp_sam_hidden_states_tensor = self.projection1(temp_sam_hidden_states_tensor)
+            
 
             fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)
             
