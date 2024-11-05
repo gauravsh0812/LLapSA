@@ -87,6 +87,8 @@ class VideoChatGPTLlamaModel(LlamaModel):
     ) -> Union[Tuple, BaseModelOutputWithPast]:
         orig_embeds_params = getattr(self, 'orig_embeds_params', None)
 
+        print("finally reached here.........")
+
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)
 
@@ -219,7 +221,6 @@ class VideoChatGPTLlamaForCausalLM(LlamaForCausalLM):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
-        print("line 222: ", video_spatio_temporal_features.shape)
         outputs = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
