@@ -94,7 +94,6 @@ class VideoChatGPTLlamaModel(LlamaModel):
     ) -> Union[Tuple, BaseModelOutputWithPast]:
         orig_embeds_params = getattr(self, 'orig_embeds_params', None)
 
-        print("finally reached here.........")
         self.tensor_fusion(video_spatio_temporal_features)
 
         if inputs_embeds is None:

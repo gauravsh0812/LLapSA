@@ -51,17 +51,42 @@ class TensorFusion(nn.Module):
                             nn.ReLU())
 
     def get_spatio_temporal_features(self, features, num_temporal_tokens=100):
-        t, s, c = features.shape
-
-        temporal_tokens = np.mean(features, axis=1)
+        # Ensure compatibility for both PyTorch tensors and NumPy arrays
+        is_torch_tensor = isinstance(features, torch.Tensor)
+        
+        if is_torch_tensor:
+            # PyTorch tensor shape unpacking
+            t, s, c = features.shape
+            # Calculate temporal tokens using PyTorch mean
+            temporal_tokens = features.mean(dim=1)
+        else:
+            # Numpy array shape unpacking
+            t, s, c = features.shape
+            # Calculate temporal tokens using Numpy mean
+            temporal_tokens = np.mean(features, axis=1)
+        
         padding_size = num_temporal_tokens - t
         if padding_size > 0:
-            temporal_tokens = np.pad(temporal_tokens, ((0, padding_size), (0, 0)), mode='constant')
-
-        spatial_tokens = np.mean(features, axis=0)
-        sp_features = np.concatenate([temporal_tokens, spatial_tokens], axis=0)
+            if is_torch_tensor:
+                # Use torch's pad method
+                temporal_tokens = torch.nn.functional.pad(
+                    temporal_tokens, (0, 0, 0, padding_size), mode="constant", value=0
+                )
+            else:
+                # Use numpy pad for numpy array
+                temporal_tokens = np.pad(
+                    temporal_tokens, ((0, padding_size), (0, 0)), mode='constant'
+                )
+        
+        if is_torch_tensor:
+            spatial_tokens = features.mean(dim=0)
+            sp_features = torch.cat([temporal_tokens, spatial_tokens], dim=0)
+        else:
+            spatial_tokens = np.mean(features, axis=0)
+            sp_features = np.concatenate([temporal_tokens, spatial_tokens], axis=0)
 
         return sp_features
+
 
 
     def forward(self, video_features):
