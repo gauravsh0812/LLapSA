@@ -94,7 +94,7 @@ class VideoChatGPTLlamaModel(LlamaModel):
     ) -> Union[Tuple, BaseModelOutputWithPast]:
         orig_embeds_params = getattr(self, 'orig_embeds_params', None)
 
-        self.tensor_fusion(video_spatio_temporal_features)
+        video_spatio_temporal_features = self.tensor_fusion(video_spatio_temporal_features)  # torch.Size([4, 356, 1024])
 
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)

@@ -139,7 +139,6 @@ class TensorFusion(nn.Module):
 
         final_vision_tensor = torch.stack(final_vision_tensor, dim=0) # (B, 100+256, 1024)
         # print(final_vision_tensor.shape)
-        exit()
         return final_vision_tensor
 
 
