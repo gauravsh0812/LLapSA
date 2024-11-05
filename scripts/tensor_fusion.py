@@ -120,11 +120,11 @@ class TensorFusion(nn.Module):
 
             # element wise multiplication
             elementwise_result = fc * fs  # torch.Size([100, 256, 1024])
-            print("Element-wise multiplication result shape:", elementwise_result.shape)
+            # print("Element-wise multiplication result shape:", elementwise_result.shape)
 
             # bmm
             matrix_multiplication_result = torch.bmm(fc, fs.transpose(1, 2))  # Shape: (100, 256, 256)
-            print("Matrix multiplication result shape:", matrix_multiplication_result.shape)
+            # print("Matrix multiplication result shape:", matrix_multiplication_result.shape)
 
             # concatenate both multiplication results
             matrix_multiplication_result = self.lin_mat(matrix_multiplication_result) # (100, 256, 1024)
@@ -138,7 +138,7 @@ class TensorFusion(nn.Module):
             final_vision_tensor.append(final_tensor)
 
         final_vision_tensor = torch.stack(final_vision_tensor, dim=0) # (B, 100+256, 1024)
-        print(final_vision_tensor.shape)
+        # print(final_vision_tensor.shape)
         exit()
         return final_vision_tensor
 
