@@ -453,12 +453,13 @@ class DataCollatorForSupervisedDataset(object):
             features = [(torch.tensor(instance['video'][0], device="cpu"), 
                          torch.tensor(instance['video'][1], device="cpu")) for instance in instances]
             
-            for i, (feature_spatial, feature_temporal) in enumerate(features):
-                print(f"Spatial feature {i} device: {feature_spatial.device}")
-                print(f"Temporal feature {i} device: {feature_temporal.device}")
+            # for i, (feature_spatial, feature_temporal) in enumerate(features):
+            #     print(f"Spatial feature {i} device: {feature_spatial.device}")
+            #     print(f"Temporal feature {i} device: {feature_temporal.device}")
             
             if ((all(x[0] is not None and x[0].shape == features[0][0].shape for x in features)) and
                 (all(x[1] is not None and x[1].shape == features[0][1].shape for x in features))):
+                print("THIS CONDITION:.......")
                 batch['video_sam_features'] = torch.stack([x[0] for x in features])
                 batch['video_vcgpt_features'] = torch.stack([x[1] for x in features])
             else:
