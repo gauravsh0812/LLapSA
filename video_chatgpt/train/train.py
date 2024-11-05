@@ -14,10 +14,6 @@ import torch.distributed as dist
 from video_chatgpt.constants import *
 import pickle
 
-# ADDED BY GAURAV
-from scripts.tensor_fusion import TensorFusion as TF
-
-
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
@@ -454,6 +450,9 @@ class DataCollatorForSupervisedDataset(object):
 
         if 'video' in instances[0]:
             # ADDED BY GAURAV
+            for i, (feature_spatial, feature_temporal) in enumerate(features):
+                print(f"Spatial feature {i} device: {feature_spatial.device}")
+                print(f"Temporal feature {i} device: {feature_temporal.device}")
             features = [(torch.tensor(instance['video'][0]), 
                          torch.tensor(instance['video'][1])) for instance in instances]
             if ((all(x[0] is not None and x[0].shape == features[0][0].shape for x in features)) and
