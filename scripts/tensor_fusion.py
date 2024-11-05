@@ -42,15 +42,9 @@ class TensorFusion(nn.Module):
             nn.Linear(1024, 256),
         )
         self.attention_module = AttentionModule(embed_dim_f1=1024)        
-        self.lin_mat = nn.Linear(4096, 1024)
+        self.lin_mat = nn.Linear(256, 1024)
         self.final_lin = nn.Sequential(
-                            nn.Linear(4096+256, 256*16),
-                            nn.BatchNorm1d(1024),
-                            nn.ReLU(),
-                            nn.Linear(256*16, 256*8),
-                            nn.BatchNorm1d(1024),
-                            nn.ReLU(),
-                            nn.Linear(256*8, 256),
+                            nn.Linear(256+256, 256),
                             nn.BatchNorm1d(1024),
                             nn.ReLU())
 
@@ -121,19 +115,20 @@ class TensorFusion(nn.Module):
             # the shape will be == sam_hidden... shape -- (100, 256, 1024)
             fs = self.attention_module(temp_sam_hidden_states_tensor, temp_vcgpt_features_tensor)
 
-            print("fc, fs: ", fc.shape, fs.shape)
+            # print("fc, fs: ", fc.shape, fs.shape)
+            # fc, fs:  torch.Size([100, 256, 1024]) torch.Size([100, 256, 1024])
 
             # element wise multiplication
             elementwise_result = fc * fs  # torch.Size([100, 256, 1024])
-            # print("Element-wise multiplication result shape:", elementwise_result.shape)
+            print("Element-wise multiplication result shape:", elementwise_result.shape)
 
             # bmm
-            matrix_multiplication_result = torch.bmm(fc, fs.transpose(1, 2))  # Shape: (100, 256, 4096)
-            # print("Matrix multiplication result shape:", matrix_multiplication_result.shape)
+            matrix_multiplication_result = torch.bmm(fc, fs.transpose(1, 2))  # Shape: (100, 256, 256)
+            print("Matrix multiplication result shape:", matrix_multiplication_result.shape)
 
             # concatenate both multiplication results
             matrix_multiplication_result = self.lin_mat(matrix_multiplication_result) # (100, 256, 1024)
-            mat_results = torch.cat((elementwise_result, matrix_multiplication_result),dim=1) # (100, 4096+256, 1024)
+            mat_results = torch.cat((elementwise_result, matrix_multiplication_result),dim=1) # (100, 256+256, 1024)
 
             # getting to the final format of (100, 256, 1024)
             final_tensor = self.final_lin(mat_results.permute(0,2,1)).permute(0,2,1)
