@@ -403,6 +403,7 @@ class LazySupervisedDataset(Dataset):
             video_file = self.list_data_dict[i]['video']
             video_folder = self.multimodal_cfg['video_folder']
             with open(f"{video_folder}/{video_file}", "rb") as f:
+                print("line #406: ", f"{video_folder}/{video_file}")
                 features = pickle.load(f)
 
             cur_token_len = 356#features.shape[0]  # Calculate dynamically
@@ -419,6 +420,8 @@ class LazySupervisedDataset(Dataset):
 
         # video exist in the data
         if 'video' in self.list_data_dict[i]:
+            print("len of the features: ", len(features))
+            print("shapes: ", features[0].shape, features[1].shape)
             data_dict["video"] = features
 
         return data_dict
