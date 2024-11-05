@@ -96,7 +96,6 @@ class VideoChatGPTLlamaModel(LlamaModel):
 
         # ADDED BY GAURAVS
         video_spatio_temporal_features = self.tensor_fusion(video_spatio_temporal_features)  # torch.Size([4, 356, 1024])
-        print(video_spatio_temporal_features.shape)
 
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)
