@@ -113,23 +113,32 @@ class TensorFusion(nn.Module):
             temp_sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
 
             # print(temp_sam_hidden_states_tensor.shape, temp_vcgpt_features_tensor.shape)
-
-            fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)
+            fcs = []
+            fss = []
+            for i in range(0, temp_sam_hidden_states_tensor.shape[0], 25):
+                _fc = self.attention_module(temp_vcgpt_features_tensor[i:i+25, :, :], 
+                                            temp_sam_hidden_states_tensor[i:i+25, :, :])
+                fcs.append(_fc)
             
-            # cross attention on sam features using clip features
-            # the shape will be == sam_hidden... shape -- (100, 256, 1024)
-            fs = self.attention_module(temp_sam_hidden_states_tensor, temp_vcgpt_features_tensor)
+                # cross attention on sam features using clip features
+                # the shape will be == sam_hidden... shape -- (100, 256, 1024)
+                _fs = self.attention_module(temp_sam_hidden_states_tensor[i:i+25, :, :], 
+                                            temp_vcgpt_features_tensor[i:i+25, :, :])
+                fss.append(_fs)
 
-            # print("fc, fs: ", fc.shape, fs.shape)
+            fc = torch.cat([fcs[0], fcs[1], fcs[2], fcs[3]], dim=0)
+            fs = torch.cat([fss[0], fss[1], fss[2], fss[3]], dim=0)
+
+            print("fc, fs: ", fc.shape, fs.shape)
             # fc, fs:  torch.Size([100, 256, 1024]) torch.Size([100, 256, 1024])
 
             # element wise multiplication
             elementwise_result = fc * fs  # torch.Size([100, 256, 1024])
-            # print("Element-wise multiplication result shape:", elementwise_result.shape)
+            print("Element-wise multiplication result shape:", elementwise_result.shape)
 
             # bmm
             matrix_multiplication_result = torch.bmm(fc, fs.transpose(1, 2))  # Shape: (100, 256, 256)
-            # print("Matrix multiplication result shape:", matrix_multiplication_result.shape)
+            print("Matrix multiplication result shape:", matrix_multiplication_result.shape)
 
             # concatenate both multiplication results
             matrix_multiplication_result = self.lin_mat(matrix_multiplication_result) # (100, 256, 1024)
@@ -143,7 +152,7 @@ class TensorFusion(nn.Module):
             final_vision_tensor.append(final_tensor)
 
         final_vision_tensor = torch.stack(final_vision_tensor, dim=0) # (B, 100+256, 1024)
-        # print(final_vision_tensor.shape)
+        print(final_vision_tensor.shape)
         return final_vision_tensor
 
 
