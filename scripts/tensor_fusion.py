@@ -33,11 +33,8 @@ class AttentionModule(nn.Module):
         return Fc_2
 
 class TensorFusion(nn.Module):
-    def __init__(self, root_path):
+    def __init__(self, ):
         super(TensorFusion,self).__init__()
-
-        self.sam_hidden_states_path = os.path.join(root_path, "sam_hidden_states")
-        self.vcgpt_features_path = os.path.join(root_path, "vcgpt_features")
 
         # Instantiate and use the attention module
         self.projection = nn.Linear(384, 1024)
@@ -58,6 +55,8 @@ class TensorFusion(nn.Module):
 
         sam_hidden_states_tensor, vcgpt_features_tensor = video_features 
         print("shapes: ", sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
+
+        exit()
 
         sam_hidden_states_tensor = sam_hidden_states_tensor.squeeze(1) # (100, 64, 64, 384)
         sam_hidden_states_tensor = torch.flatten(sam_hidden_states_tensor, 

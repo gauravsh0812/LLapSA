@@ -46,6 +46,10 @@ class VideoChatGPTLlamaModel(LlamaModel):
         if hasattr(config, "use_mm_proj"):
             self.mm_projector = nn.Linear(config.mm_hidden_size, config.hidden_size)
 
+        # ADDED BY GAURAV
+        # INITIALIZE TensorFUSION
+        self.tensor_fusion = TensorFusion()
+
         # # INITIALIZING Q-FORMER 
         # qconfig = Blip2QFormerConfig(
         #     hidden_size=1024*4,
@@ -91,7 +95,7 @@ class VideoChatGPTLlamaModel(LlamaModel):
         orig_embeds_params = getattr(self, 'orig_embeds_params', None)
 
         print("finally reached here.........")
-        TensorFusion(video_spatio_temporal_features)
+        self.tensor_fusion(video_spatio_temporal_features)
 
         if inputs_embeds is None:
             inputs_embeds = self.embed_tokens(input_ids)
