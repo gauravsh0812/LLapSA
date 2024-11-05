@@ -103,11 +103,9 @@ class TensorFusion(nn.Module):
             _sam_hidden_states_tensor = self.projection1(_sam_hidden_states_tensor)
             _sam_hidden_states_tensor = self.projection2(_sam_hidden_states_tensor.permute(0,1,3,2)).permute(0,1,3,2) # (B, 100, 256, 1024)
             sams.append(_sam_hidden_states_tensor)
-            
-        sam_hidden_states_tensor = torch.cat([sams[0], sams[1], sams[2], sams[3]], dim=1)
-        print(sam_hidden_states_tensor.shape)
 
-        exit()
+        sam_hidden_states_tensor = torch.cat([sams[0], sams[1], sams[2], sams[3]], dim=1)
+
         final_vision_tensor = []
         for b in range(sam_hidden_states_tensor.shape[0]):
             # cross attention on clip feature using sam features
