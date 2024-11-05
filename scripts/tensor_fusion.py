@@ -110,9 +110,7 @@ class TensorFusion(nn.Module):
             # cross attention on clip feature using sam features
             # it will have same shape as of vcgpt_features_tensor -- (100, 256, 1024)
             vcgpt_features_tensor = vcgpt_features_tensor[b,:,:,:]
-            print("vcgpt shape: ", vcgpt_features_tensor.shape)
-            vcgpt_features_tensor = vcgpt_features_tensor.squeeze(0)
-            sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:].squeeze(0)
+            sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
             fc = self.attention_module(vcgpt_features_tensor, sam_hidden_states_tensor)        
 
             # cross attention on sam features using clip features
