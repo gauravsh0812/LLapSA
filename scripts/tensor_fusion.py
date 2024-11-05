@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.distributed as dist
 
 class AttentionModule(nn.Module):
     def __init__(self, embed_dim_f1):
@@ -100,11 +101,15 @@ class TensorFusion(nn.Module):
                                                  start_dim=2, end_dim=3) # (B, 100, 64*64, 384)
         
         sam_hidden_states_tensor = self.projection(sam_hidden_states_tensor)
-
-        
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(2)[:,:,1:,:] # (B, 100, 256, 1024)
 
         # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
+
+        device = torch.device("cuda", dist.get_rank()) if torch.cuda.is_available() else torch.device("cpu")
+
+        sam_hidden_states_tensor = sam_hidden_states_tensor.cpu()
+        vcgpt_features_tensor = vcgpt_features_tensor.cpu()
+
         final_vision_tensor = []
         for b in range(sam_hidden_states_tensor.shape[0]):
             # cross attention on clip feature using sam features
@@ -141,7 +146,7 @@ class TensorFusion(nn.Module):
             final_vision_tensor.append(final_tensor)
 
         final_vision_tensor = torch.stack(final_vision_tensor, dim=0) # (B, 100+256, 1024)
-
+        final_vision_tensor = final_vision_tensor.to(device)
         print(final_vision_tensor.shape)
         exit()
         return final_vision_tensor
