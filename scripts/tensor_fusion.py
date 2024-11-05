@@ -105,7 +105,8 @@ class TensorFusion(nn.Module):
 
         # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
 
-        device = torch.device("cuda", dist.get_rank()) if torch.cuda.is_available() else torch.device("cpu")
+        rank = dist.get_rank()
+        device = torch.device(f"cuda:{rank}" if torch.cuda.is_available() else "cpu")
 
         sam_hidden_states_tensor = sam_hidden_states_tensor.cpu()
         vcgpt_features_tensor = vcgpt_features_tensor.cpu()
