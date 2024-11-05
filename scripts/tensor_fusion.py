@@ -88,8 +88,6 @@ class TensorFusion(nn.Module):
 
         return sp_features
 
-
-
     def forward(self, video_features):
 
         sam_hidden_states_tensor, vcgpt_features_tensor = video_features 
@@ -105,12 +103,7 @@ class TensorFusion(nn.Module):
 
         # print(sam_hidden_states_tensor.shape, vcgpt_features_tensor.shape)
 
-        rank = dist.get_rank()
-        device = torch.device(f"cuda:{rank}" if torch.cuda.is_available() else "cpu")
-
-        sam_hidden_states_tensor = sam_hidden_states_tensor.cpu()
-        vcgpt_features_tensor = vcgpt_features_tensor.cpu()
-
+        
         final_vision_tensor = []
         for b in range(sam_hidden_states_tensor.shape[0]):
             # cross attention on clip feature using sam features
@@ -147,7 +140,6 @@ class TensorFusion(nn.Module):
             final_vision_tensor.append(final_tensor)
 
         final_vision_tensor = torch.stack(final_vision_tensor, dim=0) # (B, 100+256, 1024)
-        final_vision_tensor = final_vision_tensor.to(device)
         print(final_vision_tensor.shape)
         exit()
         return final_vision_tensor
