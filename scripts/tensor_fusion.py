@@ -99,7 +99,6 @@ class TensorFusion(nn.Module):
         sams = []
         for i in range(0, sam_hidden_states_tensor.shape[1],25):
             _sam_hidden_states_tensor = sam_hidden_states_tensor[:, i:i+25, :, :]
-            print(_sam_hidden_states_tensor.shape)
             _sam_hidden_states_tensor = self.projection1(_sam_hidden_states_tensor)
             _sam_hidden_states_tensor = self.projection2(_sam_hidden_states_tensor.permute(0,1,3,2)).permute(0,1,3,2) # (B, 100, 256, 1024)
             sams.append(_sam_hidden_states_tensor)
@@ -112,6 +111,8 @@ class TensorFusion(nn.Module):
             # it will have same shape as of vcgpt_features_tensor -- (100, 256, 1024)
             temp_vcgpt_features_tensor = vcgpt_features_tensor[b,:,:,:]
             temp_sam_hidden_states_tensor = sam_hidden_states_tensor[b,:,:,:]
+
+            print(temp_sam_hidden_states_tensor.shape, temp_vcgpt_features_tensor.shape)
 
             fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)
             
