@@ -97,7 +97,7 @@ class TensorFusion(nn.Module):
         vcgpt_features_tensor = vcgpt_features_tensor.squeeze(2)[:,:,1:,:] # (B, 100, 256, 1024)
 
         sams = []
-        for i in (0, range(sam_hidden_states_tensor.shape[1]),25):
+        for i in range(0, sam_hidden_states_tensor.shape[1],25):
             _sam_hidden_states_tensor = sam_hidden_states_tensor[:, i:i+25, :, :]
             _sam_hidden_states_tensor = self.projection1(_sam_hidden_states_tensor)
             _sam_hidden_states_tensor = self.projection2(_sam_hidden_states_tensor.permute(0,1,3,2)).permute(0,1,3,2) # (B, 100, 256, 1024)
