@@ -14,6 +14,10 @@ import torch.distributed as dist
 from video_chatgpt.constants import *
 import pickle
 
+# ADDED BY GAURAV
+from scripts.tensor_fusion import TensorFusion as TF
+
+
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
@@ -419,8 +423,8 @@ class LazySupervisedDataset(Dataset):
 
         # video exist in the data
         if 'video' in self.list_data_dict[i]:
-            print("len of the features: ", len(features))
-            print("shapes: ", features[0].shape, features[1].shape)
+            # print("len of the features: ", len(features))
+            # print("shapes: ", features[0].shape, features[1].shape)
             data_dict["video"] = features
 
         return data_dict
@@ -449,11 +453,24 @@ class DataCollatorForSupervisedDataset(object):
         )
 
         if 'video' in instances[0]:
-            features = [torch.tensor(instance['video']) for instance in instances]
-            if all(x is not None and x.shape == features[0].shape for x in features):
-                batch['video_spatio_temporal_features'] = torch.stack(features)
+            # ADDED BY GAURAV
+            features = [(torch.tensor(instance['video'][0]), 
+                         torch.tensor(instance['video'][1])) for instance in instances]
+            if all((all(x[0] is not None and x[0].shape == features[0][0].shape for x in features)) and
+                (all(x[1] is not None and x[1].shape == features[0][1].shape for x in features))):
+                batch['video_sam_features'] = torch.stack([x[0] for x in features])
+                batch['video_vcgpt_features'] = torch.stack([x[1] for x in features])
             else:
-                batch['video_spatio_temporal_features'] = features
+                batch['video_sam_features'] = [x[0] for x in features]
+                batch['video_vcgpt_features'] = [x[1] for x in features]
+
+            # ORIGINAL
+
+            # features = [torch.tensor(instance['video']) for instance in instances]
+            # if all(x is not None and x.shape == features[0].shape for x in features):
+            #     batch['video_spatio_temporal_features'] = torch.stack(features)
+            # else:
+            #     batch['video_spatio_temporal_features'] = features
 
         return batch
 
