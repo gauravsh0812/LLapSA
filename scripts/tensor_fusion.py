@@ -112,7 +112,7 @@ class TensorFusion(nn.Module):
 
             fc = []
             for i in (0, range(temp_vcgpt_features_tensor.shape[0]), 25):
-                _fc = self.attention_module(temp_vcgpt_features_tensor, temp_sam_hidden_states_tensor)
+                _fc = self.attention_module(temp_vcgpt_features_tensor[i:i+25,:,:], temp_sam_hidden_states_tensor[i:i+25, :, :])
                 print(_fc.shape)
 
             # cross attention on sam features using clip features
