@@ -115,7 +115,7 @@ class TensorFusion(nn.Module):
             # print(temp_sam_hidden_states_tensor.shape, temp_vcgpt_features_tensor.shape)
             fcs = []
             fss = []
-            for i in range(0, temp_sam_hidden_states_tensor.shape[0], 25):
+            for i in range(0, temp_sam_hidden_states_tensor.shape[0], 20):
                 _fc = self.attention_module(temp_vcgpt_features_tensor[i:i+25, :, :], 
                                             temp_sam_hidden_states_tensor[i:i+25, :, :])
                 fcs.append(_fc)
@@ -126,8 +126,8 @@ class TensorFusion(nn.Module):
                                             temp_vcgpt_features_tensor[i:i+25, :, :])
                 fss.append(_fs)
 
-            fc = torch.cat([fcs[0], fcs[1], fcs[2], fcs[3]], dim=0)
-            fs = torch.cat([fss[0], fss[1], fss[2], fss[3]], dim=0)
+            fc = torch.cat([fcs[0], fcs[1], fcs[2], fcs[3], fcs[4]], dim=0)
+            fs = torch.cat([fss[0], fss[1], fss[2], fss[3], fss[4]], dim=0)
 
             # print("fc, fs: ", fc.shape, fs.shape)
             # fc, fs:  torch.Size([100, 256, 1024]) torch.Size([100, 256, 1024])
