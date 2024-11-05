@@ -6,9 +6,9 @@ from transformers import (AutoConfig,
                           AutoModelForCausalLM, 
                           LlamaConfig, 
                           LlamaModel, 
-                          LlamaForCausalLM, 
-                          Blip2QFormerModel, 
-                          Blip2QFormerConfig)
+                          LlamaForCausalLM,) 
+                        #   Blip2QFormerModel, 
+                        #   Blip2QFormerConfig)
 from transformers.modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast
 
 DEFAULT_VIDEO_TOKEN = "<video>"
@@ -43,15 +43,15 @@ class VideoChatGPTLlamaModel(LlamaModel):
         if hasattr(config, "use_mm_proj"):
             self.mm_projector = nn.Linear(config.mm_hidden_size, config.hidden_size)
 
-        # INITIALIZING Q-FORMER 
-        qconfig = Blip2QFormerConfig(
-            hidden_size=1024*4,
-            num_hidden_layers=16,
-            num_attention_heads=16,
-            encoder_hidden_size=1024*4,
-        )
-        self.qmodel = Blip2QFormerModel(qconfig)
-        self.query_embeds = nn.Parameter(torch.randn(356,1024*4))
+        # # INITIALIZING Q-FORMER 
+        # qconfig = Blip2QFormerConfig(
+        #     hidden_size=1024*4,
+        #     num_hidden_layers=16,
+        #     num_attention_heads=16,
+        #     encoder_hidden_size=1024*4,
+        # )
+        # self.qmodel = Blip2QFormerModel(qconfig)
+        # self.query_embeds = nn.Parameter(torch.randn(356,1024*4))
 
 
     def initialize_vision_modules(self, pretrain_mm_mlp_adapter=None, tune_mm_mlp_adapter=False):
@@ -219,6 +219,7 @@ class VideoChatGPTLlamaForCausalLM(LlamaForCausalLM):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
+        print("line 222: ", video_spatio_temporal_features.shape)
         outputs = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
