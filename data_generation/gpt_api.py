@@ -22,7 +22,7 @@ def annotate(transcript):
 
     # try:
         # Compute the correctness score
-        completion = openai.ChatCompletion.create(
+    completion = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
                     {
@@ -60,9 +60,9 @@ def annotate(transcript):
                 ]
             )
         # Convert response to a Python dictionary.
-        response_message = completion["choices"][0]["message"]["content"]
-        response_dict = ast.literal_eval(response_message)
-        return response_dict
+    response_message = completion["choices"][0]["message"]["content"]
+    response_dict = ast.literal_eval(response_message)
+    return response_dict
 
     # except Exception as e:
     #     print(f"Error processing file {e}")
