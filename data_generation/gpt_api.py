@@ -2,6 +2,7 @@ import openai, os
 import argparse
 import tqdm
 import json
+import ast 
 
 parser = argparse.ArgumentParser(description="Training")
 
@@ -97,7 +98,7 @@ def main():
         transcript = " ".join(transcript)
         response = annotate(transcript)
         print(response)
-        response = json.loads(response)
+        response = ast.literal_eval(response)
         response["video_id"] = af
         response["transcript"] = transcript
         all_responses.append(response)
