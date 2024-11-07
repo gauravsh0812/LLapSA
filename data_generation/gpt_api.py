@@ -82,6 +82,7 @@ def main():
     output_file = open(output_json_file_path, "w")
     
     didnot_work = open("failed_api.lst","w")
+    didnot_work_count = 0
 
     all_responses = []
     for af in tqdm.tqdm(all_files, total=len(all_files)):
@@ -99,10 +100,13 @@ def main():
             all_responses.append(response)
         except:
             didnot_work.write(af + "\n")
+            didnot_work_count+=1
             
     # Write all responses to the JSON file
     output_file.write(json.dumps(all_responses, indent=2))
     output_file.write('\n')  # Add a newline after the entire JSON object
+    
+    print("failed file numbers: ", didnot_work_count)
 
 if __name__ == "__main__":
     main()
