@@ -66,6 +66,15 @@ def annotate(transcript):
 
     except Exception as e:
         print(f"Error processing file {e}")
+        print(transcript)
+        t = {}
+        t["observation"] = []
+        t["reason"] = []
+        t["plan"] = []
+        t["note"] = []
+        t["organs"] = []
+        t["equipments"] = []
+        return t 
 
 
 def main():
