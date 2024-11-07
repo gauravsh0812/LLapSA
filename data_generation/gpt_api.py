@@ -85,18 +85,21 @@ def main():
 
     all_responses = []
     for af in tqdm.tqdm(all_files, total=len(all_files)):
-        # try:
-        transcript = open(f"{args.input_folder}/{af}").readlines()
-        transcript = " ".join(transcript)
-        response = annotate(transcript)
-        if "```json" in response:
-            response = response.replace("```json", "").replace("```", "")      
-        response = ast.literal_eval(response)
-        response["video_id"] = af
-        response["transcript"] = transcript
-        all_responses.append(response)
-        # except:
-        #     didnot_work+=1
+        try:
+            transcript = open(f"{args.input_folder}/{af}").readlines()
+            transcript = " ".join(transcript)
+            response = annotate(transcript)
+            if "```json" in response:
+                response = response.replace("```json", "").replace("```", "")      
+            response = ast.literal_eval(response)
+            response["video_id"] = af
+            response["transcript"] = transcript
+            all_responses.append(response)
+        except:
+            print(response)
+            print(af)
+            print(transcript)
+            didnot_work+=1
     
     # Write all responses to the JSON file
     output_file.write(json.dumps(all_responses, indent=2))
