@@ -89,7 +89,7 @@ def main():
         print(af)
         transcript = open(f"{args.input_folder}/{af}").readlines()
         transcript = " ".join(transcript)
-        print("transcript")
+        print(transcript)
         response = annotate(transcript)
         print(response)
         print("============"*5)
