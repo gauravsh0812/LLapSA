@@ -81,11 +81,11 @@ def main():
     output_json_file_path = args.output_json_file_path
     output_file = open(output_json_file_path, "w")
     
-    didnot_work = 0
+    didnot_work = open("failed_api.lst","w")
 
     all_responses = []
     for af in tqdm.tqdm(all_files, total=len(all_files)):
-        # try:
+        try:
             transcript = open(f"{args.input_folder}/{af}").readlines()
             transcript = " ".join(transcript)
             response = annotate(transcript)
@@ -97,8 +97,8 @@ def main():
             response["video_id"] = af
             response["transcript"] = transcript
             all_responses.append(response)
-        # except:
-            # didnot_work+=1
+        except:
+            didnot_work.write(af + "\n")
             
     # Write all responses to the JSON file
     output_file.write(json.dumps(all_responses, indent=2))
