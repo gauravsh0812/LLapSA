@@ -90,11 +90,11 @@ def main():
             transcript = " ".join(transcript)
             response = annotate(transcript)
             if "```json" in response:
-                response = response.replace("```json", "").replace("```", "")      
+                response = response.replace("```json", "").replace("```", "")
+                print(response)      
             response = ast.literal_eval(response)
 
             print('--------------------------------')
-            print(response)
             print(af)
             print(transcript)
             print('--------------------------------')
