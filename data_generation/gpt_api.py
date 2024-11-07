@@ -20,7 +20,7 @@ def annotate(transcript):
     Returns a score for correctness
     """
 
-    try:
+    # try:
         # Compute the correctness score
         completion = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
@@ -64,17 +64,17 @@ def annotate(transcript):
         response_dict = ast.literal_eval(response_message)
         return response_dict
 
-    except Exception as e:
-        print(f"Error processing file {e}")
-        print(transcript)
-        t = {}
-        t["observation"] = []
-        t["reason"] = []
-        t["plan"] = []
-        t["note"] = []
-        t["organs"] = []
-        t["equipments"] = []
-        return t 
+    # except Exception as e:
+    #     print(f"Error processing file {e}")
+    #     print(transcript)
+    #     t = {}
+    #     t["observation"] = []
+    #     t["reason"] = []
+    #     t["plan"] = []
+    #     t["note"] = []
+    #     t["organs"] = []
+    #     t["equipments"] = []
+    #     return t 
 
 
 def main():
