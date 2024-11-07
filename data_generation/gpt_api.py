@@ -74,11 +74,11 @@ def main():
     Main function to control the flow of the program.
     """
     
-    x, y = 6000,-1
-    n = 3
+    x, y = 0,3000
+    n = 0
     
-    all_files = os.listdir(args.input_folder)[:5]
-    output_json_file_path = args.output_json_file_path
+    all_files = os.listdir(args.input_folder)[x:y]
+    output_json_file_path = {args.output_json_file_path}
     output_file = open(output_json_file_path, "w")
     
     didnot_work = 0
