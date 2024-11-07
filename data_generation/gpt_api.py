@@ -77,7 +77,7 @@ def main():
     x, y = 6000,-1
     n = 3
     
-    all_files = os.listdir(args.input_folder)[:3]
+    all_files = os.listdir(args.input_folder)[:5]
     print(len(all_files))
     output_json_file_path = args.output_json_file_path
     output_file = open(output_json_file_path, "w")
@@ -87,6 +87,7 @@ def main():
     all_responses = []
     for af in tqdm.tqdm(all_files, total=len(all_files)):
         # try:
+        print(af)
         transcript = open(f"{args.input_folder}/{af}").readlines()
         transcript = " ".join(transcript)
         response = annotate(transcript)
