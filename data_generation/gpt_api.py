@@ -60,8 +60,7 @@ def annotate(transcript):
                 ]
             )
         # Convert response to a Python dictionary.
-    response_message = completion["choices"][0]["message"]["content"]
-    response_dict = ast.literal_eval(response_message)
+    response_dict = completion["choices"][0]["message"]["content"]
     return response_dict
 
     # except Exception as e:
