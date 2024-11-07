@@ -96,7 +96,6 @@ def main():
         transcript = open(f"{args.input_folder}/{af}").readlines()
         transcript = " ".join(transcript)
         response = annotate(transcript)
-        response = json.loads(response)
         print(response)
         response["video_id"] = af
         response["transcript"] = transcript
