@@ -91,6 +91,7 @@ def main():
             transcript = " ".join(transcript)
             response = annotate(transcript)
             response["video_id"] = af
+            response["transcript"] = transcript
             all_responses.append(response)
         except:
             didnot_work+=1
