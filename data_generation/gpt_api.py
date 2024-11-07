@@ -89,8 +89,10 @@ def main():
         print(af)
         transcript = open(f"{args.input_folder}/{af}").readlines()
         transcript = " ".join(transcript)
+        print("transcript")
         response = annotate(transcript)
         print(response)
+        print("============"*5)
         response["video_id"] = af
         response["transcript"] = transcript
         all_responses.append(response)
