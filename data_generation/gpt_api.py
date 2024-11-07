@@ -90,6 +90,7 @@ def main():
             transcript = open(f"{args.input_folder}/{af}").readlines()
             transcript = " ".join(transcript)
             response = annotate(transcript)
+            response["video_id"] = af
             all_responses.append(response)
         except:
             didnot_work+=1
