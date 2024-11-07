@@ -93,10 +93,11 @@ def main():
                 response = response.replace("```json", "").replace("```", "")      
             response = ast.literal_eval(response)
 
+            print('--------------------------------')
             print(response)
             print(af)
             print(transcript)
-            
+            print('--------------------------------')
 
             response["video_id"] = af
             response["transcript"] = transcript
