@@ -2,7 +2,6 @@ import openai, os
 import argparse
 import tqdm
 import json
-import ast
 
 parser = argparse.ArgumentParser(description="Training")
 
@@ -61,6 +60,7 @@ def annotate(transcript):
             )
         # Convert response to a Python dictionary.
     response_dict = completion["choices"][0]["message"]["content"]
+    print(response_dict)
     return response_dict
 
     # except Exception as e:
