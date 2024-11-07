@@ -1,7 +1,4 @@
 import openai, os
-import glob
-import pandas as pd
-import csv
 import argparse
 import tqdm
 import json
@@ -58,8 +55,7 @@ def annotate(transcript):
                     {
                         "role": "user",
                         "content":
-                            f"Provide me the list of json dictionary for the given video transcription: \n\n
-                            {transcript}"                            
+                            f"Provide me the list of json dictionary for the given video transcription: \n\n {transcript}"
                     }
                 ]
             )
