@@ -91,14 +91,9 @@ def main():
             response = annotate(transcript)
             if "```json" in response:
                 response = response.replace("```json", "").replace("```", "")
-                print(response)      
             response = ast.literal_eval(response)
-
-            print('--------------------------------')
-            print(af)
-            print(transcript)
-            print('--------------------------------')
-
+            if isinstance(response, list):
+                response = response[0]            
             response["video_id"] = af
             response["transcript"] = transcript
             all_responses.append(response)
