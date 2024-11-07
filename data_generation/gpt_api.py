@@ -20,9 +20,9 @@ def annotate(transcript):
     Returns a score for correctness
     """
 
-    # try:
+    try:
         # Compute the correctness score
-    completion = openai.ChatCompletion.create(
+        completion = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
                     {
@@ -60,20 +60,12 @@ def annotate(transcript):
                 ]
             )
         # Convert response to a Python dictionary.
-    response_dict = completion["choices"][0]["message"]["content"]
-    return response_dict
+        response_dict = completion["choices"][0]["message"]["content"]
+        return response_dict
 
-    # except Exception as e:
-    #     print(f"Error processing file {e}")
-    #     print(transcript)
-    #     t = {}
-    #     t["observation"] = []
-    #     t["reason"] = []
-    #     t["plan"] = []
-    #     t["note"] = []
-    #     t["organs"] = []
-    #     t["equipments"] = []
-    #     return t 
+    except Exception as e:
+        print(f"Error processing file {e}")
+        return {}
 
 
 def main():
@@ -98,16 +90,14 @@ def main():
         transcript = " ".join(transcript)
         response = annotate(transcript)
         if "```json" in response:
-            response = response.replace("```json", "").replace("```", "")
-            print(response)
-            break
+            response = response.replace("```json", "").replace("```", "")      
         response = ast.literal_eval(response)
         response["video_id"] = af
         response["transcript"] = transcript
         all_responses.append(response)
         # except:
         #     didnot_work+=1
-    exit()
+    
     # Write all responses to the JSON file
     output_file.write(json.dumps(all_responses, indent=2))
     output_file.write('\n')  # Add a newline after the entire JSON object
