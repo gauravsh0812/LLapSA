@@ -85,13 +85,13 @@ def main():
     didnot_work = 0
 
     for af in tqdm.tqdm(all_files, total=len(all_files)):
-        try:
-            transcript = open(f"{args.input_folder}/af").readlines()
-            transcript = " ".join(transcript)
-            response = annotate(transcript)
-            
-            print(response)
+        # try:
+        transcript = open(f"{args.input_folder}/af").readlines()
+        transcript = " ".join(transcript)
+        response = annotate(transcript)
+        
+        print(response)
 
 
-        except:
-            didnot_work+=1
+        # except:
+        #     didnot_work+=1
