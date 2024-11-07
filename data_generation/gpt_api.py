@@ -84,16 +84,19 @@ def main():
     
     didnot_work = 0
 
+    all_responses = []
     for af in tqdm.tqdm(all_files, total=len(all_files)):
         try:
             transcript = open(f"{args.input_folder}/{af}").readlines()
             transcript = " ".join(transcript)
             response = annotate(transcript)
-            json.dump(response, output_file)
-            output_file.write('\n')  # Add a newline after each JSON object
-
+            all_responses.append(response)
         except:
             didnot_work+=1
     
+    # Write all responses to the JSON file
+    output_file.write(json.dumps(all_responses, indent=2))
+    output_file.write('\n')  # Add a newline after the entire JSON object
+
 if __name__ == "__main__":
     main()
