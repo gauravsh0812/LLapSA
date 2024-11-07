@@ -60,7 +60,7 @@ def annotate(transcript):
             )
         # Convert response to a Python dictionary.
     response_dict = completion["choices"][0]["message"]["content"]
-    print(response_dict)
+    
     return response_dict
 
     # except Exception as e:
@@ -97,6 +97,7 @@ def main():
         transcript = open(f"{args.input_folder}/{af}").readlines()
         transcript = " ".join(transcript)
         response = annotate(transcript)
+        print(response)
         response["video_id"] = af
         response["transcript"] = transcript
         all_responses.append(response)
