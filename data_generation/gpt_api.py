@@ -60,7 +60,6 @@ def annotate(transcript):
             )
         # Convert response to a Python dictionary.
     response_dict = completion["choices"][0]["message"]["content"]
-    
     return response_dict
 
     # except Exception as e:
