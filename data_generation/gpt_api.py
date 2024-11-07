@@ -78,7 +78,6 @@ def main():
     n = 3
     
     all_files = os.listdir(args.input_folder)[:5]
-    print(len(all_files))
     output_json_file_path = args.output_json_file_path
     output_file = open(output_json_file_path, "w")
     
@@ -91,6 +90,7 @@ def main():
         transcript = open(f"{args.input_folder}/{af}").readlines()
         transcript = " ".join(transcript)
         response = annotate(transcript)
+        print(response)
         response["video_id"] = af
         response["transcript"] = transcript
         all_responses.append(response)
