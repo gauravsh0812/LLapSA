@@ -74,7 +74,7 @@ def main():
     Main function to control the flow of the program.
     """
     
-    x, y = 0,3000
+    x, y = 3000,6000
     n = 0
     
     all_files = os.listdir(args.input_folder)[x:y]
