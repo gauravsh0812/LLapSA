@@ -78,7 +78,7 @@ def main():
     n = 0
     
     all_files = os.listdir(args.input_folder)[x:y]
-    output_json_file_path = {args.output_json_file_path}
+    output_json_file_path = args.output_json_file_path
     output_file = open(output_json_file_path, "w")
     
     didnot_work = 0
