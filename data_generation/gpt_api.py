@@ -88,6 +88,8 @@ def main():
         # try:
         print(af)
         transcript = open(f"{args.input_folder}/{af}").readlines()
+        print(transcript)
+        print("**********")
         transcript = " ".join(transcript)
         print(transcript)
         response = annotate(transcript)
