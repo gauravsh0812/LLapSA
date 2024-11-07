@@ -86,7 +86,7 @@ def main():
 
     for af in tqdm.tqdm(all_files, total=len(all_files)):
         # try:
-        transcript = open(f"{args.input_folder}/af").readlines()
+        transcript = open(f"{args.input_folder}/{af}").readlines()
         transcript = " ".join(transcript)
         response = annotate(transcript)
         
