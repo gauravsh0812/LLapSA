@@ -97,14 +97,16 @@ def main():
         transcript = open(f"{args.input_folder}/{af}").readlines()
         transcript = " ".join(transcript)
         response = annotate(transcript)
-        print(response)
+        if "```json" in response:
+            print(response)
+            break
         response = ast.literal_eval(response)
         response["video_id"] = af
         response["transcript"] = transcript
         all_responses.append(response)
         # except:
         #     didnot_work+=1
-    
+    exit()
     # Write all responses to the JSON file
     output_file.write(json.dumps(all_responses, indent=2))
     output_file.write('\n')  # Add a newline after the entire JSON object
