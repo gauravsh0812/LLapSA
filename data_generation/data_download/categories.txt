@@ -1,0 +1,27 @@
+
+
+['colectomy', 'appendectomy', 'hemicolectomy', 'abdominal_resection', 'hysterectomy', 
+ 'splenectomy', 'adrenalectomy', 'anatomy', 'aneurysm', 'cholecystectomy', 
+ 'anterior_resection', 'colonoscopy', 'craniotomy', 'cystectomy', 'endometriomas', 
+ 'gastrectomy', 'hernia', 'laparoscopic_intracorporeal', 
+ 'lap_fundoplication', 'lymphadenectomy', 'mesorectal_excision', 'myomectomy', 
+ 'nephrectomy', 'oophorectomy', 'oophoropexy', 'pancreatectomy', 'prostatectomy', 
+ 'pyeloplasty', 'septoplasty', 'spinal_resection', 'splenic_artery', 
+ 'surgical_resection', 'thoracic_laminectomy', 'thyroidectomy', 'thyroid_lobectomy', 
+ 'turbinectomy', 'tympanoplasty']
+
+
+
+# less than freq 3:
+
+laparoscopic_intracorporeal
+anatomy
+aneurysm
+pancreatectomy
+septoplasty
+splenic_artery
+spinal_resection
+surgical_resection
+thoracic_laminectomy
+tympanoplasty
+
