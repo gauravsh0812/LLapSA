@@ -79,12 +79,12 @@ def main():
     
     all_files = os.listdir(args.input_folder)[x:y]
     output_json_file_path = args.output_json_file_path
-    output_file = open(output_json_file_path, "w")
     
     didnot_work = open("failed_api_2.lst","w")
     didnot_work_count = 0
 
     all_responses = []
+    count = 0
     for af in tqdm.tqdm(all_files, total=len(all_files)):
         try:
             transcript = open(f"{args.input_folder}/{af}").readlines()
@@ -101,8 +101,17 @@ def main():
         except:
             didnot_work.write(af + "\n")
             didnot_work_count+=1
-            
+        count +=1
+
+        if count % 500:
+            # Write all responses to the JSON file
+            print(f"writing {count} results...")
+            output_file = open(output_json_file_path, "w")
+            output_file.write(json.dumps(all_responses, indent=2))
+            output_file.write('\n')  # Add a newline after the entire JSON object
+    
     # Write all responses to the JSON file
+    output_file = open(output_json_file_path, "w")
     output_file.write(json.dumps(all_responses, indent=2))
     output_file.write('\n')  # Add a newline after the entire JSON object
     
