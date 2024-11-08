@@ -22,9 +22,9 @@ def annotate(text, details):
     Returns a score for correctness
     """
 
-    try:
+    # try:
         # Compute the correctness score
-        completion = openai.ChatCompletion.create(
+    completion = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
                     {
@@ -75,12 +75,12 @@ def annotate(text, details):
                 ]
             )
         # Convert response to a Python dictionary.
-        response_dict = completion["choices"][0]["message"]["content"]
-        return response_dict
+    response_dict = completion["choices"][0]["message"]["content"]
+    return response_dict
 
-    except Exception as e:
-        print(f"Error processing file {e}")
-        return {}
+    # except Exception as e:
+    #     print(f"Error processing file {e}")
+    #     return {}
 
 
 def main():
