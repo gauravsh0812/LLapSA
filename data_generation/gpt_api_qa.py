@@ -65,7 +65,7 @@ def annotate(text, details):
                     {
                         "role": "user",
                         "content":
-                            "Provide me the json dictionary of 'questions', 'answer', and 'type' for the given text and details associated with it." 
+                            "Provide me the json dictionary of 'questions', 'answers', and 'type' for the given text and details associated with it." 
                             f"Here is the text description of the surgical video scenario: {text}. \n"
                             f"Here are the important deatils associated with the provided text. It is provided in the form of the json dictionary: \n {details}."
                     }
@@ -108,7 +108,7 @@ def main():
         text = af["transcript"]
 
         print(text)
-        
+
         details = {}
         if af["observation"] != []:
             details["observation"] = af["observation"]
@@ -122,7 +122,10 @@ def main():
             details["organs"] = af["organs"]
         if af["equipments"] != []:
             details["equipments"] = af["equipments"]
-
+        
+        print(" ")
+        print(details)
+        print(" ")
         response = annotate(text, details)
         print(response)
         # break
