@@ -90,7 +90,7 @@ def main():
     """
     
     xyn = args.xyn
-    x,y,n = int(xyn.split("-"))
+    x,y,n = xyn.split("-")
     
     output_json_file_path = args.output_json_file_path
     
@@ -98,7 +98,7 @@ def main():
         data = json.load(f)
     
     if y!=-1:
-        data = data[x:y]
+        data = data[int(x):int(y)]
     else:
         data = data[x:]
 
