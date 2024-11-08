@@ -74,13 +74,13 @@ def main():
     Main function to control the flow of the program.
     """
     
-    x, y = 9000,12000
+    x, y = 12000,14000
     n = 0
     
-    all_files = os.listdir(args.input_folder)[x:y]
+    all_files = os.listdir(args.input_folder)[x:]
     output_json_file_path = args.output_json_file_path
     
-    didnot_work = open("failed_api_3.lst","w")
+    didnot_work = open("failed_api_4.lst","w")
     didnot_work_count = 0
 
     all_responses = []
