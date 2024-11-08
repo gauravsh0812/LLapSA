@@ -101,9 +101,10 @@ def main():
         except:
             didnot_work.write(af + "\n")
             didnot_work_count+=1
+        
         count +=1
 
-        if count % 500:
+        if count % 500==0:
             # Write all responses to the JSON file
             print(f"writing {count} results...")
             output_file = open(output_json_file_path, "w")
