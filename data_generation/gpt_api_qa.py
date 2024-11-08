@@ -30,7 +30,7 @@ def annotate(text, details):
                     {
                         "role":"system", 
                         "content": 
-                            f"""You are an AI assistant specialized in surgical topics.
+                            """You are an AI assistant specialized in surgical topics.
                             You are provided with a text description of a surgical video clip from a surgical lecture. Along with that, you will also be
                             provided the following information extracted from the text description: Obseravtion, plan or task or action details, 
                             reason behind the action, any special note to be aware of, information regrading equipments and organds. 
