@@ -100,37 +100,37 @@ def main():
     if y!=-1:
         data = data[int(x):int(y)]
     else:
-        data = data[x:]
+        data = data[int(x):]
 
     all_responses = []
     count = 0
     didnot_work_count = 0
     for af in tqdm.tqdm(data, total=len(data)):
-        try:
-            video_id = af["video_id"]
-            text = af["transcript"]
-            details = {}
-            if af["obseravtion"] != []:
-                details["observation"] = af["observation"]
-            if af["reason"] != []:
-                details["reason"] = af["reason"]
-            if af["plan"] != []:
-                details["plan"] = af["plan"]
-            if af["note"] != []:
-                details["note"] = af["note"]
-            if af["organs"] != []:
-                details["organs"] = af["organs"]
-            if af["equipments"] != []:
-                details["equipments"] = af["equipments"]
+        # try:
+        video_id = af["video_id"]
+        text = af["transcript"]
+        details = {}
+        if af["obseravtion"] != []:
+            details["observation"] = af["observation"]
+        if af["reason"] != []:
+            details["reason"] = af["reason"]
+        if af["plan"] != []:
+            details["plan"] = af["plan"]
+        if af["note"] != []:
+            details["note"] = af["note"]
+        if af["organs"] != []:
+            details["organs"] = af["organs"]
+        if af["equipments"] != []:
+            details["equipments"] = af["equipments"]
 
-            response = annotate(text, details)
-            print(response)
-            break
-            response = ast.literal_eval(response)
-            all_responses.append(response)
+        response = annotate(text, details)
+        print(response)
+        break
+        response = ast.literal_eval(response)
+        all_responses.append(response)
 
-        except:
-            didnot_work_count+=1
+        # except:
+        #     didnot_work_count+=1
         exit()        
         count +=1
 
