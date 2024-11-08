@@ -110,7 +110,7 @@ def main():
         video_id = af["video_id"]
         text = af["transcript"]
         details = {}
-        if af["obseravtion"] != []:
+        if af["observation"] != []:
             details["observation"] = af["observation"]
         if af["reason"] != []:
             details["reason"] = af["reason"]
