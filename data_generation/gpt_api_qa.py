@@ -122,13 +122,13 @@ def main():
 
         response = annotate(text, details)
         print(response)
-        break
+        # break
         response = ast.literal_eval(response)
         all_responses.append(response)
 
         # except:
         #     didnot_work_count+=1
-        exit()        
+        # exit()        
         count +=1
 
         if count % 500==0:
