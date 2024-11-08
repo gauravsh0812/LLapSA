@@ -89,8 +89,9 @@ def main():
     Main function to control the flow of the program.
     """
     
-    x,y,n = args.xyn
-        
+    xyn = args.xyn
+    x,y,n = int(xyn.split("-"))
+    
     output_json_file_path = args.output_json_file_path
     
     with open(args.input_file, 'r') as f:
