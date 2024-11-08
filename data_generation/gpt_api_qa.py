@@ -65,12 +65,9 @@ def annotate(text, details):
                     {
                         "role": "user",
                         "content":
-                            f"""Provide me the json dictionary of {"q": "<the_question>", "a": "<the_answer>", "type": "<qa_type>"}
-                            for the given text and details associated with it. 
-                            Here is the text description of the surgical video scenario: {text}. \n
-                            Here are the important deatils associated with the provided text. It is provided in the form of the json dictionary: \n
-                            {details}.
-                            """
+                            "Provide me the json dictionary of 'questions', 'answer', and 'type' for the given text and details associated with it." 
+                            f"Here is the text description of the surgical video scenario: {text}. \n"
+                            f"Here are the important deatils associated with the provided text. It is provided in the form of the json dictionary: \n {details}."
                     }
                 ]
             )
