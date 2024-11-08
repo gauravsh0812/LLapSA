@@ -106,6 +106,9 @@ def main():
         # try:
         video_id = af["video_id"]
         text = af["transcript"]
+
+        print(text)
+        
         details = {}
         if af["observation"] != []:
             details["observation"] = af["observation"]
