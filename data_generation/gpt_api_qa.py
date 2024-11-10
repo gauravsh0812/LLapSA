@@ -56,6 +56,9 @@ def msg_system(key):
     return messages_system[key]
 
 def msg_user(key, text, detail):
+
+    print('detail: ', detail)
+
     messages_user = {
         "observation": f"Provide me the json dictionary of question-answer pair,  for the given text and obseravtion associated with it. \
                         Here is the text description of the surgical video scenario: {text} \n\n \
