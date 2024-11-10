@@ -159,7 +159,7 @@ def main():
 
     def get_response(key, text, o):
         response = annotate(key, text, o)
-        print(response)
+        # print(response)
         response = ast.literal_eval(response)
         return response
     
@@ -171,7 +171,7 @@ def main():
         video_id = af["video_id"]
         text = af["transcript"]
 
-        print("text: ", text + "\n")
+        # print("text: ", text + "\n")
 
         obs = af["observation"]
         rsn = af["reason"]
@@ -199,7 +199,7 @@ def main():
         all_responses.append(get_response("description", text, details))
 
         print("all_responses: \n", all_responses)
-        
+
         # except:
         #     didnot_work_count+=1
         # exit()        
