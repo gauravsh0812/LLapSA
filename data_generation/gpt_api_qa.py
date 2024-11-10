@@ -15,7 +15,76 @@ args = parser.parse_args()
 
 openai.api_key = args.api_key
 
-def annotate(text, details):
+def msg_system(key):
+    messages_system= {
+        "observation": "You are an AI assistant specialized in surgical topics. \
+                        You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
+                        Along with that, you will be provided with the 'observations' made by the medical professional. Unfortunately, you don't have access to the actual video. \
+                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and observation. \
+                        The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
+    
+        "reason":   "You are an AI assistant specialized in surgical topics. \
+                        You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
+                        Along with that, you will be provided with the 'reasons' of the actions mentioned in the text description. Unfortunately, you don't have access to the actual video. \
+                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and reasons. \
+                        The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
+        
+        "plan":     "You are an AI assistant specialized in surgical topics. \
+                        You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
+                        Along with that, you will be provided with the 'plan' of the future actions based on information provided in the text description. Unfortunately, you don't have access to the actual video. \
+                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and plan. \
+                        The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
+
+        "note":     "You are an AI assistant specialized in surgical topics. \
+                        You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
+                        Along with that, you will be provided with the 'note' regarding some action taken by the medical professional explained in the text description. Unfortunately, you don't have access to the actual video. \
+                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and plan. \
+                        The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
+            
+        "description": "You are an AI assistant specialized in surgical topics. Using the provided details, create a description of the surgical procedure. \
+                        Include the sequence of actions, observations made during each step, the overall plan guiding the surgery, and the reasons behind each maneuver. \
+                        Ensure that the description highlights the surgeon's approach to carefully cleaning, dissecting, and identifying critical anatomical structures while maintaining precision and minimizing disturbance. \n \
+                        The details that will be provided by the User are: \
+                            Transcript: The text description of the surgical video. \
+                            Observations: The observations made form  the text description. \
+                            Plan: The plans for the next step or future actions mentioned by surgeon in the video. \
+                            Reason: The reasons provided by the surgeon for the actions/steps taken in the video during the surgery. \
+                            Note: Any important point mentioned by the surgeon which should be taken care of while performing the surgery. \n \
+                        Using these elements, create a question-answer pair to provide a cohesive and informative description of the surgery."
+            
+    }
+    return messages_system[key]
+
+def msg_user(key, text, detail):
+    messages_user = {
+        "observation": f"Provide me the json dictionary of question-answer pair,  for the given text and obseravtion associated with it. \
+                        Here is the text description of the surgical video scenario: {text} \n\n \
+                        And here is the observation made by the medical professional: {detail}",
+
+        "reason":   f"Provide me the json dictionary of question-answer pair,  for the given text and the reason provided. \
+                        Here is the text description of the surgical video scenario: {text} \n\n \
+                        And here is the reason provided by the medical professional for the action: {detail}",
+
+        "plan":     f"Provide me the json dictionary of question-answer pair,  for the given text and plan for the next steps. \
+                        Here is the text description of the surgical video scenario: {text} \n\n \
+                        And here is the plan provided by the medical professional for the future actions: {detail}",
+        
+        "note":     f"Provide me the json dictionary of question-answer pair,  for the given text and important point mentioned by surgeon. \
+                        Here is the text description of the surgical video scenario: {text} \n\n \
+                        And here is the important note mentioned by the medical professional: {detail}",
+        
+        "description": f"Based on the information provided down below, give the comprehensove description of the surgery. \
+                         provide  the final reponse in the form of a question-answer pair. \
+                         Here is the text description of the surgical video scenario: {text} \n\n \
+                         Along with the text description, here are the list of the observations, reasons, plan, and notes related to the surgical video, mentioned by the surgeon. \
+                         Observations: {detail['observations']} \n \
+                         Reasons: {detail['reasons']} \n \
+                         Plans: {detail['plans']} \n \
+                         Notes: {detail["notes"]}"
+    }
+    return  messages_user[key]
+
+def annotate(key, text, detail):
 
     """
     Evaluates question and answer pairs using GPT-3
@@ -30,15 +99,8 @@ def annotate(text, details):
                     {
                         "role":"system", 
                         "content": 
-                            """You are an AI assistant specialized in surgical topics.
-                            You are provided with a text description of a surgical video clip from a surgical lecture. Along with that, you will also be
-                            provided the following information extracted from the text description: Obseravtion, plan or task or action details, 
-                            reason behind the action, any special note to be aware of, information regrading equipments and organds. 
-                            It is not necessray to provide all of these details. You will be provided with as much as details possible.
-                            In some cases, you may have additional text (title, description). Unfortunately, you don't have access to the actual video.
-                            Your task is to generate a Q&A pair or an answer to a given question about the video clip. The conversation
-                            should proceed as though both the User and Assistant are viewing the video, while not referring to the text
-                            information (title, description).
+                            f"""
+                            {msg_system(key)}
 
                             #-------------#
                             #INSTRUCTIONS#
@@ -49,29 +111,18 @@ def annotate(text, details):
                             the visual aspects of the video that can be inferred without the text information.
                             - Do not use phrases like "mentioned", "title", "description" in the conversation. Instead, refer to the
                             information as being "in the video."
-                            There can be a few types of question as following: 
-                                - reason which asks the reason of an action, 
-                                - plan which ask a possible future step, 
-                                - note which asks for something you should notice when perform some action, 
-                                - detail which asks for more information about the observation
-                                - details about the oragn and equipments used in the surgical scenario.
 
-                            Generate a Q&A pair that you use the "statement" value to answer a question regarding the "observation".
-                            Your reply should be in the following json format: {"q": "<the_question>", "a": "<the_answer>", "type": "<qa_type>"}, where \n
-                            The <the_question> is the questions, <the_answers> is the asnwer to the question, and "<qa_type>" is the 
-                            type of the questions which could be one of the following: obseravtion, note, plan, reason, equipment, or organ. 
+                            Your reply should be in the following json dictionary format where the key will be the question and the value will be the answer. 
                             """
                     },
                     {
                         "role": "user",
                         "content":
-                            "Provide me the json dictionary of 'questions', 'answers', and 'type' for the given text and details associated with it." 
-                            f"Here is the text description of the surgical video scenario: {text}. \n"
-                            f"Here are the important deatils associated with the provided text. It is provided in the form of the json dictionary: \n {details}."
+                                f"{msg_user(key, text, detail)}"
                     }
                 ]
             )
-        # Convert response to a Python dictionary.
+    # Convert response to a Python dictionary.
     response_dict = completion["choices"][0]["message"]["content"]
     return response_dict
 
@@ -99,6 +150,12 @@ def main():
     else:
         data = data[int(x):]
 
+    def get_response(key, text, o):
+        response = annotate(key, text, o)
+        print(response)
+        response = ast.literal_eval(response)
+        return response
+    
     all_responses = []
     count = 0
     didnot_work_count = 0
@@ -109,28 +166,34 @@ def main():
 
         print(text)
 
+        obs = af["observation"]
+        rsn = af["reason"]
+        pln = af["plan"]
+        nt = af["note"]
+        ogn = af["organs"]
+        eqp = af["equipments"]
+
+        # getting QA
+        for o in obs:            
+            all_responses.append(get_response("observation", text,o))
+        for r in rsn:
+            all_responses.append(get_response("reason", text, r))
+        for p in pln:
+            all_responses.append(get_response("plan", text, p))
+        for n in nt:
+            all_responses.append(get_response("note", text, n))
+
+        print(all_responses)
+
+        break
+
+        # final description QA
         details = {}
-        if af["observation"] != []:
-            details["observation"] = af["observation"]
-        if af["reason"] != []:
-            details["reason"] = af["reason"]
-        if af["plan"] != []:
-            details["plan"] = af["plan"]
-        if af["note"] != []:
-            details["note"] = af["note"]
-        if af["organs"] != []:
-            details["organs"] = af["organs"]
-        if af["equipments"] != []:
-            details["equipments"] = af["equipments"]
-        
-        print(" ")
-        print(details)
-        print(" ")
-        response = annotate(text, details)
-        print(response)
-        # break
-        response = ast.literal_eval(response)
-        all_responses.append(response)
+        details['observations'] = obs
+        details['reasons'] = rsn
+        details['plans'] = pln
+        details["notes"] = nt
+        all_responses.append(get_response("description", text, details))
 
         # except:
         #     didnot_work_count+=1
