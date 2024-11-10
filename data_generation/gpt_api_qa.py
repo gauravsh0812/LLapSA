@@ -99,9 +99,6 @@ def annotate(key, text, detail):
     # try:
         # Compute the correctness score
     system_text = msg_system(key)
-
-    print("detail: ", detail)
-
     user_text = msg_user(key, text, detail)
     completion = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
@@ -174,7 +171,7 @@ def main():
         video_id = af["video_id"]
         text = af["transcript"]
 
-        print("text: ", text)
+        print("text: ", text + "\n")
 
         obs = af["observation"]
         rsn = af["reason"]
@@ -193,7 +190,7 @@ def main():
         for n in nt:
             all_responses.append(get_response("note", text, n))
 
-        print(all_responses)
+        print("all_responses: \n", all_responses)
 
         break
 
