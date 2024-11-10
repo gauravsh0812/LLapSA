@@ -190,10 +190,6 @@ def main():
         for n in nt:
             all_responses.append(get_response("note", text, n))
 
-        print("all_responses: \n", all_responses)
-
-        break
-
         # final description QA
         details = {}
         details['observations'] = obs
@@ -202,17 +198,19 @@ def main():
         details["notes"] = nt
         all_responses.append(get_response("description", text, details))
 
+        print("all_responses: \n", all_responses)
+        
         # except:
         #     didnot_work_count+=1
         # exit()        
         count +=1
 
-        if count % 500==0:
-            # Write all responses to the JSON file
-            print(f"writing {count} results...")
-            output_file = open(output_json_file_path, "w")
-            output_file.write(json.dumps(all_responses, indent=2))
-            output_file.write('\n')  # Add a newline after the entire JSON object
+        # if count % 500==0:
+        #     # Write all responses to the JSON file
+        #     print(f"writing {count} results...")
+        #     output_file = open(output_json_file_path, "w")
+        #     output_file.write(json.dumps(all_responses, indent=2))
+        #     output_file.write('\n')  # Add a newline after the entire JSON object
     
     # Write all responses to the JSON file
     # output_file = open(output_json_file_path, "w")
