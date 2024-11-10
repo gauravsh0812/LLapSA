@@ -57,8 +57,6 @@ def msg_system(key):
 
 def msg_user(key, text, detail):
 
-    print('detail: ', detail)
-
     messages_user = {
         "observation": f"Provide me the json dictionary of question-answer pair,  for the given text and obseravtion associated with it. \
                         Here is the text description of the surgical video scenario: {text} \n\n \
@@ -96,6 +94,8 @@ def annotate(key, text, detail):
 
     # try:
         # Compute the correctness score
+    system_text = msg_system(key)
+    user_text = msg_user(key, text, detail)
     completion = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -103,7 +103,7 @@ def annotate(key, text, detail):
                         "role":"system", 
                         "content": 
                             f"""
-                            {msg_system(key)}
+                            {system_text}
 
                             #-------------#
                             #INSTRUCTIONS#
@@ -121,7 +121,7 @@ def annotate(key, text, detail):
                     {
                         "role": "user",
                         "content":
-                                f"{msg_user(key, text, detail)}"
+                                f"{user_text}"
                     }
                 ]
             )
