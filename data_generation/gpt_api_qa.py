@@ -80,7 +80,7 @@ def msg_user(key, text, detail):
                          Observations: {detail['observations']} \n \
                          Reasons: {detail['reasons']} \n \
                          Plans: {detail['plans']} \n \
-                         Notes: {detail["notes"]}"
+                         Notes: {detail['notes']}"
     }
     return  messages_user[key]
 
