@@ -210,7 +210,8 @@ def main():
         details["notes"] = nt
         print("detail: ", details)
         response = get_response("description", text, details)
-        print(response + "\n")
+        print(response)
+        print(' ')
         all_responses.append(response)
 
         print(details)
