@@ -208,6 +208,7 @@ def main():
         details['reasons'] = rsn
         details['plans'] = pln
         details["notes"] = nt
+        print("detail: ", details)
         response = get_response("description", text, details)
         print(response)
         all_responses.append(response)
