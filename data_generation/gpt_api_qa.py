@@ -57,33 +57,37 @@ def msg_system(key):
 
 def msg_user(key, text, detail):
 
-    messages_user = {
-        "observation": f"Provide me the json dictionary of question-answer pair,  for the given text and obseravtion associated with it. \
-                        Here is the text description of the surgical video scenario: {text} \n\n \
-                        And here is the observation made by the medical professional: {detail}",
+    if key == "observation":
+        prompt = f"Provide me the json dictionary of question-answer pair,  for the given text and obseravtion associated with it. \
+                    Here is the text description of the surgical video scenario: {text} \n\n \
+                    And here is the observation made by the medical professional: {detail}",
 
-        "reason":   f"Provide me the json dictionary of question-answer pair,  for the given text and the reason provided. \
-                        Here is the text description of the surgical video scenario: {text} \n\n \
-                        And here is the reason provided by the medical professional for the action: {detail}",
+    elif key == "reason": 
+        prompt = f"Provide me the json dictionary of question-answer pair,  for the given text and the reason provided. \
+                    Here is the text description of the surgical video scenario: {text} \n\n \
+                    And here is the reason provided by the medical professional for the action: {detail}",
 
-        "plan":     f"Provide me the json dictionary of question-answer pair,  for the given text and plan for the next steps. \
+    elif key == "plan":     
+        prompt = f"Provide me the json dictionary of question-answer pair,  for the given text and plan for the next steps. \
+                    Here is the text description of the surgical video scenario: {text} \n\n \
+                    And here is the plan provided by the medical professional for the future actions: {detail}",
+    
+    elif key == "note":     
+        prompt = f"Provide me the json dictionary of question-answer pair,  for the given text and important point mentioned by surgeon. \
+                    Here is the text description of the surgical video scenario: {text} \n\n \
+                    And here is the important note mentioned by the medical professional: {detail}",
+    
+    elif key == "description": 
+        prompt = f"Based on the information provided down below, give the comprehensove description of the surgery. \
+                        provide  the final reponse in the form of a question-answer pair. \
                         Here is the text description of the surgical video scenario: {text} \n\n \
-                        And here is the plan provided by the medical professional for the future actions: {detail}",
-        
-        "note":     f"Provide me the json dictionary of question-answer pair,  for the given text and important point mentioned by surgeon. \
-                        Here is the text description of the surgical video scenario: {text} \n\n \
-                        And here is the important note mentioned by the medical professional: {detail}",
-        
-        "description": f"Based on the information provided down below, give the comprehensove description of the surgery. \
-                         provide  the final reponse in the form of a question-answer pair. \
-                         Here is the text description of the surgical video scenario: {text} \n\n \
-                         Along with the text description, here are the list of the observations, reasons, plan, and notes related to the surgical video, mentioned by the surgeon. \
-                         Observations: {detail['observations']} \n \
-                         Reasons: {detail['reasons']} \n \
-                         Plans: {detail['plans']} \n \
-                         Notes: {detail['notes']}"
-    }
-    return  messages_user[key]
+                        Along with the text description, here are the list of the observations, reasons, plan, and notes related to the surgical video, mentioned by the surgeon. \
+                        Observations: {detail['observations']} \n \
+                        Reasons: {detail['reasons']} \n \
+                        Plans: {detail['plans']} \n \
+                        Notes: {detail['notes']}"
+    
+    return prompt
 
 def annotate(key, text, detail):
 
@@ -170,7 +174,7 @@ def main():
         video_id = af["video_id"]
         text = af["transcript"]
 
-        print(text)
+        print("text: ", text)
 
         obs = af["observation"]
         rsn = af["reason"]
