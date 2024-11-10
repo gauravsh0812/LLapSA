@@ -198,12 +198,14 @@ def main():
         details["notes"] = nt
         all_responses.append(get_response("description", text, details))
 
-        print("all_responses: \n", all_responses)
+        print(details)
 
         # except:
         #     didnot_work_count+=1
         # exit()        
         count +=1
+
+    print("all_responses: \n", all_responses)
 
         # if count % 500==0:
         #     # Write all responses to the JSON file
