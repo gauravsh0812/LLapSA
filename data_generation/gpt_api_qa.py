@@ -95,6 +95,9 @@ def annotate(key, text, detail):
     # try:
         # Compute the correctness score
     system_text = msg_system(key)
+
+    print(detail)
+
     user_text = msg_user(key, text, detail)
     completion = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
