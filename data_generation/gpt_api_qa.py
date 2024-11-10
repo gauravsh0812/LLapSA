@@ -181,13 +181,17 @@ def main():
         eqp = af["equipments"]
 
         # getting QA
-        for o in obs:            
+        for o in obs:        
+            print("obs: ", o)    
             all_responses.append(get_response("observation", text,o))
         for r in rsn:
+            print("rsn: ", r)
             all_responses.append(get_response("reason", text, r))
         for p in pln:
+            print("pln: ", p)
             all_responses.append(get_response("plan", text, p))
         for n in nt:
+            print("nt: ", n)
             all_responses.append(get_response("note", text, n))
 
         # final description QA
