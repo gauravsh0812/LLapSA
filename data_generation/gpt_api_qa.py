@@ -183,16 +183,24 @@ def main():
         # getting QA
         for o in obs:        
             print("obs: ", o)    
-            all_responses.append(get_response("observation", text,o))
+            response = get_response("observation", text,o)
+            print(response)
+            all_responses.append(response)
         for r in rsn:
             print("rsn: ", r)
-            all_responses.append(get_response("reason", text, r))
+            response = get_response("observation", text,r)
+            print(response)
+            all_responses.append(response)
         for p in pln:
             print("pln: ", p)
-            all_responses.append(get_response("plan", text, p))
+            response = get_response("observation", text,p)
+            print(response)
+            all_responses.append(response)
         for n in nt:
             print("nt: ", n)
-            all_responses.append(get_response("note", text, n))
+            response = get_response("observation", text,n)
+            print(response)
+            all_responses.append(response)
 
         # final description QA
         details = {}
@@ -200,7 +208,9 @@ def main():
         details['reasons'] = rsn
         details['plans'] = pln
         details["notes"] = nt
-        all_responses.append(get_response("description", text, details))
+        response = get_response("description", text, details)
+        print(response)
+        all_responses.append(response)
 
         print(details)
 
