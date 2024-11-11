@@ -183,22 +183,22 @@ def main():
 
         # getting QA
         for o in obs:        
-            print("obs: ", o)    
+            print("obs: ", o + "\n")    
             response = get_response("observation", text,o)
             print(response)
             all_responses.append(response)
         for r in rsn:
-            print("rsn: ", r)
+            print("rsn: ", r + "\n")
             response = get_response("observation", text,r)
             print(response)
             all_responses.append(response)
         for p in pln:
-            print("pln: ", p)
+            print("pln: ", p + "\n")
             response = get_response("observation", text,p)
             print(response)
             all_responses.append(response)
         for n in nt:
-            print("nt: ", n)
+            print("nt: ", n + "\n")
             response = get_response("observation", text,n)
             print(response)
             all_responses.append(response)
