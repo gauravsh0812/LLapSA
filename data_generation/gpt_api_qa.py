@@ -159,7 +159,8 @@ def main():
 
     def get_response(key, text, o):
         response = annotate(key, text, o)
-        # print(response)
+        if "```json" in response:
+            response = response.replace("```json", "").replace("```", "")
         response = ast.literal_eval(response)
         return response
     
