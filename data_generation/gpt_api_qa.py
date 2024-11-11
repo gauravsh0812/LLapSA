@@ -58,7 +58,7 @@ def msg_system(key):
 def msg_user(key, text, detail):
 
     if key == "observation":
-        prompt = f"Provide me the json dictionary of question-answer pair,  for the given text and obseravtion associated with it. \
+        prompt = f"Provide me the json dictionary of a Q&A pair,  for the given text and obseravtion associated with it. \
                     Here is the text description of the surgical video scenario: {text} \n\n \
                     And here is the observation made by the medical professional: {detail}",
 
