@@ -165,7 +165,7 @@ def main():
             response = response.replace("```json", "").replace("```", "")
         response = ast.literal_eval(response)
         print("KEY: ", response.keys())
-        print("VALUE: ", response.value())
+        print("VALUE: ", response.values())
         return response
     
     all_responses = []
