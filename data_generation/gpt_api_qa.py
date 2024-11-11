@@ -172,58 +172,58 @@ def main():
     count = 0
     didnot_work_count = 0
     for af in tqdm.tqdm(data, total=len(data)):
-        try:
-            video_id = af["video_id"]
-            text = af["transcript"]
+        # try:
+        video_id = af["video_id"]
+        text = af["transcript"]
 
-            # print("text: ", text + "\n")
+        # print("text: ", text + "\n")
 
-            obs = af["observation"]
-            rsn = af["reason"]
-            pln = af["plan"]
-            nt = af["note"]
-            ogn = af["organs"]
-            eqp = af["equipments"]
+        obs = af["observation"]
+        rsn = af["reason"]
+        pln = af["plan"]
+        nt = af["note"]
+        ogn = af["organs"]
+        eqp = af["equipments"]
 
-            # getting QA
-            for o in obs:        
-                # print("obs: ", o + "\n")    
-                response = get_response("observation", text,o)
-                # print(response)
-                all_responses.append(response)
-            for r in rsn:
-                # print("rsn: ", r + "\n")
-                response = get_response("reason", text,r)
-                # print(response)
-                all_responses.append(response)
-            for p in pln:
-                # print("pln: ", p + "\n")
-                response = get_response("plan", text,p)
-                # print(response)
-                all_responses.append(response)
-            for n in nt:
-                # print("nt: ", n + "\n")
-                response = get_response("note", text,n)
-                # print(response)
-                all_responses.append(response)
-
-            # final description QA
-            details = {}
-            details['observations'] = obs
-            details['reasons'] = rsn
-            details['plans'] = pln
-            details["notes"] = nt
-            # print("detail: ", details)
-            response = get_response("description", text, details)
+        # getting QA
+        for o in obs:        
+            # print("obs: ", o + "\n")    
+            response = get_response("observation", text,o)
             # print(response)
-            # print(' ')
+            all_responses.append(response)
+        for r in rsn:
+            # print("rsn: ", r + "\n")
+            response = get_response("reason", text,r)
+            # print(response)
+            all_responses.append(response)
+        for p in pln:
+            # print("pln: ", p + "\n")
+            response = get_response("plan", text,p)
+            # print(response)
+            all_responses.append(response)
+        for n in nt:
+            # print("nt: ", n + "\n")
+            response = get_response("note", text,n)
+            # print(response)
             all_responses.append(response)
 
-            # print(details)
+        # final description QA
+        details = {}
+        details['observations'] = obs
+        details['reasons'] = rsn
+        details['plans'] = pln
+        details["notes"] = nt
+        # print("detail: ", details)
+        response = get_response("description", text, details)
+        # print(response)
+        # print(' ')
+        all_responses.append(response)
 
-        except:
-            didnot_work_count+=1
-            # exit()        
+        # print(details)
+
+        # except:
+        #     didnot_work_count+=1
+        #     # exit()        
         count +=1
 
     # print("all_responses: \n", all_responses)
