@@ -20,25 +20,25 @@ def msg_system(key):
         "observation": "You are an AI assistant specialized in surgical topics. \
                         You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
                         Along with that, you will be provided with the 'observations' made by the medical professional. Unfortunately, you don't have access to the actual video. \
-                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and observation. \
+                        Your task is to generate the Q&A pair from the information you can gather from the text description and observation. The question should be generated the 'observation' point of view. \
                         The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
     
         "reason":   "You are an AI assistant specialized in surgical topics. \
                         You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
                         Along with that, you will be provided with the 'reasons' of the actions mentioned in the text description. Unfortunately, you don't have access to the actual video. \
-                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and reasons. \
+                        Your task is to generate a Q&A pair from the information you can gather from the text description and reasons. The question should be generated from the 'reasoning' point of view. \
                         The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
         
         "plan":     "You are an AI assistant specialized in surgical topics. \
                         You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
                         Along with that, you will be provided with the 'plan' of the future actions based on information provided in the text description. Unfortunately, you don't have access to the actual video. \
-                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and plan. \
+                        Your task is to generate a Q&A pair from  the information you can gather from the text description and plan. The question should be generated from the point of view of 'planning' the future steps. \
                         The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
 
         "note":     "You are an AI assistant specialized in surgical topics. \
                         You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
                         Along with that, you will be provided with the 'note' regarding some action taken by the medical professional explained in the text description. Unfortunately, you don't have access to the actual video. \
-                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and plan. \
+                        Your task is to generate a Q&A pair from the information you can gather from the text description and plan. The question should be generated from the point of view of 'mentioning an important note' during the surgery. \
                         The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
             
         "description": "You are an AI assistant specialized in surgical topics. Using the provided details, create a description of the surgical procedure. \
