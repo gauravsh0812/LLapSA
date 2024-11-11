@@ -17,31 +17,29 @@ openai.api_key = args.api_key
 
 def msg_system(key):
     messages_system= {
-        "observation": "You are a highly specialized AI assistant focused on surgical education. \
-                        You will be provided with a detailed text description or transcription of a surgical video clip from a lecture, along with specific 'observations' noted by a medical professional. \
-                        You do not have access to the actual video. Your task is to generate a high-quality question-and-answer (Q&A) pair that reflect insights based on these observations. \
-                        Each question should align with the medical professional's perspective, aiming to explore critical aspects, techniques, or anatomical details as they might be understood or highlighted in the actual procedure. \
-                        Avoid referencing text details like the title or description directly. Structure your responses as if both you and the User are jointly observing the procedure to create a dynamic, informative dialogue.",
+        "observation": "You are an AI assistant specialized in surgical topics. \
+                        You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
+                        Along with that, you will be provided with the 'observations' made by the medical professional. Unfortunately, you don't have access to the actual video. \
+                        Your task is to generate the 'observation' based Q&A pair or an answer to a given 'observation' based question about the video clip based on  the information you can gather from the text description and observation. \
+                        The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
     
-        "reason":   "You are an expert AI assistant specializing in surgical education. \
-                    Provided with a text description or transcription of a surgical video clip from a lecture, as well as the 'reasons' behind key actions noted in the description, you will create a question-and-answer pair based on these insights. \
-                    Although you cannot view the actual video, generate questions that delve into the reasoning and purpose behind each surgical step, aiming to uncover the decision-making process, techniques, and anatomical considerations. \
-                    The question should reflect a unique aspect of the reasoning process and offer a fresh perspective, as if you and the User are observing the surgery together in real time. \
-                    Avoid referring to textual elements like the title or description directly. Instead, explore each question from a different angle to provide comprehensive, varied insights into the surgical approach.",
+        "reason":   "You are an AI assistant specialized in surgical topics. \
+                        You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
+                        Along with that, you will be provided with the 'reasons' of the actions mentioned in the text description. Unfortunately, you don't have access to the actual video. \
+                        Your task is to generate a Q&A pair from the 'reasoning' point of view or an answer to a given question about the video clip based on  the information you can gather from the text description and reasons. \
+                        The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
         
-        "plan":     "You are an AI assistant with expertise in surgical education. \
-                    You will be provided with a detailed text description or transcription of a surgical video clip from a lecture, along with a 'plan' outlining upcoming steps in the procedure. \
-                    Although you don’t have access to the actual video, your role is to create a question-and-answer pair that explore the rationale and considerations behind planning each next step. \
-                    The questions should encourage thinking about how and why specific actions are anticipated or sequenced. \
-                    The question should be framed as if you and the User are observing and discussing the surgical plan in real time, with a focus on future actions, expected outcomes, and procedural strategy. \
-                    Avoid direct references to textual elements like the title or description. Instead, emphasize a forward-looking perspective to generate unique, insightful questions about the surgical approach and its objectives.",
+        "plan":     "You are an AI assistant specialized in surgical topics. \
+                        You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
+                        Along with that, you will be provided with the 'plan' of the future actions based on information provided in the text description. Unfortunately, you don't have access to the actual video. \
+                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and plan. \
+                        The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
 
-        "note":     "You are an AI assistant with a focus on surgical education. \
-                    You are given a text description or transcription of a surgical video clip from a lecture, along with an important 'note' explaining a particular action taken by the medical professional. \
-                    While you don’t have access to the actual video, your task is to generate a question-and-answer pair that highlight the significance of these notes in understanding the surgical steps, techniques, or safety considerations. \
-                    The question should emphasize the key points or expert tips as though you and the User are actively observing the surgery. \
-                    Structure questions to explore why specific details or nuances in the note are essential for the surgical outcome. \
-                    Avoid direct references to elements like titles or descriptions; instead, focus on the expert insights that the note brings to light, adding value to each step in the procedure.",
+        "note":     "You are an AI assistant specialized in surgical topics. \
+                        You are provided with a text description/transcription of a surgical video clip from a surgical lecture. \
+                        Along with that, you will be provided with the 'note' regarding some action taken by the medical professional explained in the text description. Unfortunately, you don't have access to the actual video. \
+                        Your task is to generate a Q&A pair or an answer to a given question about the video clip based on  the information you can gather from the text description and plan. \
+                        The conversation should proceed as though both the User and Assistant are viewing the video, while not referring to the text information such as title, description.",
             
         "description": "You are an AI assistant specialized in surgical topics. Using the provided details, create a description of the surgical procedure. \
                         Include the sequence of actions, observations made during each step, the overall plan guiding the surgery, and the reasons behind each maneuver. \
@@ -164,69 +162,67 @@ def main():
         if "```json" in response:
             response = response.replace("```json", "").replace("```", "")
         response = ast.literal_eval(response)
-        print("KEY: ", response.keys)
-        print("VALUE: ", response.value)
         return response
     
     all_responses = []
     count = 0
     didnot_work_count = 0
     for af in tqdm.tqdm(data, total=len(data)):
-        try:
-            video_id = af["video_id"]
-            text = af["transcript"]
+        # try:
+        video_id = af["video_id"]
+        text = af["transcript"]
 
-            # print("text: ", text + "\n")
+        # print("text: ", text + "\n")
 
-            obs = af["observation"]
-            rsn = af["reason"]
-            pln = af["plan"]
-            nt = af["note"]
-            ogn = af["organs"]
-            eqp = af["equipments"]
+        obs = af["observation"]
+        rsn = af["reason"]
+        pln = af["plan"]
+        nt = af["note"]
+        ogn = af["organs"]
+        eqp = af["equipments"]
 
-            # getting QA
-            for o in obs:        
-                # print("obs: ", o + "\n")    
-                response = get_response("observation", text,o)
-                # print(response)
-                all_responses.append(response)
-            for r in rsn:
-                # print("rsn: ", r + "\n")
-                response = get_response("reason", text,r)
-                # print(response)
-                all_responses.append(response)
-            for p in pln:
-                # print("pln: ", p + "\n")
-                response = get_response("plan", text,p)
-                # print(response)
-                all_responses.append(response)
-            for n in nt:
-                # print("nt: ", n + "\n")
-                response = get_response("note", text,n)
-                # print(response)
-                all_responses.append(response)
-
-            # final description QA
-            details = {}
-            details['observations'] = obs
-            details['reasons'] = rsn
-            details['plans'] = pln
-            details["notes"] = nt
-            # print("detail: ", details)
-            response = get_response("description", text, details)
-            # print(response)
-            # print(' ')
+        # getting QA
+        for o in obs:        
+            print("obs: ", o + "\n")    
+            response = get_response("observation", text,o)
+            print(response)
+            all_responses.append(response)
+        for r in rsn:
+            print("rsn: ", r + "\n")
+            response = get_response("observation", text,r)
+            print(response)
+            all_responses.append(response)
+        for p in pln:
+            print("pln: ", p + "\n")
+            response = get_response("observation", text,p)
+            print(response)
+            all_responses.append(response)
+        for n in nt:
+            print("nt: ", n + "\n")
+            response = get_response("observation", text,n)
+            print(response)
             all_responses.append(response)
 
-            # print(details)
+        # final description QA
+        details = {}
+        details['observations'] = obs
+        details['reasons'] = rsn
+        details['plans'] = pln
+        details["notes"] = nt
+        print("detail: ", details)
+        response = get_response("description", text, details)
+        print(response)
+        print(' ')
+        all_responses.append(response)
 
-        except:
-            didnot_work_count+=1
-            # exit()        
+        print(details)
+
+        # except:
+        #     didnot_work_count+=1
+        # exit()        
         count +=1
 
-    # print("all_responses: \n", all_responses)
+    print("all_responses: \n", all_responses)
 
         # if count % 500==0:
         #     # Write all responses to the JSON file
