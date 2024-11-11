@@ -164,8 +164,8 @@ def main():
         if "```json" in response:
             response = response.replace("```json", "").replace("```", "")
         response = ast.literal_eval(response)
-        print("KEY: ", response.keys)
-        print("VALUE: ", response.value)
+        print("KEY: ", response.keys())
+        print("VALUE: ", response.value())
         return response
     
     all_responses = []
