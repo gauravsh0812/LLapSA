@@ -63,17 +63,17 @@ def msg_user(key, text, detail):
                     And here is the observation made by the medical professional: {detail}",
 
     elif key == "reason": 
-        prompt = f"Provide me the json dictionary of question-answer pair,  for the given text and the reason provided. \
+        prompt = f"Provide me the json dictionary of a Q&A pair,  for the given text and the reason provided. \
                     Here is the text description of the surgical video scenario: {text} \n\n \
                     And here is the reason provided by the medical professional for the action: {detail}",
 
     elif key == "plan":     
-        prompt = f"Provide me the json dictionary of question-answer pair,  for the given text and plan for the next steps. \
+        prompt = f"Provide me the json dictionary of  a Q&A pair,  for the given text and plan for the next steps. \
                     Here is the text description of the surgical video scenario: {text} \n\n \
                     And here is the plan provided by the medical professional for the future actions: {detail}",
     
     elif key == "note":     
-        prompt = f"Provide me the json dictionary of question-answer pair,  for the given text and important point mentioned by surgeon. \
+        prompt = f"Provide me the json dictionary of  a Q&A pair,  for the given text and important point mentioned by surgeon. \
                     Here is the text description of the surgical video scenario: {text} \n\n \
                     And here is the important note mentioned by the medical professional: {detail}",
     
