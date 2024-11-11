@@ -31,14 +31,14 @@ def msg_system(key):
         
         "plan":     "You are an AI assistant with expertise in surgical education. \
                     You will be provided with a detailed text description or transcription of a surgical video clip from a lecture, along with a 'plan' outlining upcoming steps in the procedure. \
-                    Although you don’t have access to the actual video, your role is to create a question-and-answer pair that explore the rationale and considerations behind planning each next step. \
+                    Although you do not have access to the actual video, your role is to create a question-and-answer pair that explore the rationale and considerations behind planning each next step. \
                     The questions should encourage thinking about how and why specific actions are anticipated or sequenced. \
                     The question should be framed as if you and the User are observing and discussing the surgical plan in real time, with a focus on future actions, expected outcomes, and procedural strategy. \
                     Avoid direct references to textual elements like the title or description. Instead, emphasize a forward-looking perspective to generate unique, insightful questions about the surgical approach and its objectives.",
 
         "note":     "You are an AI assistant with a focus on surgical education. \
                     You are given a text description or transcription of a surgical video clip from a lecture, along with an important 'note' explaining a particular action taken by the medical professional. \
-                    While you don’t have access to the actual video, your task is to generate a question-and-answer pair that highlight the significance of these notes in understanding the surgical steps, techniques, or safety considerations. \
+                    While you do not have access to the actual video, your task is to generate a question-and-answer pair that highlight the significance of these notes in understanding the surgical steps, techniques, or safety considerations. \
                     The question should emphasize the key points or expert tips as though you and the User are actively observing the surgery. \
                     Structure questions to explore why specific details or nuances in the note are essential for the surgical outcome. \
                     Avoid direct references to elements like titles or descriptions; instead, focus on the expert insights that the note brings to light, adding value to each step in the procedure.",
@@ -164,8 +164,8 @@ def main():
         if "```json" in response:
             response = response.replace("```json", "").replace("```", "")
         response = ast.literal_eval(response)
-        print("KEY: ", response.keys())
-        print("VALUE: ", response.values())
+        print("QUESTION: ", response.keys()[0])
+        print("ANSWER: ", response.values()[0])
         return response
     
     all_responses = []
