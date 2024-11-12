@@ -241,6 +241,7 @@ def main_parallel(arr):
 
     except:
         print(af)
+        print(" ")
         pass
 
 def clean_json_files(directory_path):
