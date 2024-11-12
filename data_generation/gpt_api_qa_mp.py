@@ -266,7 +266,7 @@ def main():
     Main function to control the flow of the program.
     """
     
-    xy = args.xyn
+    xy = args.xy
     x,y = xy.split("-")
     
     output_json_file_path = args.output_json_file_path
