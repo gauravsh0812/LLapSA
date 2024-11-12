@@ -243,6 +243,21 @@ def main_parallel(arr):
         # print(af)
         pass
 
+def clean_json_files(directory_path):
+    # Check if the directory exists
+    if os.path.exists(directory_path):
+        # Iterate over all items in the directory
+        for filename in os.listdir(directory_path):
+            
+            file_path = os.path.join(directory_path, filename)
+            try:
+                os.remove(file_path)  # Directly remove the JSON file
+            except Exception as e:
+                print(f"Failed to delete {file_path}. Reason: {e}")
+    else:
+        print(f"The directory {directory_path} does not exist.")
+
+
 def sample_generator(data):
     for i in range(0, len(data), 20):
         yield i, data[i:i+20]
@@ -292,7 +307,7 @@ def main():
         output_file.write(json.dumps(all_responses, indent=2))
         output_file.write('\n')  # Add a newline after the entire JSON object
 
-        shutil.rmtree("/data/shared/gauravs/llapsa/temps/")
+        clean_json_files("/data/shared/gauravs/llapsa/temps/")
 
 if __name__ == "__main__":
     main()
