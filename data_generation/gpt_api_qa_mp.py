@@ -142,7 +142,7 @@ def annotate(key, text, detail):
 
 def main_parallel(arr):
 
-    (af, ind) = arr
+    (ind, af) = arr
 
     def get_response(key, text, o, video_id):
         response = annotate(key, text, o)
