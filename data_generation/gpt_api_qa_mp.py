@@ -11,7 +11,7 @@ parser.add_argument("--api_key", required=True, help="OpenAI API key")
 parser.add_argument("--input_file", required=True, help="Input json file containing all the obseravtion,Note,\
                                                             plan, reasons, equipemnets, and organ details.")
 parser.add_argument("--output_json_file_path", required=True, help="output file path")
-parser.add_argument("--xyn", required=True)
+parser.add_argument("--xy", required=True)
 args = parser.parse_args()
 
 openai.api_key = args.api_key
@@ -266,8 +266,8 @@ def main():
     Main function to control the flow of the program.
     """
     
-    xyn = args.xyn
-    x,y,n = xyn.split("-")
+    xy = args.xyn
+    x,y = xy.split("-")
     
     output_json_file_path = args.output_json_file_path
     
