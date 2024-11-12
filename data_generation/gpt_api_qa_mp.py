@@ -266,7 +266,8 @@ def main():
     """
     Main function to control the flow of the program.
     """
-    
+    start_time = time.time()
+
     xy = args.xy
     x,y = xy.split("-")
     
@@ -310,6 +311,10 @@ def main():
 
         clean_json_files("/data/shared/gauravs/llapsa/temps/")
         count+=1
+    
+    end_time = time.time()
+    total_running_time = (end_time - start_time)/60  # Calculate the total running time
+    print(f"Total running time: {total_running_time:.2f} minutes")  # Print the total running time
 
 if __name__ == "__main__":
     main()
