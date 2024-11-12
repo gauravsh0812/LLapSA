@@ -1,6 +1,6 @@
-import openai, os, shutil
+import openai, os
 import argparse
-import tqdm
+import time
 import json
 import ast 
 import multiprocessing as mp
@@ -260,7 +260,7 @@ def clean_json_files(directory_path):
 
 def sample_generator(data):
     for i in range(0, len(data), 20):
-        yield i, data[i:i+20]
+        yield data[i:i+20]
 
 def main():
     """
@@ -281,8 +281,9 @@ def main():
         data = data[int(x):]
     
     total_batches = len(data)//20
+    count =0
 
-    for i_batch, batch in sample_generator(data):
+    for batch in sample_generator(data):
         temp_arr = []
         for i, af in enumerate(batch):
             temp_arr.append((i, af))
@@ -302,12 +303,13 @@ def main():
 
         # Write all responses to the JSON file
         
-        print(f"writing batch {i_batch} / {total_batches}")
+        print(f"writing batch {count+1} / {total_batches}")
         output_file = open(output_json_file_path, "w")
         output_file.write(json.dumps(all_responses, indent=2))
         output_file.write('\n')  # Add a newline after the entire JSON object
 
         clean_json_files("/data/shared/gauravs/llapsa/temps/")
+        count+=1
 
 if __name__ == "__main__":
     main()
