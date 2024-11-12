@@ -283,7 +283,9 @@ def main():
         data = data[int(x):]
     
     total_batches = len(data)//20
+    total_samples = len(data)
     count =0
+    samples_done = 0
 
     for batch in sample_generator(data):
         temp_arr = []
@@ -312,6 +314,10 @@ def main():
 
         clean_json_files("/data/shared/gauravs/llapsa/temps/")
         count+=1
+        samples_done += 20
+
+        print(f"Total samples done: {samples_done} / {total_samples}")
+
     
     end_time = time.time()
     total_running_time = (end_time - start_time)/60  # Calculate the total running time
