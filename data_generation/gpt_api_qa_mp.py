@@ -164,85 +164,85 @@ def main_parallel(arr):
             output = items[0] if items else ""
         return output
     
-    try:
-        video_id = af["video_id"].split(".")[0]
-        text = af["transcript"]
+    # try:
+    video_id = af["video_id"].split(".")[0]
+    text = af["transcript"]
 
-        # print("text: ", text + "\n")
+    # print("text: ", text + "\n")
 
-        obs = af["observation"]
-        rsn = af["reason"]
-        pln = af["plan"]
-        nt = af["note"]
-        ogn = af["organs"]
-        eqp = af["equipments"]
+    obs = af["observation"]
+    rsn = af["reason"]
+    pln = af["plan"]
+    nt = af["note"]
+    ogn = af["organs"]
+    eqp = af["equipments"]
 
-        # getting QA
-        for i, o in enumerate(obs):        
-            response = get_response("observation", text,o, video_id)
-            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_obs{i}.json", "w") as f:
-                f.write(json.dumps(response))
-                f.close()
+    # getting QA
+    for i, o in enumerate(obs):        
+        response = get_response("observation", text,o, video_id)
+        with open(f"/data/shared/gauravs/llapsa/temps/{ind}_obs{i}.json", "w") as f:
+            f.write(json.dumps(response))
+            f.close()
 
-        for i,r in enumerate(rsn):
-            response = get_response("reason", text,r, video_id)
-            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_rsn{i}.json", "w") as f:
-                f.write(json.dumps(response))
-                f.close()
+    for i,r in enumerate(rsn):
+        response = get_response("reason", text,r, video_id)
+        with open(f"/data/shared/gauravs/llapsa/temps/{ind}_rsn{i}.json", "w") as f:
+            f.write(json.dumps(response))
+            f.close()
 
-        for i,p in enumerate(pln):
-            response = get_response("plan", text,p, video_id)
-            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_pln{i}.json", "w") as f:
-                f.write(json.dumps(response))
-                f.close()
-            
-        for i,n in enumerate(nt):
-            response = get_response("note", text,n, video_id)
-            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_nt{i}.json", "w") as f:
-                f.write(json.dumps(response))
-                f.close()
-
-        # final description QA
-        details = {}
-        details['observations'] = obs
-        details['reasons'] = rsn
-        details['plans'] = pln
-        details["notes"] = nt
-        response = get_response("description", text, details, video_id)
-        with open(f"/data/shared/gauravs/llapsa/temps/{ind}_detail.json", "w") as f:
+    for i,p in enumerate(pln):
+        response = get_response("plan", text,p, video_id)
+        with open(f"/data/shared/gauravs/llapsa/temps/{ind}_pln{i}.json", "w") as f:
             f.write(json.dumps(response))
             f.close()
         
-        # adding quantative questions
-        equipments = list_to_str(eqp)
-        organs = list_to_str(ogn)
+    for i,n in enumerate(nt):
+        response = get_response("note", text,n, video_id)
+        with open(f"/data/shared/gauravs/llapsa/temps/{ind}_nt{i}.json", "w") as f:
+            f.write(json.dumps(response))
+            f.close()
 
-        if len(eqp) >=1:
-            d = {
-                "q": "What equipments are used in the surgical video?",
-                "a":  f"The equipments used in the surgery are {equipments}.",
-                "video_id": video_id,
-                "type": "quantative",
-                }
-            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_eqp.json", "w") as f:
-                f.write(json.dumps(response))
-                f.close()
+    # final description QA
+    details = {}
+    details['observations'] = obs
+    details['reasons'] = rsn
+    details['plans'] = pln
+    details["notes"] = nt
+    response = get_response("description", text, details, video_id)
+    with open(f"/data/shared/gauravs/llapsa/temps/{ind}_detail.json", "w") as f:
+        f.write(json.dumps(response))
+        f.close()
+    
+    # adding quantative questions
+    equipments = list_to_str(eqp)
+    organs = list_to_str(ogn)
 
-        if len(ogn)>=1:
-            d = {
-                "q": "What organs are involved in the surgery?",
-                "a":  f"The organs involved in the surgery are {organs}.",
-                "video_id": video_id,
-                "type": "quantative",
-                }
-            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_org.json", "w") as f:
-                f.write(json.dumps(response))
-                f.close()            
+    if len(eqp) >=1:
+        d = {
+            "q": "What equipments are used in the surgical video?",
+            "a":  f"The equipments used in the surgery are {equipments}.",
+            "video_id": video_id,
+            "type": "quantative",
+            }
+        with open(f"/data/shared/gauravs/llapsa/temps/{ind}_eqp.json", "w") as f:
+            f.write(json.dumps(response))
+            f.close()
 
-    except:
-        print(af)
-        print(" ")
-        pass
+    if len(ogn)>=1:
+        d = {
+            "q": "What organs are involved in the surgery?",
+            "a":  f"The organs involved in the surgery are {organs}.",
+            "video_id": video_id,
+            "type": "quantative",
+            }
+        with open(f"/data/shared/gauravs/llapsa/temps/{ind}_org.json", "w") as f:
+            f.write(json.dumps(response))
+            f.close()            
+
+    # except:
+    #     print(af)
+    #     print(" ")
+    #     pass
 
 def clean_json_files(directory_path):
     # Check if the directory exists
