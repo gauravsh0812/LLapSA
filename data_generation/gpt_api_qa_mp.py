@@ -165,7 +165,7 @@ def main_parallel(arr):
         return output
     
     try:
-        video_id = af["video_id"]
+        video_id = af["video_id"].split(".")[0]
         text = af["transcript"]
 
         # print("text: ", text + "\n")
@@ -245,7 +245,7 @@ def main_parallel(arr):
 
 def sample_generator(data):
     for i in range(0, len(data), 20):
-        yield data[i:i+20]
+        yield i, data[i:i+20]
 
 def main():
     """
@@ -265,7 +265,9 @@ def main():
     else:
         data = data[int(x):]
     
-    for batch in sample_generator(data):
+    total_batches = len(data)//20
+
+    for i_batch, batch in sample_generator(data):
         temp_arr = []
         for i, af in enumerate(batch):
             temp_arr.append((i, af))
@@ -284,7 +286,8 @@ def main():
                     all_responses.append(response)
 
         # Write all responses to the JSON file
-        print("writing batch ")
+        
+        print(f"writing batch {i_batch} / {total_batches}")
         output_file = open(output_json_file_path, "w")
         output_file.write(json.dumps(all_responses, indent=2))
         output_file.write('\n')  # Add a newline after the entire JSON object
