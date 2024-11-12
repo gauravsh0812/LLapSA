@@ -3,6 +3,7 @@ import argparse
 import tqdm
 import json
 import ast 
+import multiprocessing as mp
 
 parser = argparse.ArgumentParser(description="Training")
 
@@ -139,25 +140,9 @@ def annotate(key, text, detail):
     #     print(f"Error processing file {e}")
     #     return {}
 
+def main_parallel(arr):
 
-def main():
-
-    """
-    Main function to control the flow of the program.
-    """
-    
-    xyn = args.xyn
-    x,y,n = xyn.split("-")
-    
-    output_json_file_path = args.output_json_file_path
-    
-    with open(args.input_file, 'r') as f:
-        data = json.load(f)
-    
-    if y!=-1:
-        data = data[int(x):int(y)]
-    else:
-        data = data[int(x):]
+    (af, ind) = arr
 
     def get_response(key, text, o, video_id):
         response = annotate(key, text, o)
@@ -178,90 +163,144 @@ def main():
         else:
             output = items[0] if items else ""
         return output
-
-    all_responses = []
-    count = 0
-    didnot_work_count = 0
-    for af in tqdm.tqdm(data, total=len(data)):
-        try:
-            video_id = af["video_id"]
-            text = af["transcript"]
-
-            # print("text: ", text + "\n")
-
-            obs = af["observation"]
-            rsn = af["reason"]
-            pln = af["plan"]
-            nt = af["note"]
-            ogn = af["organs"]
-            eqp = af["equipments"]
-
-            # getting QA
-            for o in obs:        
-                response = get_response("observation", text,o, video_id)
-                all_responses.append(response)
-            for r in rsn:
-                response = get_response("reason", text,r, video_id)
-                all_responses.append(response)
-            for p in pln:
-                response = get_response("plan", text,p, video_id)
-                all_responses.append(response)
-            for n in nt:
-                response = get_response("note", text,n, video_id)
-                all_responses.append(response)
-
-            # final description QA
-            details = {}
-            details['observations'] = obs
-            details['reasons'] = rsn
-            details['plans'] = pln
-            details["notes"] = nt
-            response = get_response("description", text, details, video_id)
-            all_responses.append(response)
-            
-            
-            # adding quantative questions
-            equipments = list_to_str(eqp)
-            organs = list_to_str(ogn)
-
-            if len(eqp) >=1:
-                all_responses.append(
-                    {
-                    "q": "What equipments are used in the surgical video?",
-                    "a":  f"The equipments used in the surgery are {equipments}.",
-                    "video_id": video_id,
-                    "type": "quantative",
-                    }
-                )
-
-            if len(ogn)>=1:
-                all_responses.append(
-                    {
-                    "q": "What organs are involved in the surgery?",
-                    "a":  f"The organs involved in the surgery are {organs}.",
-                    "video_id": video_id,
-                    "type": "quantative",
-                    }
-                )
-
-        except:
-            didnot_work_count+=1
-
-        count +=1
-
-        if count % 50==0:
-            # Write all responses to the JSON file
-            print(f"writing {count} results...")
-            output_file = open(output_json_file_path, "w")
-            output_file.write(json.dumps(all_responses, indent=2))
-            output_file.write('\n')  # Add a newline after the entire JSON object
     
-    # Write all responses to the JSON file
-    output_file = open(output_json_file_path, "w")
-    output_file.write(json.dumps(all_responses, indent=2))
-    output_file.write('\n')  # Add a newline after the entire JSON object
+    try:
+        video_id = af["video_id"]
+        text = af["transcript"]
+
+        # print("text: ", text + "\n")
+
+        obs = af["observation"]
+        rsn = af["reason"]
+        pln = af["plan"]
+        nt = af["note"]
+        ogn = af["organs"]
+        eqp = af["equipments"]
+
+        # getting QA
+        for i, o in enumerate(obs):        
+            response = get_response("observation", text,o, video_id)
+            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_obs{i}.json", "w") as f:
+                f.write(json.dumps(response))
+                f.close()
+
+        for i,r in enumerate(rsn):
+            response = get_response("reason", text,r, video_id)
+            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_rsn{i}.json", "w") as f:
+                f.write(json.dumps(response))
+                f.close()
+
+        for i,p in enumerate(pln):
+            response = get_response("plan", text,p, video_id)
+            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_pln{i}.json", "w") as f:
+                f.write(json.dumps(response))
+                f.close()
+            
+        for i,n in enumerate(nt):
+            response = get_response("note", text,n, video_id)
+            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_nt{i}.json", "w") as f:
+                f.write(json.dumps(response))
+                f.close()
+
+        # final description QA
+        details = {}
+        details['observations'] = obs
+        details['reasons'] = rsn
+        details['plans'] = pln
+        details["notes"] = nt
+        response = get_response("description", text, details, video_id)
+        with open(f"/data/shared/gauravs/llapsa/temps/{ind}_detail.json", "w") as f:
+            f.write(json.dumps(response))
+            f.close()
+        
+        # adding quantative questions
+        equipments = list_to_str(eqp)
+        organs = list_to_str(ogn)
+
+        if len(eqp) >=1:
+            d = {
+                "q": "What equipments are used in the surgical video?",
+                "a":  f"The equipments used in the surgery are {equipments}.",
+                "video_id": video_id,
+                "type": "quantative",
+                }
+            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_eqp.json", "w") as f:
+                f.write(json.dumps(response))
+                f.close()
+
+        if len(ogn)>=1:
+            d = {
+                "q": "What organs are involved in the surgery?",
+                "a":  f"The organs involved in the surgery are {organs}.",
+                "video_id": video_id,
+                "type": "quantative",
+                }
+            with open(f"/data/shared/gauravs/llapsa/temps/{ind}_org.json", "w") as f:
+                f.write(json.dumps(response))
+                f.close()            
+
+    except:
+        pass
+
     
-    print("failed file numbers: ", didnot_work_count)
+    # if count % 50==0:
+    #     # Write all responses to the JSON file
+    #     print(f"writing {count} results...")
+    #     output_file = open(output_json_file_path, "w")
+    #     output_file.write(json.dumps(all_responses, indent=2))
+    #     output_file.write('\n')  # Add a newline after the entire JSON object
+    
+    # # Write all responses to the JSON file
+    # output_file = open(output_json_file_path, "w")
+    # output_file.write(json.dumps(all_responses, indent=2))
+    # output_file.write('\n')  # Add a newline after the entire JSON object
+    
+    # print("failed file numbers: ", didnot_work_count)
+
+def sample_generator(data):
+    for i in range(0, len(data), 20):
+        yield data[i:i+20]
+
+def main():
+    """
+    Main function to control the flow of the program.
+    """
+    
+    xyn = args.xyn
+    x,y,n = xyn.split("-")
+    
+    output_json_file_path = args.output_json_file_path
+    
+    with open(args.input_file, 'r') as f:
+        data = json.load(f)
+    
+    if y!=-1:
+        data = data[int(x):int(y)]
+    else:
+        data = data[int(x):]
+    
+    for batch in sample_generator(data):
+        temp_arr = []
+        for i, af in enumerate(batch):
+            temp_arr.append((i, af))
+
+        with mp.Pool(20) as pool:
+            pool.map(main_parallel, temp_arr)
+
+        all_responses = []
+
+        # Read and combine all JSON files in the "temps" directory
+        temp_dir = "/data/shared/gauravs/llapsa/temps/"
+        for filename in os.listdir(temp_dir):
+            if filename.endswith(".json"):
+                with open(os.path.join(temp_dir, filename), 'r') as f:
+                    response = json.load(f)
+                    all_responses.append(response)
+
+        # Write all responses to the JSON file
+        output_file = open(output_json_file_path, "w")
+        output_file.write(json.dumps(all_responses, indent=2))
+        output_file.write('\n')  # Add a newline after the entire JSON object
 
 if __name__ == "__main__":
     main()
