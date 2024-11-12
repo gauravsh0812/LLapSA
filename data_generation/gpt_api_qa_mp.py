@@ -240,7 +240,7 @@ def main_parallel(arr):
                 f.close()            
 
     except:
-        # print(af)
+        print(af)
         pass
 
 def clean_json_files(directory_path):
