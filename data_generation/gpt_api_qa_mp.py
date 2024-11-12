@@ -1,4 +1,4 @@
-import openai, os
+import openai, os, shutil
 import argparse
 import tqdm
 import json
@@ -291,6 +291,8 @@ def main():
         output_file = open(output_json_file_path, "w")
         output_file.write(json.dumps(all_responses, indent=2))
         output_file.write('\n')  # Add a newline after the entire JSON object
+
+        shutil.rmtree("/data/shared/gauravs/llapsa/temps/")
 
 if __name__ == "__main__":
     main()
