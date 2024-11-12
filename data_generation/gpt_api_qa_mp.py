@@ -240,8 +240,8 @@ def main_parallel(arr):
                 f.close()            
 
     except:
-        print(af)
-        # pass
+        # print(af)
+        pass
 
 def sample_generator(data):
     for i in range(0, len(data), 20):
