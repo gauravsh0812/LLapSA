@@ -1,4 +1,4 @@
-import openai, os
+import openai, os, sys
 import argparse
 import time
 import json
@@ -241,8 +241,11 @@ def main_parallel(arr):
 
 
     except Exception as e:
+        error_message = str(e)
         print(f"Error processing file {e}")
-        # pass
+        if "Rate limit reached" in error_message:
+            print("Rate limit reached. Stopping execution.")
+            sys.exit(1)  # Or re-raise the exception if preferred
 
 def clean_json_files(directory_path):
     # Check if the directory exists
