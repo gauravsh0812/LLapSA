@@ -305,7 +305,7 @@ def main():
         for filename in os.listdir(temp_dir):
             if filename.endswith(".json"):
                 # try:
-                print(filename)
+                # print(filename)
                 with open(os.path.join(temp_dir, filename), 'r') as f:
                     # content = f.read().strip()
                     # if not content:
@@ -313,6 +313,7 @@ def main():
                     # else:
                         # try:
                     response = json.load(f)
+                    print(response)
                     all_responses.append(response)
                         # except Exception as e:
                         #     print(f"Error processing file {e}")
