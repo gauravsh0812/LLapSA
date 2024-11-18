@@ -310,11 +310,11 @@ def main():
                     if not content:
                         print(f"Empty file: {filename}")
                     else:
-                        try:
-                            response = json.load(f)
-                            all_responses.append(response)
-                        except Exception as e:
-                            print(f"Error processing file {e}")
+                        # try:
+                        response = json.load(f)
+                        all_responses.append(response)
+                        # except Exception as e:
+                        #     print(f"Error processing file {e}")
                 # except Exception as e:
                 #     print(f"Error opening file {filename}: {e}")
 
