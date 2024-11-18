@@ -304,19 +304,19 @@ def main():
         temp_dir = "/data/shared/gauravs/llapsa/temps/"
         for filename in os.listdir(temp_dir):
             if filename.endswith(".json"):
-                try:
-                    with open(os.path.join(temp_dir, filename), 'r') as f:
-                        content = f.read().strip()
-                        if not content:
-                            print(f"Empty file: {filename}")
-                        else:
-                            try:
-                                response = json.load(f)
-                                all_responses.append(response)
-                            except Exception as e:
-                                print(f"Error processing file {e}")
-                except Exception as e:
-                    print(f"Error opening file {filename}: {e}")
+                # try:
+                with open(os.path.join(temp_dir, filename), 'r') as f:
+                    content = f.read().strip()
+                    if not content:
+                        print(f"Empty file: {filename}")
+                    else:
+                        try:
+                            response = json.load(f)
+                            all_responses.append(response)
+                        except Exception as e:
+                            print(f"Error processing file {e}")
+                # except Exception as e:
+                #     print(f"Error opening file {filename}: {e}")
 
         # Write all responses to the JSON file
         print(f"writing batch {count+1} / {total_batches}")
