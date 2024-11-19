@@ -280,7 +280,7 @@ def main():
     with open(args.input_file, 'r') as f:
         data = json.load(f)
     
-    if y!=-1:
+    if y!="end":
         data = data[int(x):int(y)]
     else:
         data = data[int(x):]
