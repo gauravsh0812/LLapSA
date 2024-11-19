@@ -284,6 +284,7 @@ def main():
         data = data[int(x):int(y)]
     else:
         data = data[int(x):]
+        print("using rest of the dataset...")
     
     total_batches = len(data)//20
     total_samples = len(data)
