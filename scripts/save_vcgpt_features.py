@@ -94,7 +94,7 @@ def main():
         counter = 0    
         for i in range(len(frames)):
             features = dino(frames[i])
-            print("features shape: ", features)
+            print("features shape: ", features.shape)
             break
 
             with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
