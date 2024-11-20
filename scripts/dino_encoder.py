@@ -113,6 +113,7 @@ class DinoVisionTower(BaseVisionTower):
         # Convert PIL Images to PyTorch tensors
         # images = torch.from_numpy(numpy.array(images)) # images shape:  torch.Size([224, 224, 3])
         images = torch.from_numpy(numpy.array(images))
+        print(images.shape)
         images = images.permute(0,3,1,2)#.unsqueeze(0)
 
         print("images shape: ", images.shape)
