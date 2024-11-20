@@ -102,7 +102,8 @@ def main():
             
             counter +=1
             
-            assert counter == len(frames); print(counter, len(frames))
+            print(counter, len(frames))
+            assert counter == len(frames) 
             load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
             
             # clear the temp
