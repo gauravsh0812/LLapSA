@@ -1,4 +1,4 @@
-import torch
+import torch, numpy
 import torch.nn.functional as F
 from transformers import AutoImageProcessor, Dinov2Config, Dinov2Model
 from scripts.base_encoder import BaseVisionTower, ProcessorWrapper
@@ -111,7 +111,7 @@ class DinoVisionTower(BaseVisionTower):
 
     def _forward(self, images):
         # Convert PIL Images to PyTorch tensors
-        images = torch.stack([torch.from_numpy(np.array(img)) for img in images])
+        images = torch.from_numpy(numpy.array(images))
         
         with torch.set_grad_enabled(self.unfreeze_mm_vision_tower):
             image_forward_outs = self.vision_tower.forward(
