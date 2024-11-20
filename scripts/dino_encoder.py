@@ -75,8 +75,9 @@ class DinoFeatureExtractor:
             device (str): Device to run the model on ('cuda' or 'cpu').
         """
         self.device = device
-        self.processor = AutoImageProcessor.from_pretrained(model_name)
-        self.model = Dinov2Model.from_pretrained(model_name).to(self.device)
+        self.processor = AutoImageProcessor.from_pretrained(model_name, torch_dtype=torch.float16)
+        self.model = Dinov2Model.from_pretrained(model_name, torch_dtype=torch.float16, 
+                                                 low_cpu_mem_usage=True).to(self.device)
         self.model.eval()
 
     def extract_features(self, frames, layer_index=-2):
