@@ -91,6 +91,8 @@ def main():
         
         # try:
         frames = load_video(video_path)
+        frames_tnsr = torch.stack([torch.from_numpy(np.array(img)) for img in frames], dim=0)
+        print(frames_tnsr)
         
         features = dino(frames)
 
