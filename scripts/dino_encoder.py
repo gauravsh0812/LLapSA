@@ -114,7 +114,7 @@ class DinoFeatureExtractor:
 
 def main():
 
-    x = 150
+    x = 0
     y = 1000
 
     args = parse_args()
