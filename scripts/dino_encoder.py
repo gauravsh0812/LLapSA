@@ -71,14 +71,14 @@ class DinoVisionTower(BaseVisionTower):
             "last_hidden_state"
         ]  # batch_size, sequence_length, hidden_size
 
-        if self.select_feature == "cls_patch":
-            image_features = sequence_output
-        elif self.select_feature == "patch":
-            image_features = sequence_output[:, 1:]
-        elif self.select_feature == "cls":
-            image_features = sequence_output[:, 0]
-        else:
-            raise ValueError(f"Unexpected select feature: {self.select_feature}")
+        # if self.select_feature == "cls_patch":
+        #     image_features = sequence_output
+        # elif self.select_feature == "patch":
+        image_features = sequence_output[:, 1:]
+        # elif self.select_feature == "cls":
+        #     image_features = sequence_output[:, 0]
+        # else:
+        #     raise ValueError(f"Unexpected select feature: {self.select_feature}")
         return image_features
 
     def interpolate(self, image_features):
