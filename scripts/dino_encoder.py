@@ -111,7 +111,7 @@ class DinoVisionTower(BaseVisionTower):
 
     def _forward(self, images):
         # Convert PIL Images to PyTorch tensors
-        images = torch.from_numpy(numpy.array(images))
+        images = torch.from_numpy(numpy.array(images)).unsqueeze(0)
         
         with torch.set_grad_enabled(self.unfreeze_mm_vision_tower):
             image_forward_outs = self.vision_tower.forward(
