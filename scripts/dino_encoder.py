@@ -1,127 +1,172 @@
-import torch, numpy
-import torch.nn.functional as F
-from transformers import AutoImageProcessor, Dinov2Config, Dinov2Model
-from scripts.base_encoder import BaseVisionTower, ProcessorWrapper
+import os
+import math
+import torch
+import pickle
+import argparse
+import numpy as np
+from PIL import Image
+from tqdm import tqdm
+from decord import VideoReader, cpu
+from transformers import AutoImageProcessor, Dinov2Model
+    
 
-class DinoVisionTower(BaseVisionTower):
-    def __init__(self, delay_load=False):
-        super(DinoVisionTower, self).__init__(delay_load)
+def load_video(vis_path, num_frm=100):
+    vr = VideoReader(vis_path, ctx=cpu(0))
+    total_frame_num = len(vr)
+    total_num_frm = min(total_frame_num, num_frm)
+    frame_idx = get_seq_frames(total_frame_num, total_num_frm)
+    img_array = vr.get_batch(frame_idx).asnumpy()  # (n_clips*num_frm, H, W, 3)
 
-        model_path = "facebook/dinov2-giant"
-        base_model_name, res, interp = model_path, 378, 576
-        self.vision_tower_name = base_model_name
-        self._image_size = res
-        self._interp_size = interp
-        self._patch_size = 14  # default patch size
+    a, H, W, _ = img_array.shape
+    h, w = 224, 224
+    if img_array.shape[-3] != h or img_array.shape[-2] != w:
+        img_array = torch.from_numpy(img_array).permute(0, 3, 1, 2).float()
+        img_array = torch.nn.functional.interpolate(img_array, size=(h, w))
+        img_array = img_array.permute(0, 2, 3, 1).to(torch.uint8).numpy()
+    img_array = img_array.reshape((1, total_num_frm, img_array.shape[-3], img_array.shape[-2], img_array.shape[-1]))
 
-        if not self.delay_load:
-            self.load_model()
-        else:
-            self.cfg_only = Dinov2Config.from_pretrained(self.vision_tower_name)
+    clip_imgs = []
+    for j in range(total_num_frm):
+        clip_imgs.append(Image.fromarray(img_array[0, j]))
 
-    def load_model(self, device_map=None):
+    return clip_imgs
 
-        self.vision_tower = Dinov2Model.from_pretrained(self.vision_tower_name)
-        """ValueError: Dinov2Model does not support `device_map='auto'`. To implement support, the model class needs to implement the `_no_split_modules` attribute."""
-        self.vision_tower._no_split_modules = ["Dinov2SwiGLUFFN"]
 
-        self.vision_tower.eval()
-        self.unfreeze_mm_vision_tower = False
+def get_seq_frames(total_num_frames, desired_num_frames):
+    seg_size = float(total_num_frames - 1) / desired_num_frames
+    seq = []
+    for i in range(desired_num_frames):
+        start = int(np.round(seg_size * i))
+        end = int(np.round(seg_size * (i + 1)))
+        seq.append((start + end) // 2)
 
-        _image_size = self.vision_tower.config.image_size
-        if self._image_size is None:
-            self._image_size = _image_size
+    return seq
 
-        # increase shortest edge to prevent edge case crops
-        default_shortest_ratio = 8 / 7  # 224/256
-        # shortest_edge = int(default_shortest_ratio * self._image_size)
-        shortest_edge = self._image_size
+def parse_args():
+    parser = argparse.ArgumentParser(description="Training")
+    parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
+    parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
+    args = parser.parse_args()
+    return args
 
-        processor = AutoImageProcessor.from_pretrained(
-            self.vision_tower_name,
-            crop_size=dict(height=self._image_size, width=self._image_size),
-            size=dict(shortest_edge=shortest_edge),
-        )
-        self.image_processor = processor
 
-        # Assign the output channels of the projection convolution as the hidden size
-        self._hidden_size = (
-            self.vision_tower.embeddings.patch_embeddings.projection.out_channels
-        )
-        # Assign the first value of the stride of the projection convolution as the patch size
-        self._patch_size = (
-            self.vision_tower.embeddings.patch_embeddings.projection.stride[0]
-        )
+def load_and_stack_hidden_states(temp, video_id, 
+                                 counter, vcgpt_features):
 
-        # print(self._hidden_size, self._patch_size)
+    # Iterate over each video ID
+    hidden_states = []
+    for i in range(counter):
+        with open(os.path.join(temp, f"vcgpt_{video_id}_{i}.pkl"), 'rb') as f:
+            hidden_state = pickle.load(f)
+            hidden_states.append(hidden_state)
 
-        self.vision_tower.requires_grad_(self.unfreeze_mm_vision_tower)
-        self.is_loaded = True
-
-    @property
-    def image_size(self):
-        return self._image_size
-
-    def feature_select(self, outputs):
-        sequence_output = outputs[
-            "last_hidden_state"
-        ]  # batch_size, sequence_length, hidden_size
-
-        image_features = sequence_output[:, 1:]
-        return image_features
-
-    def interpolate(self, image_features):
-        if self._interp_size is None:
-            return image_features
-
-        b, num_tokens, dim = image_features.shape
-
-        if num_tokens != self.num_patches:
-            target_h = target_w = int(self._interp_size**0.5)
-            h = w = int(num_tokens**0.5)
-
-            image_features = image_features.view(b, h, w, dim)
-            image_features = image_features.permute(0, 3, 1, 2).contiguous()
-
-            image_features = F.interpolate(
-                image_features.to(torch.float32),
-                size=(target_h, target_w),
-                mode="bilinear",
-                align_corners=False,
-            ).to(image_features.dtype)
-
-            # Permute the dimensions back to (b, target_h, target_w, dim)
-            image_features = image_features.permute(0, 2, 3, 1).contiguous()
-
-            # Flatten the spatial dimensions (target_h, target_w) into a single dimension
-            image_features = image_features.flatten(1, 2)
-
-        return image_features
-
-    def _forward(self, images):
-        # Convert PIL Images to PyTorch tensors
-        images = torch.stack([torch.from_numpy(numpy.array(i)) for i in images], dim=0) # images shape:  torch.Size([224, 224, 3])
-        print(images.shape)
-        exit()
-        # images = images.permute(2,0,1).unsqueeze(0)
-
-        # print("images shape: ", images.shape)
+        stacked_states = torch.stack(hidden_states, dim=0)
+        output_file = os.path.join(vcgpt_features, f"{video_id}.pkl")
         
-        with torch.set_grad_enabled(self.unfreeze_mm_vision_tower):
-            image_forward_outs = self.vision_tower.forward(
-                images.to(device=self.device, dtype=self.dtype)
-            )
-            image_features = self.feature_select(image_forward_outs).to(images.dtype)
-            interp_features = self.interpolate(image_features)
-            return interp_features
+        with open(output_file, 'wb') as f:
+            pickle.dump(stacked_states, f)
 
-    @property
-    def num_patches_per_side(self):
-        return int(self.num_patches**0.5)
+class DinoFeatureExtractor:
+    def __init__(self, model_name="facebook/dinov2-giant", device="cuda:0"):
+        """
+        Initializes the DINOv2 model and image processor for feature extraction.
+        Args:
+            model_name (str): Pre-trained DINOv2 model to use.
+            device (str): Device to run the model on ('cuda' or 'cpu').
+        """
+        self.device = device
+        self.processor = AutoImageProcessor.from_pretrained(model_name)
+        self.model = Dinov2Model.from_pretrained(model_name).to(self.device)
+        self.model.eval()
 
-    @property
-    def num_patches(self):
-        if self._interp_size is None:
-            return (self._image_size // self._patch_size) ** 2
-        else:
-            return self._interp_size
+    def extract_features(self, frames, layer_index=-2):
+        """
+        Extract features from a batch of video frames at a specific encoder layer.
+        
+        Args:
+            frames (torch.Tensor): A batch of preprocessed video frames, shape (batch_size, channels, height, width).
+            layer_index (int): Encoder layer index to extract features from.
+        
+        Returns:
+            torch.Tensor: Extracted features from the specified encoder layer.
+        """
+        with torch.no_grad():
+            # Forward pass through the model
+            outputs = self.model(frames, output_hidden_states=True)
+            # Extract features from the desired layer
+            features = outputs.hidden_states[layer_index]
+        return features
+
+    def preprocess_frames(self, frames):
+        """
+        Preprocesses video frames for input to the DINOv2 model.
+        
+        Args:
+            frames (list or np.ndarray): List of frames or NumPy array of shape (batch_size, height, width, channels).
+        
+        Returns:
+            torch.Tensor: Preprocessed frames as a tensor, shape (batch_size, channels, height, width).
+        """
+        # Convert frames to PIL Images and preprocess
+        inputs = self.processor(frames, return_tensors="pt")
+        return inputs["pixel_values"].to(self.device)
+
+def main():
+
+    x = 0
+    y = 10
+    n = 0
+
+    args = parse_args()
+    video_dir_path = args.video_dir_path
+    clip_feat_path = args.clip_feat_path
+    vcgpt_features = os.path.join(clip_feat_path, "dino_features")
+    temp = os.path.join(clip_feat_path, f"temp_{n}")
+    os.makedirs(temp, exist_ok=True)
+    os.makedirs(vcgpt_features, exist_ok=True)
+
+    # Initialize the CLIP model    
+    all_videos = os.listdir(video_dir_path)
+    all_videos = all_videos[x:y]
+    dino = DinoFeatureExtractor()
+
+    for video_name in tqdm(all_videos):
+        video_path = f"{video_dir_path}/{video_name}"
+        video_id = video_name.split('.')[0]
+        
+        # try:
+        frames = load_video(video_path)
+        preprocessed_frames = dino.preprocess_frames(frames)
+        features = dino.extract_features(preprocessed_frames, layer_index=-2)
+        print("Feature Shape:", features.shape)
+
+        break
+
+        counter = 0    
+
+
+        # try:
+        for i in range(len(frames)):
+            # features = dino(frames[i])
+            # with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
+            #     pickle.dump(features, f)
+            
+            counter +=1
+            
+        # print(counter, len(frames))
+        # assert counter == len(frames) 
+        # load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
+            
+        # # clear the temp
+        # for item in os.listdir(temp):
+        #     item_path = os.path.join(temp, item)
+        #     os.remove(item_path)
+
+        # except Exception as e:
+        #     print(f"Can't process {video_path}")
+
+if __name__ == "__main__":
+    main()  
+
+
+# git pull; CUDA_VISIBLE_DEVICES=0 python scripts/save_vcgpt_features.py --video_dir_path /data/shared/gauravs/llapsa/vcgpt_clips --clip_feat_path /data/shared/gauravs/llapsa/longvu_videos
