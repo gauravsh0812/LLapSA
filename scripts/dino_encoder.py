@@ -100,8 +100,10 @@ class DinoVisionTower(BaseVisionTower):
 
     def _forward(self, images):
         # Convert PIL Images to PyTorch tensors
-        images = torch.from_numpy(numpy.array(images)) # images shape:  torch.Size([224, 224, 3])
-        images = images.permute(2,0,1).unsqueeze(0)
+        images = torch.stack([torch.from_numpy(numpy.array(i)) for i in images], dim=0) # images shape:  torch.Size([224, 224, 3])
+        print(images.shape)
+        exit()
+        # images = images.permute(2,0,1).unsqueeze(0)
 
         # print("images shape: ", images.shape)
         
