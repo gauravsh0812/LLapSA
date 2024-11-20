@@ -26,6 +26,9 @@ class DinoVisionTower(BaseVisionTower):
         """ValueError: Dinov2Model does not support `device_map='auto'`. To implement support, the model class needs to implement the `_no_split_modules` attribute."""
         self.vision_tower._no_split_modules = ["Dinov2SwiGLUFFN"]
 
+        self.vision_tower.eval()
+        self.unfreeze_mm_vision_tower = False
+
         _image_size = self.vision_tower.config.image_size
         if self._image_size is None:
             self._image_size = _image_size
