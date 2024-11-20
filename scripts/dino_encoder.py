@@ -2,6 +2,9 @@ import torch
 import torch.nn.functional as F
 from transformers import AutoImageProcessor, Dinov2Config, Dinov2Model
 from scripts.base_encoder import BaseVisionTower, ProcessorWrapper
+def main():
+
+    frames = [Image.open(f).convert('RGB') for f in video_file_names]
 
 
 class DinoVisionTower(BaseVisionTower):
@@ -107,16 +110,15 @@ class DinoVisionTower(BaseVisionTower):
         return image_features
 
     def _forward(self, images):
-        # logger.warning(f"images shape: {images.shape}")
+        # Convert PIL Images to PyTorch tensors
+        images = torch.stack([torch.from_numpy(np.array(img)) for img in images])
+        
         with torch.set_grad_enabled(self.unfreeze_mm_vision_tower):
             image_forward_outs = self.vision_tower.forward(
                 images.to(device=self.device, dtype=self.dtype)
             )
-            # logger.warning(f"image_forward_outs shape: {image_forward_outs['last_hidden_state'].shape}")
             image_features = self.feature_select(image_forward_outs).to(images.dtype)
-            # logger.warning(f"image_features shape: {image_features.shape}")
             interp_features = self.interpolate(image_features)
-            # logger.warning(f"interp_features shape: {interp_features.shape}")
             return interp_features
 
     @property
