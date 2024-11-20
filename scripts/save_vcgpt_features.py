@@ -7,9 +7,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
-from transformers import (
-    CLIPVisionModel, 
-    CLIPImageProcessor)
+from .dino_encoder import DinoVisionTower
     
 
 def load_video(vis_path, num_frm=100):
@@ -70,8 +68,8 @@ def load_and_stack_hidden_states(temp, video_id,
 
 def main():
 
-    x =11000
-    n= 4
+    x = 11000
+    n = 4
 
     args = parse_args()
     video_dir_path = args.video_dir_path
@@ -82,11 +80,7 @@ def main():
     os.makedirs(vcgpt_features, exist_ok=True)
 
     # Initialize the CLIP model
-    image_processor = CLIPImageProcessor.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16)
-    vision_tower = CLIPVisionModel.from_pretrained('openai/clip-vit-large-patch14', torch_dtype=torch.float16,
-                                                low_cpu_mem_usage=True).cuda()
-    vision_tower.eval()
-
+    dino = DinoVisionTower()
     all_videos = os.listdir(video_dir_path)
     all_videos = all_videos[x:]
 
@@ -94,29 +88,29 @@ def main():
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
         
-        try:
-            video = load_video(video_path)
-            counter = 0    
-            for i in range(len(video)):
-                video_tensor = image_processor.preprocess(video[i], return_tensors='pt')['pixel_values']
-                video_tensor = video_tensor.half().cuda()
-                image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
-                vcgpt_hidden_state = image_forward_outs.hidden_states[-2]  # torch.Size([1, 257, 1024])
-                with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
-                    pickle.dump(vcgpt_hidden_state, f)
-                
-                counter +=1
-            
-            assert counter == len(video)
-            load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
-            
-            # clear the temp
-            for item in os.listdir(temp):
-                item_path = os.path.join(temp, item)
-                os.remove(item_path)
+        # try:
+        frames = load_video(video_path)
+        counter = 0    
+        for i in range(len(frames)):
+            features = dino(frames[i])
+            print("features shape: ", features)
+            break
 
-        except Exception as e:
-            print(f"Can't process {video_path}")
+            with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
+                pickle.dump(vcgpt_hidden_state, f)
+            
+            counter +=1
+            
+        #     assert counter == len(video)
+        #     load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
+            
+        #     # clear the temp
+        #     for item in os.listdir(temp):
+        #         item_path = os.path.join(temp, item)
+        #         os.remove(item_path)
+
+        # except Exception as e:
+        #     print(f"Can't process {video_path}")
 
 if __name__ == "__main__":
     main()  
