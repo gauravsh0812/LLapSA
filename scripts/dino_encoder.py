@@ -142,7 +142,7 @@ def main():
             counter += 1       
 
         except Exception as e:
-            print(f"Can't process {video_path}")
+            print(f"Can't process {video_path} due to {e}")
         
         if counter % 512==0:
             for key in video_clip_features.keys():
