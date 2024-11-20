@@ -114,8 +114,8 @@ class DinoFeatureExtractor:
 
 def main():
 
-    x = 1000
-    y = 2000
+    x = 0
+    y = 5002
 
     args = parse_args()
     video_dir_path = args.video_dir_path
@@ -144,7 +144,7 @@ def main():
         except Exception as e:
             print(f"Can't process {video_path} due to {e}")
         
-        if counter % 512==0:
+        if counter % 500==0:
             for key in video_clip_features.keys():
                 features = video_clip_features[key]
                 with open(f"{vcgpt_features}/{key}.pkl", 'wb') as f:
