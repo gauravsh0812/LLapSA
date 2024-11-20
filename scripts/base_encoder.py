@@ -32,7 +32,7 @@ class ProcessorWrapper:
 
 
 class BaseVisionTower(nn.Module):
-    def __init__(self, vision_tower_name="facebook/dinov2-giant", delay_load=False):
+    def __init__(self, vision_tower_name, delay_load=False):
         super().__init__()
 
         self.is_loaded = False
