@@ -54,7 +54,8 @@ class BaseVisionTower(nn.Module):
 
     def forward(self, images):
         if type(images) is list:
-            image_features = [self._forward(image.unsqueeze(0)) for image in images]
+            # image_features = [self._forward(image.unsqueeze(0)) for image in images]
+            image_features = [self._forward(image) for image in images]
         else:
             image_features = self._forward(images)
 
