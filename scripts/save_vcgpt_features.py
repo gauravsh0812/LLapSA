@@ -68,8 +68,9 @@ def load_and_stack_hidden_states(temp, video_id,
 
 def main():
 
-    x = 11000
-    n = 4
+    x = 0
+    y = 10
+    n = 0
 
     args = parse_args()
     video_dir_path = args.video_dir_path
@@ -82,7 +83,7 @@ def main():
     # Initialize the CLIP model
     dino = DinoVisionTower()
     all_videos = os.listdir(video_dir_path)
-    all_videos = all_videos[x:]
+    all_videos = all_videos[x:y]
 
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
