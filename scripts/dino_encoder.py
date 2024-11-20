@@ -114,15 +114,12 @@ class DinoFeatureExtractor:
 def main():
 
     x = 0
-    y = 10
-    n = 0
-
+    y = 1000
+    
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path
     vcgpt_features = os.path.join(clip_feat_path, "dino_features")
-    temp = os.path.join(clip_feat_path, f"temp_{n}")
-    os.makedirs(temp, exist_ok=True)
     os.makedirs(vcgpt_features, exist_ok=True)
 
     # Initialize the CLIP model    
@@ -130,40 +127,33 @@ def main():
     all_videos = all_videos[x:y]
     dino = DinoFeatureExtractor()
 
+    video_clip_features = {}
+    counter = 0
+
     for video_name in tqdm(all_videos):
-        video_path = f"{video_dir_path}/{video_name}"
-        video_id = video_name.split('.')[0]
+        try:
+            video_path = f"{video_dir_path}/{video_name}"
+            video_id = video_name.split('.')[0]
+            frames = load_video(video_path)
+            preprocessed_frames = dino.preprocess_frames(frames)
+            features = dino.extract_features(preprocessed_frames, layer_index=-2)
+            video_clip_features[video_id] = features
+            counter += 1       
+
+        except Exception as e:
+            print(f"Can't process {video_path}")
         
-        # try:
-        frames = load_video(video_path)
-        preprocessed_frames = dino.preprocess_frames(frames)
-        features = dino.extract_features(preprocessed_frames, layer_index=-2)
-        print("Feature Shape:", features.shape)
-
-        # break
-
-        counter = 0    
-
-
-        # try:
-        # for i in range(len(frames)):
-        #     # features = dino(frames[i])
-        #     # with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
-        #     #     pickle.dump(features, f)
-            
-        #     counter +=1
-            
-        # print(counter, len(frames))
-        # assert counter == len(frames) 
-        # load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
-            
-        # # clear the temp
-        # for item in os.listdir(temp):
-        #     item_path = os.path.join(temp, item)
-        #     os.remove(item_path)
-
-        # except Exception as e:
-        #     print(f"Can't process {video_path}")
+        if counter % 512==0:
+            for key in video_clip_features.keys():
+                features = video_clip_features[key]
+                with open(f"{vcgpt_features}/{key}.pkl", 'wb') as f:
+                    pickle.dump(features, f)
+            video_clip_features = {}
+    
+    for key in video_clip_features.keys():
+        features = video_clip_features[key]
+        with open(f"{vcgpt_features}/{key}.pkl", 'wb') as f:
+            pickle.dump(features, f)
 
 if __name__ == "__main__":
     main()  
