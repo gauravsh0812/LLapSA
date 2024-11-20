@@ -102,14 +102,14 @@ def main():
             
             counter +=1
             
-        print(counter, len(frames))
-        assert counter == len(frames) 
-        load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
+        # print(counter, len(frames))
+        # assert counter == len(frames) 
+        # load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
             
-        # clear the temp
-        for item in os.listdir(temp):
-            item_path = os.path.join(temp, item)
-            os.remove(item_path)
+        # # clear the temp
+        # for item in os.listdir(temp):
+        #     item_path = os.path.join(temp, item)
+        #     os.remove(item_path)
 
         # except Exception as e:
         #     print(f"Can't process {video_path}")
