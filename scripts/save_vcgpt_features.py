@@ -91,14 +91,19 @@ def main():
         
         # try:
         frames = load_video(video_path)
+        features = dino(frames)
+        print("features shape: ", features.shape)
+
+        break
 
         counter = 0    
 
+
         # try:
         for i in range(len(frames)):
-            features = dino(frames[i])
-            with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
-                pickle.dump(features, f)
+            # features = dino(frames[i])
+            # with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
+            #     pickle.dump(features, f)
             
             counter +=1
             
