@@ -75,7 +75,7 @@ def main():
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path
-    vcgpt_features = os.path.join(clip_feat_path, "vcgpt_features")
+    vcgpt_features = os.path.join(clip_feat_path, "dino_features")
     temp = os.path.join(clip_feat_path, f"temp_{n}")
     os.makedirs(temp, exist_ok=True)
     os.makedirs(vcgpt_features, exist_ok=True)
@@ -91,31 +91,27 @@ def main():
         
         # try:
         frames = load_video(video_path)
-        frames_tnsr = torch.stack([torch.from_numpy(np.array(img)) for img in frames], dim=0)
-        
-        features = dino(frames)
-
-        break
 
         counter = 0    
 
-        for i in range(len(frames)):
-            
-            with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
-                pickle.dump(features, f)
-            
-            counter +=1
-            
-            assert counter == len(frames)
-            load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
-            
-            # clear the temp
-            for item in os.listdir(temp):
-                item_path = os.path.join(temp, item)
-                os.remove(item_path)
+        try:
+            for i in range(len(frames)):
+                features = dino(frames[i])
+                with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
+                    pickle.dump(features, f)
+                
+                counter +=1
+                
+                assert counter == len(frames)
+                load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
+                
+                # clear the temp
+                for item in os.listdir(temp):
+                    item_path = os.path.join(temp, item)
+                    os.remove(item_path)
 
-        # except Exception as e:
-        #     print(f"Can't process {video_path}")
+        except Exception as e:
+            print(f"Can't process {video_path}")
 
 if __name__ == "__main__":
     main()  
