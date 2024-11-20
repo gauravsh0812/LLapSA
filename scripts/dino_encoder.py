@@ -140,18 +140,18 @@ def main():
         features = dino.extract_features(preprocessed_frames, layer_index=-2)
         print("Feature Shape:", features.shape)
 
-        break
+        # break
 
         counter = 0    
 
 
         # try:
-        for i in range(len(frames)):
-            # features = dino(frames[i])
-            # with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
-            #     pickle.dump(features, f)
+        # for i in range(len(frames)):
+        #     # features = dino(frames[i])
+        #     # with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
+        #     #     pickle.dump(features, f)
             
-            counter +=1
+        #     counter +=1
             
         # print(counter, len(frames))
         # assert counter == len(frames) 
