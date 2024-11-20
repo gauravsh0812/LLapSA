@@ -114,8 +114,8 @@ class DinoFeatureExtractor:
 
 def main():
 
-    x = 0
-    y = 5002
+    x = 5002
+    y = 10000
 
     args = parse_args()
     video_dir_path = args.video_dir_path
