@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 from transformers import AutoImageProcessor, Dinov2Config, Dinov2Model
-from .base_encoder import BaseVisionTower, ProcessorWrapper
+from scripts.base_encoder import BaseVisionTower, ProcessorWrapper
 
 
 class DinoVisionTower(BaseVisionTower):

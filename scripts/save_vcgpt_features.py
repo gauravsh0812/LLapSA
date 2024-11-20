@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
-from .dino_encoder import DinoVisionTower
+from scripts.dino_encoder import DinoVisionTower
     
 
 def load_video(vis_path, num_frm=100):
@@ -116,4 +116,4 @@ if __name__ == "__main__":
     main()  
 
 
-# git pull; CUDA_VISIBLE_DEVICES=0 python scripts/save_sam_vcgpt_features.py --video_dir_path /data/shared/gauravs/llapsa/vcgpt_clips --clip_feat_path /data/shared/gauravs/llapsa/sam_vcgpt_encoded_videos
+# git pull; CUDA_VISIBLE_DEVICES=0 python scripts/save_vcgpt_features.py --video_dir_path /data/shared/gauravs/llapsa/vcgpt_clips --clip_feat_path /data/shared/gauravs/llapsa/longvu_videos
