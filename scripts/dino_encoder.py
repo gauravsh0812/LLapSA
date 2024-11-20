@@ -115,7 +115,7 @@ def main():
 
     x = 0
     y = 1000
-    
+
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path
@@ -131,17 +131,17 @@ def main():
     counter = 0
 
     for video_name in tqdm(all_videos):
-        try:
-            video_path = f"{video_dir_path}/{video_name}"
-            video_id = video_name.split('.')[0]
-            frames = load_video(video_path)
-            preprocessed_frames = dino.preprocess_frames(frames)
-            features = dino.extract_features(preprocessed_frames, layer_index=-2)
-            video_clip_features[video_id] = features
-            counter += 1       
+        # try:
+        video_path = f"{video_dir_path}/{video_name}"
+        video_id = video_name.split('.')[0]
+        frames = load_video(video_path)
+        preprocessed_frames = dino.preprocess_frames(frames)
+        features = dino.extract_features(preprocessed_frames, layer_index=-2)
+        video_clip_features[video_id] = features
+        counter += 1       
 
-        except Exception as e:
-            print(f"Can't process {video_path}")
+        # except Exception as e:
+        #     print(f"Can't process {video_path}")
         
         if counter % 512==0:
             for key in video_clip_features.keys():
