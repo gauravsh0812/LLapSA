@@ -32,11 +32,11 @@ class ProcessorWrapper:
 
 
 class BaseVisionTower(nn.Module):
-    def __init__(self, vision_tower_name, args, delay_load=False):
+    def __init__(self, vision_tower_name, delay_load=False):
         super().__init__()
 
         self.is_loaded = False
-        self.args = args
+        # self.args = args
 
         self.vision_tower_name = vision_tower_name
         self.select_layer = -2
