@@ -91,24 +91,27 @@ def main():
         
         # try:
         frames = load_video(video_path)
-        counter = 0    
-        for i in range(len(frames)):
-            features = dino(frames[i])
-            print("features shape: ", features.shape)
-            break
+        
+        features = dino(frames)
 
+        break
+
+        counter = 0    
+
+        for i in range(len(frames)):
+            
             with open(f"{temp}/vcgpt_{video_id}_{i}.pkl", 'wb') as f:
-                pickle.dump(vcgpt_hidden_state, f)
+                pickle.dump(features, f)
             
             counter +=1
             
-        #     assert counter == len(video)
-        #     load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
+            assert counter == len(frames)
+            load_and_stack_hidden_states(temp, video_id, counter, vcgpt_features)
             
-        #     # clear the temp
-        #     for item in os.listdir(temp):
-        #         item_path = os.path.join(temp, item)
-        #         os.remove(item_path)
+            # clear the temp
+            for item in os.listdir(temp):
+                item_path = os.path.join(temp, item)
+                os.remove(item_path)
 
         # except Exception as e:
         #     print(f"Can't process {video_path}")
