@@ -141,10 +141,11 @@ def main():
     batch_size = 20
 
     for video_name in tqdm(all_videos):
-
+        video_path = f"{video_dir_path}/{video_name}"
+        video_id = video_name.split('.')[0]
+        if os.path.exists(f"{vcgpt_features}/{key}.pkl"):
+            continue
         try:
-            video_path = f"{video_dir_path}/{video_name}"
-            video_id = video_name.split('.')[0]
             frames = load_video(video_path)
             farr = []
             for i in range(0, len(frames), batch_size):
