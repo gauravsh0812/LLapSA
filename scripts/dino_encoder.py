@@ -159,7 +159,7 @@ def main():
         except Exception as e:
             print(f"Can't process {video_path} due to {e}")
         
-        if counter % 100==0:
+        if counter % 50==0:
             for key in video_clip_features.keys():
                 features = video_clip_features[key]
                 with open(f"{vcgpt_features}/{key}.pkl", 'wb') as f:
