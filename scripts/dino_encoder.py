@@ -138,6 +138,7 @@ def main():
 
     video_clip_features = {}
     counter = 0
+    batch_size = 20
 
     for video_name in tqdm(all_videos):
         try:
@@ -145,7 +146,7 @@ def main():
             video_id = video_name.split('.')[0]
             frames = load_video(video_path)
             farr = []
-            for i in range(0, len(frames), batch_size=20):
+            for i in range(0, len(frames), batch_size):
                 preprocessed_frames = dino.preprocess_frames(frames)
                 features = dino.extract_features(preprocessed_frames, layer_index=-2)
                 farr.append(features)
