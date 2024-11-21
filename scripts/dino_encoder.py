@@ -141,6 +141,7 @@ def main():
     batch_size = 20
 
     for video_name in tqdm(all_videos):
+
         try:
             video_path = f"{video_dir_path}/{video_name}"
             video_id = video_name.split('.')[0]
@@ -157,7 +158,7 @@ def main():
         except Exception as e:
             print(f"Can't process {video_path} due to {e}")
         
-        if counter % 500==0:
+        if counter % 100==0:
             for key in video_clip_features.keys():
                 features = video_clip_features[key]
                 with open(f"{vcgpt_features}/{key}.pkl", 'wb') as f:
