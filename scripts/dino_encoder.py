@@ -145,20 +145,20 @@ def main():
         video_id = video_name.split('.')[0]
         if os.path.exists(f"{vcgpt_features}/{video_id}.pkl"):
             continue
-        # try:
-        print(video_path)
-        frames = load_video(video_path)
-        farr = []
-        for i in range(0, len(frames), batch_size):
-            preprocessed_frames = dino.preprocess_frames(frames)
-            features = dino.extract_features(preprocessed_frames, layer_index=-2)
-            farr.append(features)
-        features = torch.cat(farr, dim=0)
-        video_clip_features[video_id] = features
-        counter += 1       
+        try:
+        # print(video_path)
+            frames = load_video(video_path)
+            farr = []
+            for i in range(0, len(frames), batch_size):
+                preprocessed_frames = dino.preprocess_frames(frames)
+                features = dino.extract_features(preprocessed_frames, layer_index=-2)
+                farr.append(features)
+            features = torch.cat(farr, dim=0)
+            video_clip_features[video_id] = features
+            counter += 1       
 
-        # except Exception as e:
-        #     print(f"Can't process {video_path} due to {e}")
+        except Exception as e:
+            print(f"Can't process {video_path} due to {e}")
         
         if counter % 50==0:
             for key in video_clip_features.keys():
