@@ -146,6 +146,7 @@ def main():
         if os.path.exists(f"{vcgpt_features}/{video_id}.pkl"):
             continue
         # try:
+        print(video_path)
         frames = load_video(video_path)
         farr = []
         for i in range(0, len(frames), batch_size):
