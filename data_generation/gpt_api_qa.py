@@ -1,4 +1,4 @@
-import openai, os
+import openai, os, sys
 import argparse
 import tqdm
 import json
@@ -153,11 +153,12 @@ def main():
     
     with open(args.input_file, 'r') as f:
         data = json.load(f)
+    sorted_data = sorted(data, key=lambda x: x['video_id'])
     
     if y!=-1:
-        data = data[int(x):int(y)]
+        data = sorted_data[int(x):int(y)]
     else:
-        data = data[int(x):]
+        data = sorted_data[int(x):]
 
     def get_response(key, text, o, video_id):
         response = annotate(key, text, o)
@@ -244,8 +245,12 @@ def main():
                     }
                 )
 
-        except:
-            didnot_work_count+=1
+        except Exception as e:
+            error_message = str(e)
+            print(f"Error processing file {e}")
+            if "Rate limit reached" in error_message or "You exceeded your current quota" in error_message:
+                print("Rate limit reached. Stopping execution.")
+                sys.exit(1)  # Or re-raise the exception if preferred
 
         count +=1
 

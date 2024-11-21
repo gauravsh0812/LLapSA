@@ -280,10 +280,12 @@ def main():
     with open(args.input_file, 'r') as f:
         data = json.load(f)
     
+    sorted_data = sorted(data, key=lambda x: x['video_id'])
+
     if y!=-1:
-        data = data[int(x):int(y)]
+        data = sorted_data[int(x):int(y)]
     else:
-        data = data[int(x):]
+        data = sorted_data[int(x):]
     
     total_batches = len(data)//20
     total_samples = len(data)
