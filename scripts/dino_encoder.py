@@ -143,7 +143,7 @@ def main():
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
-        if os.path.exists(f"{vcgpt_features}/{key}.pkl"):
+        if os.path.exists(f"{vcgpt_features}/{video_id}.pkl"):
             continue
         try:
             frames = load_video(video_path)
