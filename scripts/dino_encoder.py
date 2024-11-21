@@ -46,6 +46,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Training")
     parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
     parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
+    parser.add_argument("--xy", required=True)
     args = parser.parse_args()
     return args
 
@@ -78,6 +79,7 @@ class DinoFeatureExtractor:
         self.processor = AutoImageProcessor.from_pretrained(model_name, torch_dtype=torch.float16)
         self.model = Dinov2Model.from_pretrained(model_name, torch_dtype=torch.float16, 
                                                  low_cpu_mem_usage=True).to(self.device)
+        # self.model.half()
         self.model.eval()
 
     def extract_features(self, frames, layer_index=-2):
@@ -114,17 +116,24 @@ class DinoFeatureExtractor:
 
 def main():
 
-    x = 10000
-
     args = parse_args()
     video_dir_path = args.video_dir_path
     clip_feat_path = args.clip_feat_path
     vcgpt_features = os.path.join(clip_feat_path, "dino_features")
     os.makedirs(vcgpt_features, exist_ok=True)
 
-    # Initialize the CLIP model    
+    xy = args.xy
+    x,y = xy.split("-")
+    x = int(x)
+    y = int(y)
+
+    # Initialize the DinoV2 model    
     all_videos = os.listdir(video_dir_path)
-    all_videos = all_videos[x:]
+    if y!="end":
+        all_videos = all_videos[x:y]
+    else:
+        all_videos = all_videos[x:]
+    
     dino = DinoFeatureExtractor()
 
     video_clip_features = {}
@@ -135,8 +144,12 @@ def main():
             video_path = f"{video_dir_path}/{video_name}"
             video_id = video_name.split('.')[0]
             frames = load_video(video_path)
-            preprocessed_frames = dino.preprocess_frames(frames)
-            features = dino.extract_features(preprocessed_frames, layer_index=-2)
+            farr = []
+            for i in range(0, len(frames), batch_size=20):
+                preprocessed_frames = dino.preprocess_frames(frames)
+                features = dino.extract_features(preprocessed_frames, layer_index=-2)
+                farr.append(features)
+            features = torch.cat(farr, dim=0)
             video_clip_features[video_id] = features
             counter += 1       
 
