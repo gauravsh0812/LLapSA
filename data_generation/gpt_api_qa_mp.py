@@ -335,7 +335,7 @@ def main():
             # for i, af in enumerate(batch):
             temp_arr.append((i, af))
 
-        with mp.Pool(20) as pool:
+        with mp.Pool(8) as pool:
             pool.map(main_parallel, temp_arr)
 
         all_responses = []
