@@ -329,7 +329,7 @@ def main():
             else:
                 continue
 
-    print("Total expected QA: ", sum(tq,ogq,rq,nq,pq,eq,oq))
+    print("Total expected QA: ", tq+ogq+rq+nq+pq+eq+oq)
     print("err obns index: ", obns_err_index)
 
     # for batch in sample_generator(data):
