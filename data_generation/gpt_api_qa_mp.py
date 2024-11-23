@@ -299,6 +299,7 @@ def main():
     smpl = 0
 
     for i,af in enumerate(data):
+        print(af)
         obs = af["observation"]
         rsn = af["reason"]
         pln = af["plan"]
