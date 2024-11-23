@@ -331,7 +331,7 @@ def main():
 
     while samples_done < total_samples:
         temp_arr = []
-        for i,af in enumerate(data[smpl:smpl+N])
+        for i,af in enumerate(data[smpl:smpl+N]):
             # for i, af in enumerate(batch):
             temp_arr.append((i, af))
 
