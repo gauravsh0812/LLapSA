@@ -1,5 +1,6 @@
 import openai, os, sys
 import argparse
+import tqdm
 import time
 import json
 import ast 
@@ -327,7 +328,8 @@ def main():
     print("Total expected QA: ", tq+ogq+rq+nq+pq+eq+oq)
 
     # for batch in sample_generator(data):
-    for i,af in enumerate(data[smpl:smpl+100]):
+    N = 100
+    for i,af in tqdm.tqdm(enumerate(data[smpl:smpl+N]), total=N):
         temp_arr = []
         # for i, af in enumerate(batch):
         temp_arr.append((i, af))
@@ -353,8 +355,8 @@ def main():
     output_file.write('\n')  # Add a newline after the entire JSON object
 
     clean_json_files("/data/shared/gauravs/llapsa/temps/")
-    samples_done += 100
-    smpl += 100
+    samples_done += N
+    smpl += N
 
     print(f"Total samples done: {samples_done} / {total_samples}")
 
