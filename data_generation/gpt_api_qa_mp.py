@@ -277,6 +277,8 @@ def main():
     
     output_json_file_dir = args.output_json_file_dir
     
+    obns_err_index = []
+
     with open(args.input_file, 'r') as f:
         data = json.load(f)
     
@@ -299,31 +301,36 @@ def main():
     smpl = 0
 
     for i,af in enumerate(data):
-        print(af)
-        obs = af["observation"]
-        rsn = af["reason"]
-        pln = af["plan"]
-        nt = af["note"]
-        ogn = af["organs"]
-        eqp = af["equipments"]
-        text = af["transcript"]
+        try:
+            obs = af["observation"]
+            rsn = af["reason"]
+            pln = af["plan"]
+            nt = af["note"]
+            ogn = af["organs"]
+            eqp = af["equipments"]
+            text = af["transcript"]
+            if len(obs) > 0:
+                for _ in obs: oq+=1
+            if len(rsn) > 0:
+                for _ in rsn: rq+=1
+            if len(pln) > 0:
+                for _ in pln: pq+=1
+            if len(nt) > 0:
+                for _ in nt: nq+=1
+            if len(ogn) > 0:
+                ogq+=1
+            if len(eqp) > 0:
+                eq+=1
+            if len(text) > 0:
+                tq+=1
+        except:
+            if "observations" in af.keys():
+                obns_err_index.append(i)
+            else:
+                continue
 
-        if len(obs) > 0:
-            for _ in obs: oq+=1
-        if len(rsn) > 0:
-            for _ in rsn: rq+=1
-        if len(pln) > 0:
-            for _ in pln: pq+=1
-        if len(nt) > 0:
-            for _ in nt: nq+=1
-        if len(ogn) > 0:
-            ogq+=1
-        if len(eqp) > 0:
-            eq+=1
-        if len(text) > 0:
-            tq+=1
-    
     print("Total expected QA: ", sum(tq,ogq,rq,nq,pq,eq,oq))
+    print("err obns index: ", obns_err_index)
 
     # for batch in sample_generator(data):
     for i,af in enumerate(data[smpl:smpl+100]):
