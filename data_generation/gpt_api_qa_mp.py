@@ -280,16 +280,20 @@ def main():
     with open(args.input_file, 'r') as f:
         data = json.load(f)
     
-    sorted_data = sorted(data, key=lambda x: x['video_id'])
+    filtered_data = [item for item in data if "_60sec_" in item['video_id']]
+    
+    sorted_data = sorted(filtered_data, key=lambda x: x['video_id'])
 
-    if y!=-1:
+    print("total data: ", len(sorted_data))
+
+    if y<=len(sorted_data):
         data = sorted_data[int(x):int(y)]
     else:
         data = sorted_data[int(x):]
+
+    print(f"will run samples from {x} to {y}. Total samples to run: {int(y)-int(x)}")
     
-    total_batches = len(data)//20
     total_samples = len(data)
-    count =0
     tq,ogq,rq,nq,pq,eq,oq = 0,0,0,0,0,0,0
     samples_done = 0
     smpl = 0
@@ -320,7 +324,6 @@ def main():
     
     print("Total expected QA: ", sum(tq,ogq,rq,nq,pq,eq,oq))
 
-    all_responses = []
     # for batch in sample_generator(data):
     for i,af in enumerate(data[smpl:smpl+100]):
         temp_arr = []
@@ -330,6 +333,7 @@ def main():
         with mp.Pool(10) as pool:
             pool.map(main_parallel, temp_arr)
 
+        all_responses = []
         # Read and combine all JSON files in the "temps" directory
         temp_dir = "/data/shared/gauravs/llapsa/temps/"
         for filename in os.listdir(temp_dir):
@@ -342,14 +346,12 @@ def main():
                         print(f"Error processing file {e}")
                 
         # Write all responses to the JSON file
-        print(f"writing batch {count+1} / {total_batches}")
         output_file = open(f"{output_json_file_dir}/{smpl}_{smpl+100}.json", "w")
         output_file.write(json.dumps(all_responses, indent=2))
         output_file.write('\n')  # Add a newline after the entire JSON object
 
         clean_json_files("/data/shared/gauravs/llapsa/temps/")
-        count+=1
-        samples_done += 20
+        samples_done += 100
 
         print(f"Total samples done: {samples_done} / {total_samples}")
 
