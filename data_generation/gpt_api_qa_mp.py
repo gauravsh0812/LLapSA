@@ -354,6 +354,7 @@ def main():
 
         clean_json_files("/data/shared/gauravs/llapsa/temps/")
         samples_done += 100
+        smpl += 100
 
         print(f"Total samples done: {samples_done} / {total_samples}")
 
