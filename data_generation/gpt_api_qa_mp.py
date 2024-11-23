@@ -286,7 +286,7 @@ def main():
 
     print("total data: ", len(sorted_data))
 
-    if y<=len(sorted_data):
+    if int(y)<=len(sorted_data):
         data = sorted_data[int(x):int(y)]
     else:
         data = sorted_data[int(x):]
