@@ -296,8 +296,6 @@ def main():
     
     total_samples = len(data)
     tq,ogq,rq,nq,pq,eq,oq = 0,0,0,0,0,0,0
-    samples_done = 0
-    smpl = 0
 
     for i,af in enumerate(data):
         try:
@@ -329,36 +327,41 @@ def main():
 
     # for batch in sample_generator(data):
     N = 100
-    for i,af in tqdm.tqdm(enumerate(data[smpl:smpl+N]), total=N):
-        temp_arr = []
-        # for i, af in enumerate(batch):
-        temp_arr.append((i, af))
+    samples_done = 0
+    smpl = 0
 
-        with mp.Pool(10) as pool:
+    while samples_done < total_samples:
+        temp_arr = []
+        for i,af in enumerate(data[smpl:smpl+N])
+            # for i, af in enumerate(batch):
+            temp_arr.append((i, af))
+
+        with mp.Pool(20) as pool:
             pool.map(main_parallel, temp_arr)
 
-    all_responses = []
-    # Read and combine all JSON files in the "temps" directory
-    temp_dir = "/data/shared/gauravs/llapsa/temps/"
-    for filename in os.listdir(temp_dir):
-        if filename.endswith(".json"):
-            with open(os.path.join(temp_dir, filename), 'r') as f:    
-                try:
-                    response = json.load(f)
-                    all_responses.append(response)
-                except Exception as e:
-                    print(f"Error processing file {e}")
-                
-    # Write all responses to the JSON file
-    output_file = open(f"{output_json_file_dir}/{int(x)+smpl}_{int(x)+smpl+N}.json", "w")
-    output_file.write(json.dumps(all_responses, indent=2))
-    output_file.write('\n')  # Add a newline after the entire JSON object
+        all_responses = []
+        # Read and combine all JSON files in the "temps" directory
+        temp_dir = "/data/shared/gauravs/llapsa/temps/"
+        for filename in os.listdir(temp_dir):
+            if filename.endswith(".json"):
+                with open(os.path.join(temp_dir, filename), 'r') as f:    
+                    try:
+                        response = json.load(f)
+                        all_responses.append(response)
+                    except Exception as e:
+                        print(f"Error processing file {e}")
+                    
+        # Write all responses to the JSON file
+        output_file = open(f"{output_json_file_dir}/{int(x)+smpl}_{int(x)+smpl+N}.json", "w")
+        output_file.write(json.dumps(all_responses, indent=2))
+        output_file.write('\n')  # Add a newline after the entire JSON object
 
-    clean_json_files("/data/shared/gauravs/llapsa/temps/")
-    samples_done += N
-    smpl += N
+        clean_json_files("/data/shared/gauravs/llapsa/temps/")
+        samples_done += N
+        smpl += N
+        temp_arr = []
 
-    print(f"Total samples done: {samples_done} / {total_samples}")
+        print(f"Total samples done: {samples_done} / {total_samples}")
 
     
     end_time = time.time()
