@@ -276,8 +276,6 @@ def main():
     x,y = xy.split("-")
     
     output_json_file_dir = args.output_json_file_dir
-    
-    obns_err_index = []
 
     with open(args.input_file, 'r') as f:
         data = json.load(f)
@@ -324,13 +322,9 @@ def main():
             if len(text) > 0:
                 tq+=1
         except:
-            if "observations" in af.keys():
-                obns_err_index.append(i)
-            else:
-                continue
+            continue
 
     print("Total expected QA: ", tq+ogq+rq+nq+pq+eq+oq)
-    print("err obns index: ", obns_err_index)
 
     # for batch in sample_generator(data):
     for i,af in enumerate(data[smpl:smpl+100]):
