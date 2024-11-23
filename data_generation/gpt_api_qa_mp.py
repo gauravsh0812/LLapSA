@@ -335,28 +335,28 @@ def main():
         with mp.Pool(10) as pool:
             pool.map(main_parallel, temp_arr)
 
-        all_responses = []
-        # Read and combine all JSON files in the "temps" directory
-        temp_dir = "/data/shared/gauravs/llapsa/temps/"
-        for filename in os.listdir(temp_dir):
-            if filename.endswith(".json"):
-                with open(os.path.join(temp_dir, filename), 'r') as f:    
-                    try:
-                        response = json.load(f)
-                        all_responses.append(response)
-                    except Exception as e:
-                        print(f"Error processing file {e}")
+    all_responses = []
+    # Read and combine all JSON files in the "temps" directory
+    temp_dir = "/data/shared/gauravs/llapsa/temps/"
+    for filename in os.listdir(temp_dir):
+        if filename.endswith(".json"):
+            with open(os.path.join(temp_dir, filename), 'r') as f:    
+                try:
+                    response = json.load(f)
+                    all_responses.append(response)
+                except Exception as e:
+                    print(f"Error processing file {e}")
                 
-        # Write all responses to the JSON file
-        output_file = open(f"{output_json_file_dir}/{smpl}_{smpl+100}.json", "w")
-        output_file.write(json.dumps(all_responses, indent=2))
-        output_file.write('\n')  # Add a newline after the entire JSON object
+    # Write all responses to the JSON file
+    output_file = open(f"{output_json_file_dir}/{int(x)+smpl}_{int(x)+smpl+100}.json", "w")
+    output_file.write(json.dumps(all_responses, indent=2))
+    output_file.write('\n')  # Add a newline after the entire JSON object
 
-        clean_json_files("/data/shared/gauravs/llapsa/temps/")
-        samples_done += 100
-        smpl += 100
+    clean_json_files("/data/shared/gauravs/llapsa/temps/")
+    samples_done += 100
+    smpl += 100
 
-        print(f"Total samples done: {samples_done} / {total_samples}")
+    print(f"Total samples done: {samples_done} / {total_samples}")
 
     
     end_time = time.time()
