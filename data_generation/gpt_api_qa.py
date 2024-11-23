@@ -187,31 +187,33 @@ def main():
     for af in tqdm.tqdm(data, total=len(data)):
         video_id = af["video_id"]
         if "_90sec_" in video_id:
-            print(video_id)
-            count+=1
-            text = af["transcript"]
-            obs = af["observation"]
-            rsn = af["reason"]
-            pln = af["plan"]
-            nt = af["note"]
-            ogn = af["organs"]
-            eqp = af["equipments"]
+            # print(video_id)
+            try:
+                count+=1
+                text = af["transcript"]
+                obs = af["observation"]
+                rsn = af["reason"]
+                pln = af["plan"]
+                nt = af["note"]
+                ogn = af["organs"]
+                eqp = af["equipments"]
 
-            for o in obs:
-                cq += 1
-            for r in rsn:  
-                rq +=1
-            for p in pln:
-                pq +=1
-            for n in nt:
-                nq+=1
-            
-            # adding quantative questions
-            if len(eqp) >=1:
-                eq+=1
-            if len(ogn) >=1:
-                oq +=1
-    
+                for o in obs:
+                    cq += 1
+                for r in rsn:  
+                    rq +=1
+                for p in pln:
+                    pq +=1
+                for n in nt:
+                    nq+=1
+                
+                # adding quantative questions
+                if len(eqp) >=1:
+                    eq+=1
+                if len(ogn) >=1:
+                    oq +=1
+            except:
+                print(video_id)
     print(count+oq+eq+pq+nq+rq+cq)
     #         try:
     #             text = af["transcript"]
