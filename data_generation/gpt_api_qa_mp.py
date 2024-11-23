@@ -1,6 +1,5 @@
 import openai, os, sys
 import argparse
-import tqdm
 import time
 import json
 import ast 
