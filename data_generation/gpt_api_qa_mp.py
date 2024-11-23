@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(description="Training")
 parser.add_argument("--api_key", required=True, help="OpenAI API key")
 parser.add_argument("--input_file", required=True, help="Input json file containing all the obseravtion,Note,\
                                                             plan, reasons, equipemnets, and organ details.")
-parser.add_argument("--output_json_file_path", required=True, help="output file path")
+parser.add_argument("--output_json_file_dir", required=True, help="output file directory path")
 parser.add_argument("--xy", required=True)
 args = parser.parse_args()
 
@@ -262,9 +262,9 @@ def clean_json_files(directory_path):
         print(f"The directory {directory_path} does not exist.")
 
 
-def sample_generator(data):
-    for i in range(0, len(data), 20):
-        yield data[i:i+20]
+# def sample_generator(data):
+#     for i in range(0, len(data), 20):
+#         yield data[i:i+20]
 
 def main():
     """
@@ -275,7 +275,7 @@ def main():
     xy = args.xy
     x,y = xy.split("-")
     
-    output_json_file_path = args.output_json_file_path
+    output_json_file_dir = args.output_json_file_dir
     
     with open(args.input_file, 'r') as f:
         data = json.load(f)
@@ -290,35 +290,60 @@ def main():
     total_batches = len(data)//20
     total_samples = len(data)
     count =0
+    tq,ogq,rq,nq,pq,eq,oq = 0,0,0,0,0,0,0
     samples_done = 0
+    smpl = 0
 
-    for batch in sample_generator(data):
+    for i,af in enumerate(data):
+        obs = af["observation"]
+        rsn = af["reason"]
+        pln = af["plan"]
+        nt = af["note"]
+        ogn = af["organs"]
+        eqp = af["equipments"]
+        text = af["transcript"]
+
+        if len(obs) > 0:
+            for _ in obs: oq+=1
+        if len(rsn) > 0:
+            for _ in rsn: rq+=1
+        if len(pln) > 0:
+            for _ in pln: pq+=1
+        if len(nt) > 0:
+            for _ in nt: nq+=1
+        if len(ogn) > 0:
+            ogq+=1
+        if len(eqp) > 0:
+            eq+=1
+        if len(text) > 0:
+            tq+=1
+    
+    print("Total expected QA: ", sum(tq,ogq,rq,nq,pq,eq,oq))
+
+    all_responses = []
+    # for batch in sample_generator(data):
+    for i,af in enumerate(data[smpl:smpl+100]):
         temp_arr = []
-        for i, af in enumerate(batch):
-            temp_arr.append((i, af))
+        # for i, af in enumerate(batch):
+        temp_arr.append((i, af))
 
         with mp.Pool(10) as pool:
             pool.map(main_parallel, temp_arr)
-
-        all_responses = []
 
         # Read and combine all JSON files in the "temps" directory
         temp_dir = "/data/shared/gauravs/llapsa/temps/"
         for filename in os.listdir(temp_dir):
             if filename.endswith(".json"):
-                # try:
-                # print(filename)
                 with open(os.path.join(temp_dir, filename), 'r') as f:    
                     try:
                         response = json.load(f)
-                        # print(response)
                         all_responses.append(response)
                     except Exception as e:
                         print(f"Error processing file {e}")
                 
         # Write all responses to the JSON file
         print(f"writing batch {count+1} / {total_batches}")
-        output_file = open(output_json_file_path, "w")
+        output_file = open(f"{output_json_file_dir}/{smpl}_{smpl+100}.json", "w")
         output_file.write(json.dumps(all_responses, indent=2))
         output_file.write('\n')  # Add a newline after the entire JSON object
 
