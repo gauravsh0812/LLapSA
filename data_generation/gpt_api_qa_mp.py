@@ -350,7 +350,7 @@ def main():
                     print(f"Error processing file {e}")
                 
     # Write all responses to the JSON file
-    output_file = open(f"{output_json_file_dir}/{int(x)+smpl}_{int(x)+smpl+100}.json", "w")
+    output_file = open(f"{output_json_file_dir}/{int(x)+smpl}_{int(x)+smpl+N}.json", "w")
     output_file.write(json.dumps(all_responses, indent=2))
     output_file.write('\n')  # Add a newline after the entire JSON object
 
