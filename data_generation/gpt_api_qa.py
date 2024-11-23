@@ -186,7 +186,7 @@ def main():
     didnot_work_count = 0
     for af in tqdm.tqdm(data, total=len(data)):
         video_id = af["video_id"]
-        if "_60sec_" in video_id:
+        if "_45sec_" in video_id:
             # print(video_id)
             try:
                 count+=1
