@@ -187,6 +187,7 @@ def main():
     for af in tqdm.tqdm(data, total=len(data)):
         video_id = af["video_id"]
         if "_90sec_" in video_id:
+            print(video_id)
             count+=1
             text = af["transcript"]
             obs = af["observation"]
