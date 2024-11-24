@@ -129,10 +129,10 @@ def main():
 
     # Initialize the DinoV2 model    
     all_videos = os.listdir(video_dir_path)
-    if y!="end":
-        all_videos = all_videos[x:y]
-    else:
-        all_videos = all_videos[x:]
+    # if y!="end":
+    #     all_videos = all_videos[x:y]
+    # else:
+    all_videos = all_videos[x:]
     
     dino = DinoFeatureExtractor()
 
