@@ -30,7 +30,8 @@ def annotate(Question, Answer):
                         "role": "system",
                         "content": "You are an advanced AI language model specializing in generating concise, one-word or Yes/No answers for zero-shot evaluation. \
                                     Based on the provided QA pair, generate related question-answer pairs with straightforward answers. \
-                                    The answers must be factual, unambiguous, and limited to one word or Yes/No. Focus on diversity in the questions while keeping the answers succinct."
+                                    The answers must be factual, unambiguous, and limited to one word answers. Also, include the Yes/No questions answers. \
+                                    Focus on diversity in the questions while keeping the answers succinct."
                     },
                     {
                         "role": "user",
