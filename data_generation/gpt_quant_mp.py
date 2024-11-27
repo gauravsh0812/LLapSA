@@ -74,11 +74,11 @@ def main():
             video_id = af["video_id"]
             response = annotate(q,a)
             
-            if "```json" in response:
-                response = response.replace("```json", "").replace("```", "")
-            response = ast.literal_eval(response)
-            if isinstance(response, list):
-                response = response[0]            
+            # if "```json" in response:
+            #     response = response.replace("```json", "").replace("```", "")
+            # response = ast.literal_eval(response)
+            # if isinstance(response, list):
+            #     response = response[0]            
             
             print(response)
             all_responses.append(response)
