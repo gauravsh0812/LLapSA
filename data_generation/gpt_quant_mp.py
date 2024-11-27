@@ -73,7 +73,6 @@ def main():
             video_id = af["video_id"]
             response = annotate(q,a)
             print(response)
-            break
             if "```json" in response:
                 response = response.replace("```json", "").replace("```", "")
             response = ast.literal_eval(response)
@@ -85,7 +84,6 @@ def main():
         except:
             pass
         
-        break
         count +=1
 
         if count % 500==0:
