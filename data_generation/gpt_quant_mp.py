@@ -54,7 +54,7 @@ def main():
     Main function to control the flow of the program.
     """
     
-    x,y = args.xy
+    x,y = args.xy.split("-")
     
     with open(args.input_file, 'r') as f:
         data = json.load(f)
