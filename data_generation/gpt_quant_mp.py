@@ -83,6 +83,7 @@ def main():
             #     response = response[0]            
             
             # for r in response:
+            print(len(response))
             print(response)
             all_responses.append(response)
 
