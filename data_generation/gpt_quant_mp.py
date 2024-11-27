@@ -1,4 +1,4 @@
-import openai, os
+import openai, os, sys
 import argparse
 import tqdm
 import json
@@ -85,8 +85,13 @@ def main():
                     {q:a}
                 )
             
-        except:
-            pass
+        except Exception as e:
+            error_message = str(e)
+            print(f"Error processing file {e}")
+            if "Rate limit reached" in error_message or "You exceeded your current quota" in error_message:
+                print("Rate limit reached. Stopping execution.")
+                sys.exit(1)  # Or re-raise the exception if preferred
+
         
         count +=1
 
