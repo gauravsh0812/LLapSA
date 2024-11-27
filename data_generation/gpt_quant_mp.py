@@ -71,8 +71,8 @@ def main():
     count = 0
     for af in tqdm.tqdm(f, total=len(f)):
         try:
-            if q != "What equipments are used in the surgical video?" and q!= "What organs are involved in the surgery?":
-                q = af["q"]
+            q = af["q"]
+            if q != "What equipments are used in the surgical video?" and q != "What organs are involved in the surgery?":                
                 a = af["a"]
                 video_id = af["video_id"]
                 response = annotate(q,a)         
