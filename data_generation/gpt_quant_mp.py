@@ -36,7 +36,7 @@ def annotate(Question, Answer):
                     {
                         "role": "user",
                         "content": f"Here is a QA pair for reference:\n\n {Question} \n {Answer}.\n \
-                                    Using this as a base, generate at least 5 related QA pairs with Yes/No or one-word answers. Keep the answers concise and appropriate for quantitative evaluation."
+                                    Using this as a base, generate at least 3 related QA pairs with Yes/No or one-word answers. Keep the answers concise and appropriate for quantitative evaluation."
                     }
 
                 ]
