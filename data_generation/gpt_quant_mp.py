@@ -71,24 +71,15 @@ def main():
     count = 0
     for af in tqdm.tqdm(f, total=len(f)):
         try:
-            q = af["q"]
-            a = af["a"]
-            video_id = af["video_id"]
-            response = annotate(q,a)
-            
-            # if "```json" in response:
-            #     response = response.replace("```json", "").replace("```", "")
-            # response = ast.literal_eval(response)
-            # if isinstance(response, list):
-            #     response = response[0]            
-            
-            # for r in response:
-            print(response)
-            all_responses.append(response)
-
-            # if q == "What equipments are used in the surgical video?":
-
-
+            if q != "What equipments are used in the surgical video?" and q!= "What organs are involved in the surgery?":
+                q = af["q"]
+                a = af["a"]
+                video_id = af["video_id"]
+                response = annotate(q,a)         
+                
+                # for r in response:
+                print(response)
+                all_responses.append(response)
             
         except:
             pass
