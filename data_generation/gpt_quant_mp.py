@@ -56,17 +56,23 @@ def main():
     
     x,y = args.xy
     
-    all_files = args.input_file[x:y]
+    with open(args.input_file, 'r') as f:
+        data = json.load(f)
+
+    sorted_data = sorted(data, key=lambda x: x['video_id'])
+    f = sorted_data[int(x):int(y)]
+
     output_json_file_path = args.output_json_file_path
     
     all_responses = []
     count = 0
-    for af in tqdm.tqdm(all_files, total=len(all_files)):
+    for af in tqdm.tqdm(f, total=len(f)):
         try:
             q = af["q"]
             a = af["a"]
             video_id = af["video_id"]
             response = annotate(q,a)
+            print(response)
             break
             if "```json" in response:
                 response = response.replace("```json", "").replace("```", "")
