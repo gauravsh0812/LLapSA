@@ -64,11 +64,11 @@ def main():
 
     sorted_data = sorted(data, key=lambda x: x['video_id'])
     f = sorted_data[int(x):int(y)]
-
-    output_json_file_path = args.output_json_file_path
     
     all_responses = []
     count = 0
+    begin = int(x)
+
     for af in tqdm.tqdm(f, total=len(f)):
         try:
             q = af["q"]
@@ -78,28 +78,34 @@ def main():
                 response = annotate(q,a)         
                 
                 # for r in response:
-                print(response)
+                # print(response)
                 all_responses.append(response)
+            else:
+                all_responses.append(
+                    {q:a}
+                )
             
         except:
             pass
         
         count +=1
 
-        if count % 500==0:
+        if count % 100==0:
             # Write all responses to the JSON file
             print(f"writing {count} results...")
+            output_json_file_path = os.path.join(f"{args.output_json_file_path}/{begin}-{begin+count}.json")
             output_file = open(output_json_file_path, "w")
             output_file.write(json.dumps(all_responses, indent=2))
             output_file.write('\n')  # Add a newline after the entire JSON object
+            begin=begin+count
+        
     
-    exit()
+    # exit()
     # Write all responses to the JSON file
+    output_json_file_path = os.path.join(f"{args.output_json_file_path}/{begin}-{begin+count}.json")
     output_file = open(output_json_file_path, "w")
     output_file.write(json.dumps(all_responses, indent=2))
     output_file.write('\n')  # Add a newline after the entire JSON object
-    
-    print("failed file numbers: ", didnot_work_count)
 
 if __name__ == "__main__":
     main()
