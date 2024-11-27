@@ -7,7 +7,7 @@ import ast
 parser = argparse.ArgumentParser(description="Training")
 
 parser.add_argument("--api_key", required=True, help="OpenAI API key")
-parser.add_argument("--input_folder", required=True, help="Input folder conatining all audio transcripts")
+parser.add_argument("--input_file", required=True, help="Input folder conatining all audio transcripts")
 parser.add_argument("--output_json_file_path", required=True, help="output directory to save")
 parser.add_argument("--xy", required=True)
 args = parser.parse_args()
