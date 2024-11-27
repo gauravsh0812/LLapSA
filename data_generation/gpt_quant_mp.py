@@ -36,7 +36,12 @@ def annotate(Question, Answer):
                     {
                         "role": "user",
                         "content": f"Here is a QA pair for reference:\n\n {Question} \n {Answer}.\n \
-                                    Using this as a base, generate at least 3 related QA pairs with Yes/No or one-word answers. Keep the answers concise and appropriate for quantitative evaluation."
+                                    Using this as a base, generate at least 3 related QA pairs with Yes/No or one-word answers. \
+                                    Keep the answers concise and appropriate for quantitative evaluation.\
+                                    
+                                    ## IMPORTANT NOTE ##:
+                                    The output should be in the format of a json dictionary with keys 'Q', and 'A'.
+                                    "
                     }
 
                 ]
@@ -81,7 +86,7 @@ def main():
             #     response = response[0]            
             
             for r in response:
-                print(response)
+                
                 all_responses.append(response)
 
             # if q == "What equipments are used in the surgical video?":
