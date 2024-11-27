@@ -84,9 +84,9 @@ def main():
             # if isinstance(response, list):
             #     response = response[0]            
             
-            for r in response:
-                
-                all_responses.append(response)
+            # for r in response:
+            print(response)
+            all_responses.append(response)
 
             # if q == "What equipments are used in the surgical video?":
 
