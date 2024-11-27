@@ -73,15 +73,16 @@ def main():
             a = af["a"]
             video_id = af["video_id"]
             response = annotate(q,a)
-            print(response)
+            
             if "```json" in response:
                 response = response.replace("```json", "").replace("```", "")
             response = ast.literal_eval(response)
             if isinstance(response, list):
                 response = response[0]            
-            response["video_id"] = af
-            response["transcript"] = transcript
+            
+            print(response)
             all_responses.append(response)
+        
         except:
             pass
         
