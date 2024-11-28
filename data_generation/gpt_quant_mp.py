@@ -67,7 +67,7 @@ def main():
     
     all_responses = []
     count = 0
-    begin = int(x)
+    begin = 0
 
     for af in tqdm.tqdm(f, total=len(f)):
         try:
@@ -98,16 +98,16 @@ def main():
         if count % 100==0:
             # Write all responses to the JSON file
             print(f"writing {count} results...")
-            output_json_file_path = os.path.join(f"{args.output_json_file_path}/{begin}-{begin+count}.json")
+            output_json_file_path = os.path.join(f"{args.output_json_file_path}/quant_{int(x)}_{int(y)}_{begin}.json")
             output_file = open(output_json_file_path, "w")
             output_file.write(json.dumps(all_responses, indent=2))
             output_file.write('\n')  # Add a newline after the entire JSON object
-            begin=begin+count
+            begin+=1
         
     
     # exit()
     # Write all responses to the JSON file
-    output_json_file_path = os.path.join(f"{args.output_json_file_path}/{begin}-{begin+count}.json")
+    output_json_file_path = os.path.join(f"{args.output_json_file_path}/quant_{int(x)}_{int(y)}_{begin}.json")
     output_file = open(output_json_file_path, "w")
     output_file.write(json.dumps(all_responses, indent=2))
     output_file.write('\n')  # Add a newline after the entire JSON object
