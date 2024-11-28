@@ -95,7 +95,7 @@ def main():
         
         count +=1
 
-        if count % 20==0:
+        if count % 100==0:
             # Write all responses to the JSON file
             print(f"writing {count} results...")
             output_json_file_path = os.path.join(f"{args.output_json_file_path}/quant_{int(x)}_{int(y)}_{begin}.json")
