@@ -76,7 +76,8 @@ def main():
                 a = af["a"]
                 video_id = af["video_id"]
                 response = annotate(q,a)         
-                
+                response["video_id"] = video_id
+
                 # for r in response:
                 # print(response)
                 all_responses.append(response)
