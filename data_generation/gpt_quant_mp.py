@@ -70,28 +70,28 @@ def main():
     begin = 0
 
     for af in tqdm.tqdm(f, total=len(f)):
-        try:
-            q = af["q"]
-            if q != "What equipments are used in the surgical video?" and q != "What organs are involved in the surgery?":                
-                a = af["a"]
-                video_id = af["video_id"]
-                response = annotate(q,a)         
-                response["video_id"] = video_id
+        # try:
+        q = af["q"]
+        if q != "What equipments are used in the surgical video?" and q != "What organs are involved in the surgery?":                
+            a = af["a"]
+            video_id = af["video_id"]
+            response = annotate(q,a)         
+            response["video_id"] = video_id
 
-                # for r in response:
-                # print(response)
-                all_responses.append(response)
-            else:
-                all_responses.append(
-                    {q:a}
-                )
+            # for r in response:
+            # print(response)
+            all_responses.append(response)
+        else:
+            all_responses.append(
+                {q:a}
+            )
             
-        except Exception as e:
-            error_message = str(e)
-            print(f"Error processing file {e}")
-            if "Rate limit reached" in error_message or "You exceeded your current quota" in error_message:
-                print("Rate limit reached. Stopping execution.")
-                sys.exit(1)  # Or re-raise the exception if preferred
+        # except Exception as e:
+        #     error_message = str(e)
+        #     print(f"Error processing file {e}")
+        #     if "Rate limit reached" in error_message or "You exceeded your current quota" in error_message:
+        #         print("Rate limit reached. Stopping execution.")
+        #         sys.exit(1)  # Or re-raise the exception if preferred
 
         
         count +=1
