@@ -75,7 +75,8 @@ def main():
         if q != "What equipments are used in the surgical video?" and q != "What organs are involved in the surgery?":                
             a = af["a"]
             video_id = af["video_id"]
-            response = annotate(q,a)         
+            response = annotate(q,a)       
+            response = ast.literal_eval(response)  
             response["video_id"] = video_id
 
             # for r in response:
