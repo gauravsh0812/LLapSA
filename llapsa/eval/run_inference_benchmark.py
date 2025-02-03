@@ -5,7 +5,6 @@ import argparse
 import json
 from tqdm import tqdm
 import pickle
-from llapsa.eval.model_utils import initialize_model
 from transformers import AutoTokenizer
 from llapsa.utils import disable_torch_init
 from llapsa.constants import *
@@ -33,7 +32,7 @@ def parse_args():
     parser.add_argument('--output_dir', help='Directory to save the model results JSON.', 
                         default="results/", required=True)
     parser.add_argument('--output_name', help='Name of the file for storing results JSON.', 
-                        default="qa_results",required=True)
+                        default="qa_inference",required=True)
     parser.add_argument("--model-name", type=str, 
                         default="/data/gauravs/weights/llava_wghts_m1m2", required=True)
     parser.add_argument("--conv-mode", type=str, required=False, default='llapsa_v1')
