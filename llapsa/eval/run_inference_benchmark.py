@@ -144,11 +144,11 @@ def run_inference(args):
 
     # Iterate over each sample in the ground truth file
     for sample in tqdm(gt_contents):
-        video_name = sample['video_id']
-        sample_set = sample 
-        question_1 = sample['question']
+            video_name = sample['video_id']
+            sample_set = sample 
+            question_1 = sample['question']
 
-        try:
+        # try:
             ## init
             local_features = None
             mem_features = None
@@ -207,8 +207,8 @@ def run_inference(args):
             sample_set['pred'] = output
             print(output)            
             output_list.append(sample_set)
-        except Exception as e:
-            print(f"Error processing video file '{video_name}': {e}")
+        # except Exception as e:
+        #     print(f"Error processing video file '{video_name}': {e}")
 
     # Save the output list to a JSON file
     with open(os.path.join(args.output_dir, f"{args.output_name}.json"), 'w') as file:
