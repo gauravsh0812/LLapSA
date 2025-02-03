@@ -155,8 +155,8 @@ def run_inference(args):
             video_token_len = 0
             
             ## load from file
-            vid_path = os.path.join(args.vid_path, video_name + ".pkl")
-            mem_path = os.path.join(args.vid_mem_path, video_name + ".pkl")
+            vid_path = os.path.join(args.vid_path, video_name)
+            mem_path = os.path.join(args.vid_mem_path, video_name)
             with open(vid_path, 'rb') as f:
                 local_features = pickle.load(f)
                 local_features = torch.from_numpy(local_features).unsqueeze(0).cuda()
