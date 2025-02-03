@@ -404,11 +404,11 @@ class LazySupervisedDataset(Dataset):
         if 'video' in sources[0]:
             video_file = self.list_data_dict[i]['video']
             video_folder = self.multimodal_cfg['video_folder']
-            with open(f"{video_folder}/{video_file}.pkl", "rb") as f:
+            with open(f"{video_folder}/{video_file}", "rb") as f:
                 features = pickle.load(f)
 
             mem_folder = self.multimodal_cfg['mem_folder']
-            with open(f"{mem_folder}/{video_file}.pkl", "rb") as f:
+            with open(f"{mem_folder}/{video_file}", "rb") as f:
                 mem_features = pickle.load(f)[-5:]
 
             cur_token_len = features.shape[0] + mem_features.shape[0]
