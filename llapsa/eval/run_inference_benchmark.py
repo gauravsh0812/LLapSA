@@ -43,6 +43,7 @@ def parse_args():
     parser.add_argument("--vid_mem_path", type=str, required=True,
                         default="/data/shared/gauravs/llapsa/llapsa_encoded_video_clips/global_features")
     parser.add_argument("--mem_num", type=int, default=5)
+    parser.add_argument("--xy")
     
     return parser.parse_args()
 
@@ -120,7 +121,6 @@ def run_inference(args):
     for k, v in os.environ.items():
         print(f'{k}={v}')
     print("==============================")
-    # device='cuda:{}'.format(args.gpu_id)
     mem_num = args.mem_num # default 5
     
     # Initialize the model
@@ -128,11 +128,13 @@ def run_inference(args):
     model.cuda() # cuda() # to(device)
     print("model moved to cuda")
     conv_mode = args.conv_mode
-    #print("init model")
     # Load the ground truth file
     with open(args.gt_file) as file:
         gt_contents = json.load(file)
     
+    x,y = args.xy.split("-")
+    gt_contents = gt_contents[int(x):int(y)]
+
     # Create the output directory if it doesn't exist
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
