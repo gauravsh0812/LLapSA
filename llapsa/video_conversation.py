@@ -168,8 +168,8 @@ conv_vicuna_v1_1 = Conversation(
     sep2="</s>",
 )
 
-conv_long_vlm_v1 = Conversation(
-    system="You are LLapSA, a large vision-language assistant. "
+conv_llapsa_v1 = Conversation(
+    system="You are LLapSA, a large laparoscopic surgical vision-language assistant. "
            "You are able to understand the video content that the user provides, and assist the user with a variety of tasks using natural language."
            "Follow the instructions carefully and explain your answers in detail based on the provided video.",
     # system="",
@@ -186,7 +186,7 @@ default_conversation = conv_v1_2
 conv_templates = {
     "default": conv_v1_2,
     "vicuna_v1_1": conv_vicuna_v1_1,
-    "long_vlm_v1": conv_long_vlm_v1,
+    "llapsa_v1": conv_llapsa_v1,
 }
 
 if __name__ == "__main__":

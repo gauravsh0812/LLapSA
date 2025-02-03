@@ -18,8 +18,6 @@ DEFAULT_VIDEO_PATCH_TOKEN = "<vid_patch>"
 DEFAULT_VID_START_TOKEN = "<vid_start>"
 DEFAULT_VID_END_TOKEN = "<vid_end>"
 
-
-
 def parse_args():
     """
     Parse command-line arguments.
@@ -28,15 +26,22 @@ def parse_args():
 
     # Define the command-line arguments
     parser.add_argument('--gpu-id', help='gpu id', default="0")
-    parser.add_argument('--llm_model', type=str, required=True, help="name of model to run")
-    parser.add_argument('--gt_file', help='Path to the ground truth file.', required=True)
-    parser.add_argument('--output_dir', help='Directory to save the model results JSON.', required=True)
-    parser.add_argument('--output_name', help='Name of the file for storing results JSON.', required=True)
-    parser.add_argument("--model-name", type=str, required=True)
-    parser.add_argument("--conv-mode", type=str, required=False, default='long_vlm_v1')
-    parser.add_argument("--projection_path", type=str, required=True)
-    parser.add_argument("--vid_path", type=str, default="datasets/anet/anet_vid")
-    parser.add_argument("--vid_mem_path", type=str, default="datasets/anet/anet_vid_mem")
+    parser.add_argument('--llm_model', type=str, required=True, 
+                        default="LLapSAForCausalLM",help="name of model to run")
+    parser.add_argument('--gt_file', help='Path to the ground truth file.', 
+                        default="test_60sec.json",required=True)
+    parser.add_argument('--output_dir', help='Directory to save the model results JSON.', 
+                        default="results/", required=True)
+    parser.add_argument('--output_name', help='Name of the file for storing results JSON.', 
+                        default="qa_results",required=True)
+    parser.add_argument("--model-name", type=str, 
+                        default="/data/gauravs/weights/llava_wghts_m1m2", required=True)
+    parser.add_argument("--conv-mode", type=str, required=False, default='llapsa_v1')
+    parser.add_argument("--projection_path", type=str, default="outputs/mm_projector.bin", required=True)
+    parser.add_argument("--vid_path", type=str, required=True,
+                        default="/data/shared/gauravs/llapsa/llapsa_encoded_video_clips/local_features")
+    parser.add_argument("--vid_mem_path", type=str, required=True,
+                        default="/data/shared/gauravs/llapsa/llapsa_encoded_video_clips/global_features")
     parser.add_argument("--mem_num", type=int, default=5)
     
     return parser.parse_args()
@@ -45,7 +50,7 @@ model_dict = {
     "LLapSAForCausalLM": LLapSAForCausalLM
 }
 
-def initialize_model(llm_model, model_name, projection_path=None): #, args=None):
+def initialize_model(llm_model, model_name, projection_path=None):
     """
     Initializes the model with given parameters.
 
@@ -141,8 +146,6 @@ def run_inference(args):
         video_name = sample['video_id']
         sample_set = sample 
         question_1 = sample['question']
-        if 'consistency' in args.gt_file:
-            question_2 = sample['question2']
 
         try:
             ## init
@@ -153,30 +156,22 @@ def run_inference(args):
             ## load from file
             vid_path = os.path.join(args.vid_path, video_name + ".pkl")
             mem_path = os.path.join(args.vid_mem_path, video_name + ".pkl")
-            if "Local" in args.llm_model or ("Local" not in args.llm_model and "Global" not in args.llm_model):
-                if os.path.exists(vid_path):
-                    with open(vid_path, 'rb') as f:
-                        local_features = pickle.load(f)
-                        local_features = torch.from_numpy(local_features).unsqueeze(0).cuda()
-                    video_token_len = local_features.shape[1]
-                else:
-                    print(f"{vid_path} not exists.")
+            with open(vid_path, 'rb') as f:
+                local_features = pickle.load(f)
+                local_features = torch.from_numpy(local_features).unsqueeze(0).cuda()
+            video_token_len = local_features.shape[1]
             
-            if "Global" in args.llm_model:
-                if os.path.exists(mem_path):
-                    with open(mem_path, 'rb') as f:
-                        mem_features = pickle.load(f)
-                        mem_features = torch.from_numpy(mem_features[-mem_num:]).unsqueeze(0).cuda()
-                    video_token_len += mem_features.shape[1]
-                else:
-                    print(f"{mem_path} not exists.")
-            print(video_token_len)
+            with open(mem_path, 'rb') as f:
+                mem_features = pickle.load(f)
+                mem_features = torch.from_numpy(mem_features[-mem_num:]).unsqueeze(0).cuda()
+            video_token_len += mem_features.shape[1]
 
             ###### for question 1
             if model.get_model().vision_config.use_vid_start_end:
                 qs = DEFAULT_VID_START_TOKEN + DEFAULT_VIDEO_PATCH_TOKEN * video_token_len + DEFAULT_VID_END_TOKEN + '\n' + question_1
             else:
                 qs = DEFAULT_VIDEO_PATCH_TOKEN * video_token_len + '\n' + question_1
+            
             # Prepare conversation prompt
             conv = conv_templates[conv_mode].copy()
             conv.append_message(conv.roles[0], qs)
@@ -185,11 +180,11 @@ def run_inference(args):
             # Tokenize the prompt
             inputs = tokenizer([prompt])
             # Move inputs to GPU
-            input_ids = torch.as_tensor(inputs.input_ids).cuda() # to(device) #.cuda() # to(torch.device('cuda')) # .to(device) #.cuda()
+            input_ids = torch.as_tensor(inputs.input_ids).cuda()
             # Define stopping criteria for generation
             stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
             stopping_criteria = KeywordsStoppingCriteria([stop_str], tokenizer, input_ids)
-            #print("start inference 1")
+
             # Run model inference
             with torch.inference_mode():
                 output_ids = model.generate(
@@ -209,50 +204,7 @@ def run_inference(args):
             # Clean output string
             output = outputs.strip().rstrip(stop_str).strip()
             sample_set['pred'] = output
-            
-            if "consistency" in args.gt_file:
-                ##### for question 2
-                if model.get_model().vision_config.use_vid_start_end:
-                    qs = DEFAULT_VID_START_TOKEN + DEFAULT_VIDEO_PATCH_TOKEN * video_token_len + DEFAULT_VID_END_TOKEN + '\n' + question_2
-                else:
-                    qs = DEFAULT_VIDEO_PATCH_TOKEN * video_token_len + '\n' + question_2
-                # Prepare conversation prompt
-                conv = conv_templates[conv_mode].copy()
-                conv.append_message(conv.roles[0], qs)
-                conv.append_message(conv.roles[1], None)
-                prompt = conv.get_prompt()
-                # Tokenize the prompt
-                inputs = tokenizer([prompt])
-                # Move inputs to GPU
-                input_ids = torch.as_tensor(inputs.input_ids).cuda() # to(device) #.cuda() # to(torch.device('cuda')) # .to(device) #.cuda()
-                # Define stopping criteria for generation
-                stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-                stopping_criteria = KeywordsStoppingCriteria([stop_str], tokenizer, input_ids)
-                
-                # Run model inference
-                with torch.inference_mode():
-                    output_ids = model.generate(
-                        input_ids,
-                        local_features=local_features,
-                        memory_features=mem_features,
-                        do_sample=True,
-                        temperature=0.2,
-                        max_new_tokens=1024,
-                        stopping_criteria=[stopping_criteria],
-                        )
-                n_diff_input_output = (input_ids != output_ids[:, :input_ids.shape[1]]).sum().item()
-                if n_diff_input_output > 0:
-                    print(f'[Warning] {n_diff_input_output} output_ids are not the same as the input_ids')
-                # Decode output tokens
-                outputs = tokenizer.batch_decode(output_ids[:, input_ids.shape[1]:], skip_special_tokens=True)[0]
-                # Clean output string
-                output = outputs.strip().rstrip(stop_str).strip()
-                ### update name
-                sample_set['pred1'] = sample_set['pred']
-                del sample_set['pred']
-                ### add output
-                sample_set['pred2'] = output
-            
+            print(output)            
             output_list.append(sample_set)
         except Exception as e:
             print(f"Error processing video file '{video_name}': {e}")
