@@ -1,5 +1,5 @@
 import torch
-from longvlm.model import *
+from llapsa.model import *
 from transformers import StoppingCriteria
 
 

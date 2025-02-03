@@ -1,7 +1,7 @@
 import numpy as np
 from PIL import Image
 from decord import VideoReader, cpu
-from longvlm.constants import *
+from llapsa.constants import *
 import torch
 
 

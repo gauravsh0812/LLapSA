@@ -23,22 +23,23 @@ class VisionConfig:
         self.vid_patch_token = None
 
 
-class LongVLMConfig(LlamaConfig):
-    model_type = "LongVLM"
+class LLapSAConfig(LlamaConfig):
+    model_type = "LLapSA"
 
 
-class LongVLMLlamaModel(LlamaModel):
-    config_class = LongVLMConfig
+class LLapSALlamaModel(LlamaModel):
+    config_class = LLapSAConfig
 
     def __init__(self, config: LlamaConfig, mm_vision_tower=None, mm_hidden_size=None):  # TODO: Remove unused params
-        super(LongVLMLlamaModel, self).__init__(config)
+        super(LLapSALlamaModel, self).__init__(config)
 
         if hasattr(config, "mm_vision_tower"):
             self.vision_config = VisionConfig()
 
         if hasattr(config, "use_mm_proj"):
             self.mm_projector = nn.Linear(config.mm_hidden_size, config.hidden_size)
-            
+            self.mm2 = nn.Linear(2048,1024)
+
     def initialize_vision_modules(self, pretrain_mm_mlp_adapter=None, tune_mm_mlp_adapter=False):
         vision_config = self.vision_config
         num_patches = (vision_config.frame_size // vision_config.patch_size) ** 2
@@ -48,6 +49,7 @@ class LongVLMLlamaModel(LlamaModel):
 
         if not hasattr(self, 'mm_projector'):
             self.mm_projector = nn.Linear(vision_config.hidden_size, self.config.hidden_size)
+            self.mm2 = nn.Linear(2048,1024)
         
         if pretrain_mm_mlp_adapter is not None:
             mm_projector_weights = torch.load(pretrain_mm_mlp_adapter, map_location='cpu')
@@ -77,6 +79,7 @@ class LongVLMLlamaModel(LlamaModel):
             inputs_embeds = self.embed_tokens(input_ids)
 
         if (input_ids.shape[1] != 1 or self.training) and local_features is not None:
+            local_features = self.mm2(local_features)
             video_features = self.mm_projector(torch.cat([memory_features, local_features], dim=1))
 
             new_input_embeds = []
@@ -143,7 +146,7 @@ class LongVLMLlamaModel(LlamaModel):
                     cur_video_idx += 1
             inputs_embeds = torch.stack(new_input_embeds, dim=0)
 
-        return super(LongVLMLlamaModel, self).forward(
+        return super(LLapSALlamaModel, self).forward(
             input_ids=None, attention_mask=attention_mask, past_key_values=past_key_values,
             inputs_embeds=inputs_embeds, use_cache=use_cache,
             output_attentions=output_attentions, output_hidden_states=output_hidden_states,
@@ -151,12 +154,12 @@ class LongVLMLlamaModel(LlamaModel):
         )
 
 
-class LongVLMForCausalLM(LlamaForCausalLM):
-    config_class = LongVLMConfig
+class LLapSAForCausalLM(LlamaForCausalLM):
+    config_class = LLapSAConfig
 
     def __init__(self, config):
         super(LlamaForCausalLM, self).__init__(config)
-        self.model = LongVLMLlamaModel(config)
+        self.model = LLapSALlamaModel(config)
 
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
@@ -300,5 +303,5 @@ class LongVLMForCausalLM(LlamaForCausalLM):
         vision_config.vid_patch_token = tokenizer.convert_tokens_to_ids([DEFAULT_VIDEO_PATCH_TOKEN])[0]
     
 
-AutoConfig.register("LongVLM", LongVLMConfig)
-AutoModelForCausalLM.register(LongVLMConfig, LongVLMForCausalLM)
+AutoConfig.register("LLapSA", LLapSAConfig)
+AutoModelForCausalLM.register(LLapSAConfig, LLapSAForCausalLM)

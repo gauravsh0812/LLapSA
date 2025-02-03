@@ -8,13 +8,13 @@ import torch
 import torch.nn.functional as F
 import transformers
 from torch.utils.data import Dataset
-from longvlm.train.llava_trainer import LongVLMTrainer
-from longvlm import video_conversation as conversation_lib
-from longvlm.model import *
+from llapsa.train.llava_trainer import LLapSATrainer
+from llapsa import video_conversation as conversation_lib
+from llapsa.model import *
 import torch.distributed as dist
-from longvlm.constants import *
+from llapsa.constants import *
 import pickle
-from longvlm.model import LongVLMForCausalLM
+from llapsa.model import LLapSAForCausalLM
 IGNORE_INDEX = -100
 DEFAULT_PAD_TOKEN = "[PAD]"
 DEFAULT_EOS_TOKEN = "</s>"
@@ -497,7 +497,7 @@ def train():
         (ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    model = LongVLMForCausalLM.from_pretrained(
+    model = LLapSAForCausalLM.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=training_args.cache_dir,
     )
@@ -529,6 +529,8 @@ def train():
         model.requires_grad_(False)
         for p in model.get_model().mm_projector.parameters():
             p.requires_grad = True
+        for p in model.get_model().mm2.parameters():
+            p.requires_grad = True
 
     model.config.freeze_mm_mlp_adapter = training_args.freeze_mm_mlp_adapter
     if training_args.freeze_mm_mlp_adapter:
@@ -543,6 +545,8 @@ def train():
                                       pretrain_mm_mlp_adapter=model_args.pretrain_mm_mlp_adapter)
 
     params_no_grad = [n for n, p in model.named_parameters() if not p.requires_grad]
+    print("params to train: ", [n for n, p in model.named_parameters() if p.requires_grad])
+    
     if len(params_no_grad) > 0:
         if training_args.fsdp is not None and len(training_args.fsdp) > 0:
             if len(params_no_grad) < 10:
@@ -569,7 +573,7 @@ def train():
     data_module = make_supervised_data_module(tokenizer=tokenizer, data_args=data_args)
     training_args.report_to = []
 
-    trainer = LongVLMTrainer(model=model, tokenizer=tokenizer, args=training_args, **data_module)
+    trainer = LLapSATrainer(model=model, tokenizer=tokenizer, args=training_args, **data_module)
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
