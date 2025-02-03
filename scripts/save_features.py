@@ -55,8 +55,6 @@ def parse_args():
     parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
     parser.add_argument("--clip_feat_path_local", required=True, help="Output dir to save the local features.")
     parser.add_argument("--clip_feat_path_memory", required=True, help="The output dir to save the memory features.")
-    parser.add_argument("--pretrained_path", default="openai/clip-vit-large-patch14", help="Path to load the model config from." )
-    parser.add_argument("--list_file", required=True, help="Path to the video list." )
     parser.add_argument("--xy", required=True,)
     args = parser.parse_args()
 
@@ -76,7 +74,7 @@ def main():
     os.makedirs(clip_feat_path_local, exist_ok=True)
     os.makedirs(clip_feat_path_memory, exist_ok=True)
     
-    pretrained_path = args.pretrained_path
+    pretrained_path = "openai/clip-vit-large-patch14"
 
     # Initialize the CLIP model
     image_processor = CLIPImageProcessor.from_pretrained(pretrained_path, torch_dtype=torch.float16)
