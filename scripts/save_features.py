@@ -74,13 +74,17 @@ def main():
     os.makedirs(clip_feat_path_local, exist_ok=True)
     os.makedirs(clip_feat_path_memory, exist_ok=True)
     
-    # pretrained_path = "openai/clip-vit-large-patch14"
-    pretrained_path = "openai/clip-vit-base-patch32"
+    pretrained_path = "openai/clip-vit-large-patch14"
 
     # Initialize the CLIP model
     image_processor = CLIPImageProcessor.from_pretrained(pretrained_path, torch_dtype=torch.float16)
-    vision_tower = CLIPVisionModel.from_pretrained(pretrained_path, torch_dtype=torch.float16,
-                                                   low_cpu_mem_usage=True)
+    vision_tower = CLIPVisionModel.from_pretrained(
+                                            pretrained_path, 
+                                            torch_dtype=torch.float16,
+                                            low_cpu_mem_usage=True,
+                                            output_hidden_states=True,  # Keep this to get hidden states
+                                            hidden_size=2048  # Set this to 2048
+                                        )
 
     vision_tower.cuda()
     vision_tower.eval()
