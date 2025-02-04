@@ -115,17 +115,16 @@ def main():
                 feats = []
                 for i in [4,9,14,19,-2]:
                     if i != -2:
-                        cat_features = torch.cat((image_forward_outs.hidden_states[i][:, 1:],
-                                                    image_forward_outs.hidden_states[i-5][:, 1:]), dim=1)
+                        cat_features = image_forward_outs.hidden_states[i][:, 1:]+image_forward_outs.hidden_states[i-5][:, 1:]
                     else:
-                        cat_features = torch.cat((image_forward_outs.hidden_states[-2][:, 1:],
-                                                    image_forward_outs.hidden_states[19][:, 1:]), dim=1)
+                        cat_features = image_forward_outs.hidden_states[-2][:, 1:]+image_forward_outs.hidden_states[19][:, 1:]
                         
                     feats.append(merge_tokens(cat_features, r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16"))  # [1280, 640, 320, 160, 80, 40, 10]
                 
                 feats = [torch.from_numpy(f) for f in feats]
                 video_features[video_id] = torch.cat(feats, dim=0)    
                 print(video_features[video_id].shape)
+                
                 if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
                     memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], 
                                                           dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
