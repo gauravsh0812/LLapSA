@@ -20,8 +20,7 @@ def make_delta(base_model_path, target_model_path, delta_path, hub_repo_id):
     print("Calculating delta")
     for name, param in tqdm(target.state_dict().items(), desc="Calculating delta"):
         if name not in base.state_dict():
-            assert name in ['model.mm_projector.weight', 'model.mm_projector.bias', 
-                            "model.mm2.weight", "model.mm2.bias"], f'{name} not in base model'
+            assert name in ['model.mm_projector.weight', 'model.mm_projector.bias'], f'{name} not in base model'
             continue
         if param.data.shape == base.state_dict()[name].shape:
             param.data -= base.state_dict()[name]
