@@ -82,8 +82,6 @@ def main():
                                             pretrained_path, 
                                             torch_dtype=torch.float16,
                                             low_cpu_mem_usage=True,
-                                            output_hidden_states=True,  # Keep this to get hidden states
-                                            hidden_size=2048  # Set this to 2048
                                         )
 
     vision_tower.cuda()
@@ -112,8 +110,6 @@ def main():
             with torch.no_grad():
                 image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
                 print(image_forward_outs.last_hidden_state.shape)
-            
-            exit()
 
             if not os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):
                 feats = []
@@ -133,6 +129,7 @@ def main():
                 if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
                     memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
                 counter += 1
+                exit()
 
         except Exception as e:
             print(f"Can't process {video_path}: {e}")
