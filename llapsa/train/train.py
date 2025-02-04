@@ -531,8 +531,8 @@ def train():
         model.requires_grad_(False)
         for p in model.get_model().mm_projector.parameters():
             p.requires_grad = True
-        for p in model.get_model().mm2.parameters():
-            p.requires_grad = True
+        # for p in model.get_model().mm2.parameters():
+        #     p.requires_grad = True
 
     model.config.freeze_mm_mlp_adapter = training_args.freeze_mm_mlp_adapter
     if training_args.freeze_mm_mlp_adapter:

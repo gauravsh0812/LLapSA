@@ -38,7 +38,7 @@ class LLapSALlamaModel(LlamaModel):
 
         if hasattr(config, "use_mm_proj"):
             self.mm_projector = nn.Linear(config.mm_hidden_size, config.hidden_size)
-            self.mm2 = nn.Linear(2048,1024)
+            # self.mm2 = nn.Linear(2048,1024)
 
     def initialize_vision_modules(self, pretrain_mm_mlp_adapter=None, tune_mm_mlp_adapter=False):
         vision_config = self.vision_config
@@ -49,7 +49,7 @@ class LLapSALlamaModel(LlamaModel):
 
         if not hasattr(self, 'mm_projector'):
             self.mm_projector = nn.Linear(vision_config.hidden_size, self.config.hidden_size)
-            self.mm2 = nn.Linear(2048,1024)
+            # self.mm2 = nn.Linear(2048,1024)
         
         if pretrain_mm_mlp_adapter is not None:
             mm_projector_weights = torch.load(pretrain_mm_mlp_adapter, map_location='cpu')
@@ -79,7 +79,7 @@ class LLapSALlamaModel(LlamaModel):
             inputs_embeds = self.embed_tokens(input_ids)
 
         if (input_ids.shape[1] != 1 or self.training) and local_features is not None:
-            local_features = self.mm2(local_features)
+            # local_features = self.mm2(local_features)
             video_features = self.mm_projector(torch.cat([memory_features, local_features], dim=1))
 
             new_input_embeds = []
