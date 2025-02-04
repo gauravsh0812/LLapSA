@@ -125,7 +125,7 @@ def main():
                 
                 feats = [torch.from_numpy(f) for f in feats]
                 video_features[video_id] = torch.cat(feats, dim=0)    
-
+                print(video_features[video_id].shape)
                 if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
                     memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], 
                                                           dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
