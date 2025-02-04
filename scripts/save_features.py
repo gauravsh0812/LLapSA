@@ -85,9 +85,6 @@ def main():
     vision_tower.eval()
     for n, p in vision_tower.named_parameters():
         p.requires_grad_(False)
-
-    with open(args.list_file, 'r') as f:
-        all_videos = f.read().splitlines() 
     
     x, y = args.xy.split("-")
     all_videos = [i for i in os.listdir(video_dir_path) if "_60sec_" in i][int(x):int(y)]
