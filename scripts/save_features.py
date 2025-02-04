@@ -74,7 +74,8 @@ def main():
     os.makedirs(clip_feat_path_local, exist_ok=True)
     os.makedirs(clip_feat_path_memory, exist_ok=True)
     
-    pretrained_path = "openai/clip-vit-large-patch14"
+    # pretrained_path = "openai/clip-vit-large-patch14"
+    pretrained_path = "openai/clip-vit-base-patch32"
 
     # Initialize the CLIP model
     image_processor = CLIPImageProcessor.from_pretrained(pretrained_path, torch_dtype=torch.float16)
@@ -106,10 +107,13 @@ def main():
 
             with torch.no_grad():
                 image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+                print(image_forward_outs.last_hidden_state.shape)
+            
+            exit()
 
             if not os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):
                 feats = []
-                for i in [4,14,-2]:
+                for i in [4,9,14,19,-2]:
                     if i != -2:
                         cat_features = torch.cat((image_forward_outs.hidden_states[i][:, 1:],
                                                     image_forward_outs.hidden_states[i-5][:, 1:]), dim=1)
