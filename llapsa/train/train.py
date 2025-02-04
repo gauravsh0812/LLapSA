@@ -454,7 +454,7 @@ class DataCollatorForSupervisedDataset(object):
         )
 
         if 'video' in instances[0]:
-            features = [torch.tensor(instance['video'].clone().detach()) 
+            features = [torch.tensor(instance['video']) 
                         for instance in instances]
             if all(x is not None and x.shape == features[0].shape for x in features):
                 batch['local_features'] = torch.stack(features)
@@ -463,7 +463,7 @@ class DataCollatorForSupervisedDataset(object):
 
         
         if 'mem_video' in instances[0]:
-            mem_features = [torch.tensor(instance['mem_video'].clone().detach()) 
+            mem_features = [torch.tensor(instance['mem_video']) 
                             for instance in instances]
             if all(x is not None and x.shape == mem_features[0].shape for x in mem_features):
                 batch['memory_features'] = torch.stack(mem_features)
