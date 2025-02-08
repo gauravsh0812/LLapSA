@@ -101,12 +101,12 @@ def main():
 #        all_vids.append(asf.split("--").strip()[0])
 
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
-        qtn = pc["question"]
-        ans = pc["answer"]
-        pred = pc["pred"]
-        vid = pc["video_id"]
-        if f"{vid}.txt" not in all_scr_files:
-            try:
+        try:
+            qtn = pc["Q"]
+            ans = pc["A"]
+            pred = pc["pred"]
+            vid = pc["video_id"]
+            if f"{vid}.txt" not in all_scr_files:    
                 response = annotate(qtn, pred, ans)
                 scr = response['score']
                 len_scores+=1
@@ -115,13 +115,13 @@ def main():
                     f.write(f"{vid} -- {scr}")
                 #scores.write(f"{vid} \t score: {scr} \n")
 
-            except:
-                didnot_work+=1
-                print(f"{vid}.txt not working!")
+        except:
+            didnot_work+=1
+            print(f"{vid}.txt not working!")
 
     average_score = total_score / len_scores
 
-    print("Average score for correctness:", average_score)
+    print("Average score for context:", average_score)
     print("didnot work: ", didnot_work)
     
 if __name__ == "__main__":
