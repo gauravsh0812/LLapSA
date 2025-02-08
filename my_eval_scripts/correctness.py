@@ -93,8 +93,8 @@ def main():
 
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
         # try:
-        qtn = pc["question"]
-        ans = pc["answer"]
+        qtn = pc["Q"]
+        ans = pc["A"]
         pred = pc["pred"]
         vid = pc["video_id"]
         if f"{vid}.txt" not in all_scr_files:
