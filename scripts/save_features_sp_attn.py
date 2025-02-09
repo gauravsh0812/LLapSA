@@ -109,6 +109,7 @@ def main():
 
         with torch.no_grad():
             image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+            image_forward_outs = image_forward_outs.hidden_states[-2][:, 1:]
 
         if not os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):
             attention_weights = torch.nn.functional.softmax(image_forward_outs, dim=-1)
