@@ -120,7 +120,7 @@ def main():
                 last_state = image_forward_outs.hidden_states[-2][:, 1:]
                 attention_weights = torch.nn.functional.softmax(last_state, dim=-1)
                 weighted_features = last_state * attention_weights
-                pooled_features = torch.nn.functional.adaptive_avg_pool1d(weighted_features, output_size=256)
+                pooled_features = torch.nn.functional.adaptive_max_pool1d(weighted_features, output_size=1024)
                 video_features[video_id] = merge_tokens(pooled_features, r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")  # [1280, 640, 320, 160, 80, 40, 10]  
                 
                 if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
