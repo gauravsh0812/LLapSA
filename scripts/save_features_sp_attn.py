@@ -90,7 +90,13 @@ def main():
         p.requires_grad_(False)
     
     x, y = args.xy.split("-")
-    all_videos = [i for i in os.listdir(video_dir_path) if "_60sec_" in i or "_45sec_part_"][int(x):int(y)]
+    
+    all_videos = [] 
+    for i in os.listdir(video_dir_path):
+        if "_60sec_" in i or "_45sec_part_" in i:
+            all_videos.append(i)
+    
+    all_videos = all_videos[int(x):int(y)]
 
     video_features = {}
     memory_features = {}
