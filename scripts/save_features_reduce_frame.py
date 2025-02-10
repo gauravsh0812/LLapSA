@@ -187,22 +187,22 @@ def main():
         # if os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl") and os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):  # Check if the file is already processed
         #     print(f"{video_id}.pkl exist")
         #     continue
-        # try:
-        video = load_video(video_path)
-        video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
-        video_tensor = video_tensor.half().cuda()
+        try:
+            video = load_video(video_path)
+            video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
+            video_tensor = video_tensor.half().cuda()
 
-        with torch.no_grad():
-            image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+            with torch.no_grad():
+                image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
 
-        if not os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):
-            last_state = image_forward_outs.hidden_states[-2][:, 1:]
-            reduced_states = reduce_similar_frames(last_state)
-            video_features[video_id] = get_spatio_temporal_features(reduced_states.half().cpu().numpy())
-            counter += 1
+            if not os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):
+                last_state = image_forward_outs.hidden_states[-2][:, 1:]
+                reduced_states = reduce_similar_frames(last_state)
+                video_features[video_id] = get_spatio_temporal_features(reduced_states.half().cpu().numpy())
+                counter += 1
 
-        # except Exception as e:
-        #     print(f"Can't process {video_path}: {e}")
+        except Exception as e:
+            print(f"Can't process {video_path}: {e}")
 
         if counter % 50 == 0:  # Save after every 50 videos, update this number as per your requirements
             for key in video_features.keys():
