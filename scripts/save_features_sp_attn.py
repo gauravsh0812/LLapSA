@@ -54,7 +54,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Inference extracting features")
     parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
     parser.add_argument("--clip_feat_path_local", required=True, help="Output dir to save the local features.")
-    parser.add_argument("--clip_feat_path_memory", required=True, help="The output dir to save the memory features.")
+    # parser.add_argument("--clip_feat_path_memory", required=True, help="The output dir to save the memory features.")
     parser.add_argument("--xy", required=True,)
     args = parser.parse_args()
 
@@ -81,10 +81,10 @@ def main():
     print("==============================")
     video_dir_path = args.video_dir_path
     clip_feat_path_local = args.clip_feat_path_local
-    clip_feat_path_memory = args.clip_feat_path_memory
+    # clip_feat_path_memory = args.clip_feat_path_memory
 
     os.makedirs(clip_feat_path_local, exist_ok=True)
-    os.makedirs(clip_feat_path_memory, exist_ok=True)
+    # os.makedirs(clip_feat_path_memory, exist_ok=True)
     
     pretrained_path = "openai/clip-vit-large-patch14"
 
