@@ -81,7 +81,7 @@ def reduce_similar_frames(visual_emb_frame):
     assert visual_emb_frame.shape[0] % window_size == 0, "num frames should be multiple of 5!"
 
     new_visual_emb_frames = []
-    max_visual_len = visual_emb_frame.shape[1] * (visual_emb_frame.shape[0] * 0.4)  # keeping 60% frames
+    max_visual_len = visual_emb_frame.shape[1] * (visual_emb_frame.shape[0] * 0.7)  # keeping 60% frames
 
     for start_idx in range(0, len(visual_emb_frame), 5):
         end_idx = min(start_idx + window_size, len(visual_emb_frame))
@@ -133,7 +133,7 @@ def reduce_similar_frames(visual_emb_frame):
 
         # 60% frames
         total_frames = visual_emb_frame.shape[0]
-        target_frames = int(total_frames * 0.4)
+        target_frames = int(total_frames * 0.7)
         indices = torch.linspace(0, total_frames - 1, steps=target_frames).round().long()
         new_visual_emb_frames = visual_emb_frame[indices, :].flatten(0, 1)
 
