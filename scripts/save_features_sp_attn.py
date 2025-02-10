@@ -138,7 +138,7 @@ def main():
             # if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
             #     memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], 
             #                                             dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
-            video_features[video_id] = get_spatio_temporal_features(pooled_features.half())
+            video_features[video_id] = get_spatio_temporal_features(pooled_features.half().cpu().numpy())
             counter += 1
 
         # except Exception as e:
