@@ -60,6 +60,18 @@ def parse_args():
 
     return args
 
+def get_spatio_temporal_features(features, num_temporal_tokens=100):
+    t, s, c = features.shape
+
+    temporal_tokens = np.mean(features, axis=1)
+    padding_size = num_temporal_tokens - t
+    if padding_size > 0:
+        temporal_tokens = np.pad(temporal_tokens, ((0, padding_size), (0, 0)), mode='constant')
+
+    spatial_tokens = np.mean(features, axis=0)
+    sp_features = np.concatenate([temporal_tokens, spatial_tokens], axis=0)
+
+    return sp_features
 
 def main():
     args = parse_args()
@@ -121,11 +133,12 @@ def main():
                 attention_weights = torch.nn.functional.softmax(last_state, dim=-1)
                 weighted_features = last_state * attention_weights
                 pooled_features = torch.nn.functional.adaptive_max_pool1d(weighted_features, output_size=1024)
-                video_features[video_id] = merge_tokens(pooled_features, r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")  # [1280, 640, 320, 160, 80, 40, 10]  
+                # video_features[video_id] = merge_tokens(pooled_features, r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")  # [1280, 640, 320, 160, 80, 40, 10]  
                 
-                if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
-                    memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], 
-                                                            dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
+                # if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
+                #     memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], 
+                #                                             dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
+                video_features[video_id] = get_spatio_temporal_features(video_features.numpy().astype("float16"))
                 counter += 1
 
         except Exception as e:
@@ -139,15 +152,15 @@ def main():
                     with open(clip_video_path, 'wb') as f:
                         pickle.dump(features, f)
             
-            for key in memory_features.keys():
-                clip_video_path = f"{clip_feat_path_memory}/{key}.pkl"
-                if not os.path.exists(clip_video_path):
-                    mem_features = memory_features[key]
-                    with open(clip_video_path, 'wb') as f:
-                        pickle.dump(mem_features, f)
+            # for key in memory_features.keys():
+            #     clip_video_path = f"{clip_feat_path_memory}/{key}.pkl"
+            #     if not os.path.exists(clip_video_path):
+            #         mem_features = memory_features[key]
+            #         with open(clip_video_path, 'wb') as f:
+            #             pickle.dump(mem_features, f)
                 
             video_features = {}
-            memory_features = {}
+            # memory_features = {}
         
     for key in video_features.keys():
         clip_video_path = f"{clip_feat_path_local}/{key}.pkl"
@@ -156,12 +169,12 @@ def main():
             with open(clip_video_path, 'wb') as f:
                 pickle.dump(features, f)
     
-    for key in memory_features.keys():
-        clip_video_path = f"{clip_feat_path_memory}/{key}.pkl"
-        if not os.path.exists(clip_video_path):
-            mem_features = memory_features[key]
-            with open(clip_video_path, 'wb') as f:
-                pickle.dump(mem_features, f)
+    # for key in memory_features.keys():
+    #     clip_video_path = f"{clip_feat_path_memory}/{key}.pkl"
+    #     if not os.path.exists(clip_video_path):
+    #         mem_features = memory_features[key]
+    #         with open(clip_video_path, 'wb') as f:
+    #             pickle.dump(mem_features, f)
     
     print("successfully processed {} videos, total video number: {}".format(counter, len(all_videos)))
 
