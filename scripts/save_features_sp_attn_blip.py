@@ -149,8 +149,8 @@ def main():
             last_state = image_forward_outs.hidden_states[-2][:, 1:]
             attention_weights = torch.nn.functional.softmax(last_state, dim=-1)
             weighted_features = last_state * attention_weights
-            encoder_hidden_states, query_embeds = prepare_qformer_input(weighted_features, 256)
-            qformer_output = blip_model.qformer(encoder_hidden_states=encoder_hidden_states,
+            encoder_hidden_states, query_embeds, use_cache = prepare_qformer_input(weighted_features, 256)
+            qformer_output = blip_model.qformer(encoder_hidden_states=encoder_hidden_states,use_cache=use_cache,
                                                 query_embeds=query_embeds).cuda()
 
             # video_features[video_id] = merge_tokens(qformer_output, 
