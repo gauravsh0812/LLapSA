@@ -142,7 +142,7 @@ def main():
             weighted_features = last_state * attention_weights
             # pooled_features = torch.nn.functional.adaptive_max_pool1d(weighted_features, output_size=1024)
             # qformer_input = weighted_features.permute(0, 2, 1) 
-            qformer_output = blip_model.qformer(weighted_features).cuda()
+            qformer_output = blip_model.qformer(weighted_features.half()).cuda()
 
             # video_features[video_id] = merge_tokens(qformer_output, 
             #                                     r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")  # [1280, 640, 320, 160, 80, 40, 10]  
