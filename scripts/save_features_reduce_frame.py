@@ -184,9 +184,9 @@ def main():
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
 
-        # if os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl") and os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):  # Check if the file is already processed
-        #     print(f"{video_id}.pkl exist")
-        #     continue
+        if os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):  # Check if the file is already processed
+            print(f"{video_id}.pkl exist")
+            continue
         try:
             video = load_video(video_path)
             video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
