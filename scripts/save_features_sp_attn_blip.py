@@ -152,13 +152,6 @@ def main():
             encoder_hidden_states, query_embeds, use_cache = prepare_qformer_input(weighted_features, 256)
             qformer_output = blip_model.qformer(encoder_hidden_states=encoder_hidden_states,use_cache=use_cache,
                                                 query_embeds=query_embeds).cuda()
-
-            # video_features[video_id] = merge_tokens(qformer_output, 
-            #                                     r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")  # [1280, 640, 320, 160, 80, 40, 10]  
-            
-            # if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
-            #     memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], 
-            #                                             dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
             video_features[video_id] = get_spatio_temporal_features(qformer_output.half().cpu().numpy())
             counter += 1
 
@@ -172,17 +165,9 @@ def main():
                     features = video_features[key]
                     with open(clip_video_path, 'wb') as f:
                         pickle.dump(features, f)
-            
-            # for key in memory_features.keys():
-            #     clip_video_path = f"{clip_feat_path_memory}/{key}.pkl"
-            #     if not os.path.exists(clip_video_path):
-            #         mem_features = memory_features[key]
-            #         with open(clip_video_path, 'wb') as f:
-            #             pickle.dump(mem_features, f)
                 
             video_features = {}
-            # memory_features = {}
-        
+            
     for key in video_features.keys():
         clip_video_path = f"{clip_feat_path_local}/{key}.pkl"
         if not os.path.exists(clip_video_path):
