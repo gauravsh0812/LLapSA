@@ -83,7 +83,7 @@ def main():
 
     didnot_work = 0
 
-    all_scr_files = os.listdir("outputs/temporal/scores")
+    all_scr_files = os.listdir(f"{args.output_dir}/temporal/scores")
 
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
         qtn = pc["Q"]
@@ -97,7 +97,7 @@ def main():
                 len_scores+=1
                 total_score += scr
 
-                with open(f"outputs/temporal/scores/{vid}.txt", "w") as f:
+                with open(f"{args.output_dir}/temporal/scores/{vid}.txt", "w") as f:
                     f.write(f"{vid} -- {scr}")
 
                 #scores.write(f"{vid} \t score: {scr} \n")
