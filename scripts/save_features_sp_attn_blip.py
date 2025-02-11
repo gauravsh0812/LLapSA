@@ -81,7 +81,7 @@ def prepare_qformer_input(weighted_features,num_tokens):
     batch_size, seq_len, hidden_size = weighted_features.shape
     encoder_hidden_states = weighted_features.unsqueeze(0)  # Add batch dimension
     query_embeds = create_query_embeds(hidden_size, num_tokens)
-    return encoder_hidden_states, query_embeds
+    return encoder_hidden_states, query_embeds, False
 
 def main():
     args = parse_args()
