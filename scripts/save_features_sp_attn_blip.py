@@ -149,7 +149,7 @@ def main():
             last_state = image_forward_outs.hidden_states[-2][:, 1:]
             attention_weights = torch.nn.functional.softmax(last_state, dim=-1)
             weighted_features = last_state * attention_weights
-            encoder_hidden_states, query_embeds = prepare_qformer_input(weighted_features)
+            encoder_hidden_states, query_embeds = prepare_qformer_input(weighted_features, 256)
             qformer_output = blip_model.qformer(encoder_hidden_states=encoder_hidden_states,
                                                 query_embeds=query_embeds).cuda()
 
