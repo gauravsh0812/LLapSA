@@ -8,7 +8,7 @@ from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
 from transformers import CLIPVisionModel, CLIPImageProcessor
-from llapsa.model.merge import merge_tokens
+# from llapsa.model.merge import merge_tokens
 from transformers import Blip2Model
 
 
@@ -55,7 +55,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Inference extracting features")
     parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
     parser.add_argument("--clip_feat_path_local", required=True, help="Output dir to save the local features.")
-    parser.add_argument("--clip_feat_path_memory", required=True, help="The output dir to save the memory features.")
+    # parser.add_argument("--clip_feat_path_memory", required=True, help="The output dir to save the memory features.")
     parser.add_argument("--xy", required=True,)
     args = parser.parse_args()
 
@@ -82,10 +82,10 @@ def main():
     print("==============================")
     video_dir_path = args.video_dir_path
     clip_feat_path_local = args.clip_feat_path_local
-    clip_feat_path_memory = args.clip_feat_path_memory
+    # clip_feat_path_memory = args.clip_feat_path_memory
 
     os.makedirs(clip_feat_path_local, exist_ok=True)
-    os.makedirs(clip_feat_path_memory, exist_ok=True)
+    # os.makedirs(clip_feat_path_memory, exist_ok=True)
     
     pretrained_path = "openai/clip-vit-large-patch14"
 
@@ -116,42 +116,42 @@ def main():
     all_videos = all_videos[int(x):int(y)]
 
     video_features = {}
-    memory_features = {}
+    # memory_features = {}
     counter = 0
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
         video_id = video_name.split('.')[0]
 
-        if os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl") and os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):  # Check if the file is already processed
+        if os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):  # Check if the file is already processed
             print(f"{video_id}.pkl exist")
             continue
-        try:
-            video = load_video(video_path)
-            video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
-            video_tensor = video_tensor.half().cuda()
+        # try:
+        video = load_video(video_path)
+        video_tensor = image_processor.preprocess(video, return_tensors='pt')['pixel_values']
+        video_tensor = video_tensor.half().cuda()
 
-            with torch.no_grad():
-                image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
+        with torch.no_grad():
+            image_forward_outs = vision_tower(video_tensor, output_hidden_states=True)
 
-            if not os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):
-                last_state = image_forward_outs.hidden_states[-2][:, 1:]
-                attention_weights = torch.nn.functional.softmax(last_state, dim=-1)
-                weighted_features = last_state * attention_weights
-                # pooled_features = torch.nn.functional.adaptive_max_pool1d(weighted_features, output_size=1024)
-                qformer_input = weighted_features.permute(0, 2, 1) 
-                qformer_output = blip_model.vision_model.qformer(qformer_input.to("cuda"))
+        if not os.path.exists(f"{clip_feat_path_local}/{video_id}.pkl"):
+            last_state = image_forward_outs.hidden_states[-2][:, 1:]
+            attention_weights = torch.nn.functional.softmax(last_state, dim=-1)
+            weighted_features = last_state * attention_weights
+            # pooled_features = torch.nn.functional.adaptive_max_pool1d(weighted_features, output_size=1024)
+            qformer_input = weighted_features.permute(0, 2, 1) 
+            qformer_output = blip_model.vision_model.qformer(qformer_input.to("cuda"))
 
-                video_features[video_id] = merge_tokens(qformer_output, 
-                                                    r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")  # [1280, 640, 320, 160, 80, 40, 10]  
-                
-                if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
-                    memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], 
-                                                            dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
-                # video_features[video_id] = get_spatio_temporal_features(pooled_features.half().cpu().numpy())
-                counter += 1
+            # video_features[video_id] = merge_tokens(qformer_output, 
+            #                                     r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")  # [1280, 640, 320, 160, 80, 40, 10]  
+            
+            # if not os.path.exists(f"{clip_feat_path_memory}/{video_id}.pkl"):
+            #     memory_features[video_id] = torch.cat([mem[:, :1] for mem in image_forward_outs.hidden_states], 
+            #                                             dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
+            video_features[video_id] = get_spatio_temporal_features(qformer_output.half().cpu().numpy())
+            counter += 1
 
-        except Exception as e:
-            print(f"Can't process {video_path}: {e}")
+        # except Exception as e:
+        #     print(f"Can't process {video_path}: {e}")
 
         if counter % 50 == 0:  # Save after every 50 videos, update this number as per your requirements
             for key in video_features.keys():
