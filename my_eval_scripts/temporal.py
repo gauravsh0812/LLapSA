@@ -67,7 +67,7 @@ def main():
     Main function to control the flow of the program.
     """
 
-    pred_path="inference_longvlm.json"
+    pred_path=args.predicted_file_path
     with open(pred_path, 'r', encoding='utf-8') as file:
         pred_contents = json.load(file)
 
