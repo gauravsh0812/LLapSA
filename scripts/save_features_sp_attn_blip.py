@@ -9,7 +9,7 @@ from tqdm import tqdm
 from decord import VideoReader, cpu
 from transformers import CLIPVisionModel, CLIPImageProcessor
 # from llapsa.model.merge import merge_tokens
-from transformers import Blip2ForConditionalGeneration
+from transformers import Blip2ForConditionalGeneration, Blip2Config
 
 
 def load_video(vis_path, num_frm=100):
@@ -102,7 +102,9 @@ def main():
     for n, p in vision_tower.named_parameters():
         p.requires_grad_(False)
     
-    blip_model =  Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b").to("cuda")
+    config = Blip2Config.from_pretrained("Salesforce/blip2-opt-2.7b")
+    config.qformer_config.hidden_size = 1024
+    blip_model = Blip2ForConditionalGeneration(config).to("cuda")
     for n, p in blip_model.named_parameters():
         p.requires_grad_(False)
 
@@ -140,7 +142,7 @@ def main():
             # pooled_features = torch.nn.functional.adaptive_max_pool1d(weighted_features, output_size=1024)
             qformer_input = weighted_features.permute(0, 2, 1) 
             qformer_output = blip_model.qformer(qformer_input).cuda()
-            
+
             # video_features[video_id] = merge_tokens(qformer_output, 
             #                                     r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")  # [1280, 640, 320, 160, 80, 40, 10]  
             
