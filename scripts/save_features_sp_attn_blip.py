@@ -105,7 +105,7 @@ def main():
     config = Blip2Config.from_pretrained("Salesforce/blip2-opt-2.7b")
     config.qformer_config.hidden_size = 1024
     config.qformer_config.num_attention_heads = 8
-    blip_model = Blip2ForConditionalGeneration(config).to("cuda")
+    blip_model = Blip2ForConditionalGeneration(config).half().to("cuda")
     for n, p in blip_model.named_parameters():
         p.requires_grad_(False)
 
