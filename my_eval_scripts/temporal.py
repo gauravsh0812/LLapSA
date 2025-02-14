@@ -108,7 +108,7 @@ def main():
 
     average_score = total_score / len_scores
 
-    print("Average score for correctness:", average_score)
+    print("Average score for temporal:", average_score)
     print("didnot work: ", didnot_work)
 
 if __name__ == "__main__":
