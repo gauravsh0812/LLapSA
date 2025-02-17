@@ -26,8 +26,8 @@ def main():
                                   r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")
 
         mem_arrays = [numpy.array(mem[:1]) for mem in image_forward_outs]
-
-        global_feat = torch.cat([torch.from_numpy(arr) for arr in mem_arrays], 
+        cpu_tensors = [t.cpu().numpy() for t in torch.stack(mem_arrays)]
+        global_feat = torch.cat(cpu_tensors, 
                                 dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
         
         with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/local_features/{i}","wb") as f:
