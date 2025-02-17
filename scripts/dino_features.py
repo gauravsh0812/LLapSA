@@ -45,7 +45,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Training")
     parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
     parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
-    # parser.add_argument("--xy", required=True)
+    parser.add_argument("--xy", required=True)
     args = parser.parse_args()
     return args
 
@@ -121,23 +121,20 @@ def main():
     vcgpt_features = os.path.join(clip_feat_path, "dino_features")
     os.makedirs(vcgpt_features, exist_ok=True)
 
-    # xy = args.xy
-    # x,y = xy.split("-")
-    # x = int(x)
-    # y = int(y)
-
     # Initialize the DinoV2 model    
-    all_videos = [i for i in os.listdir(video_dir_path) if "_60sec_" in i]
-    # if y!="end":
-    #     all_videos = all_videos[x:y]
-    # else:
-    # all_videos = all_videos[x:]
+    x, y = args.xy.split("-")
+    
+    all_videos = [] 
+    for i in os.listdir(video_dir_path):
+        if "_60sec_" in i or "_45sec_part_" in i:
+            all_videos.append(i)
+    print(len(all_videos))
+    all_videos = all_videos[int(x):int(y)]
     
     dino = DinoFeatureExtractor()
 
     video_clip_features = {}
     counter = 0
-    # batch_size = 20
 
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
@@ -145,17 +142,9 @@ def main():
         if os.path.exists(f"{vcgpt_features}/{video_id}.pkl"):
             continue
         try:
-        # print(video_path)
             frames = load_video(video_path)
-            # print("length of frames: ", len(frames))
-            # farr = []
-            # for i in range(0, len(frames), batch_size):
             preprocessed_frames = dino.preprocess_frames(frames)
             features = dino.extract_features(preprocessed_frames, layer_index=-2)
-            # farr.append(features)
-            # print(features.shape)
-            # features = torch.cat(farr, dim=0)
-            # print("final: ", features.shape)
             video_clip_features[video_id] = features
             counter += 1       
             
@@ -176,6 +165,3 @@ def main():
 
 if __name__ == "__main__":
     main()  
-
-
-# git pull; CUDA_VISIBLE_DEVICES=0 python scripts/save_vcgpt_features.py --video_dir_path /data/shared/gauravs/llapsa/vcgpt_clips --clip_feat_path /data/shared/gauravs/llapsa/longvu_videos
