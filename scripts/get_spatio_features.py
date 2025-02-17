@@ -23,7 +23,7 @@ if __name__ == "__main__":
             image_forward_outs = pickle.load(f)
 
         select_hidden_state = image_forward_outs[select_hidden_state_layer]
-        select_hidden_state = select_hidden_state[:, 1:]  # Removing the CLS token
+        select_hidden_state = select_hidden_state[:, 1:].detach().cpu()  # Removing the CLS token
         select_hidden_state = get_spatio_temporal_features(select_hidden_state.numpy().astype("float16"))
         
         with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/dino_sp_temp_features/{i}","wb") as f:
