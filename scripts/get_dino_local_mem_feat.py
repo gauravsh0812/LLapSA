@@ -26,7 +26,7 @@ def main():
                                   r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")
 
         mem_arrays = [torch.tensor(mem[:,:1]).cuda() for mem in image_forward_outs]
-        print(mem_arrays[10].shape)
+        print(len(mem_arrays))
         global_feat = torch.cat(mem_arrays, 
                                 dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
         
