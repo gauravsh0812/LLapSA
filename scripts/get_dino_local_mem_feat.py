@@ -2,7 +2,7 @@ import torch
 torch.cuda.current_device()
 import os
 import pickle
-from tqdm import tqdm
+import tqdm
 from llapsa.model.merge import merge_tokens
 
 def main():
