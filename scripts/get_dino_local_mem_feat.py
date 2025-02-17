@@ -25,7 +25,7 @@ def main():
         local_feat = merge_tokens(select_hidden_state_local,
                                   r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")
 
-        global_feat = torch.cat([mem[:, :1] for mem in image_forward_outs],
+        global_feat = torch.cat([mem[:1] for mem in image_forward_outs],
                                 dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
         
         with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/local_features/{i}","wb") as f:
