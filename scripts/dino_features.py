@@ -77,6 +77,7 @@ class DinoFeatureExtractor:
         self.device = device
         config = Dinov2Config.from_pretrained(model_name)
         config.hidden_size = 1024 
+        print(config)
         self.processor = AutoImageProcessor.from_pretrained(model_name, torch_dtype=torch.float16)
         self.model = Dinov2Model.from_pretrained(model_name, config=config, 
                                                  torch_dtype=torch.float16, 
