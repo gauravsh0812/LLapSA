@@ -2,23 +2,8 @@ import torch
 torch.cuda.current_device()
 import os
 import pickle
-import argparse
-import numpy as np
-from PIL import Image
 from tqdm import tqdm
-from decord import VideoReader, cpu
-from transformers import CLIPVisionModel, CLIPImageProcessor
 from llapsa.model.merge import merge_tokens
-
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Inference extracting features")
-    parser.add_argument("--xy", required=True,)
-    args = parser.parse_args()
-
-    return args
-
 
 def main():
 
