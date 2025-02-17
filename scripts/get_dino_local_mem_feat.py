@@ -22,7 +22,8 @@ def main():
         
         select_hidden_state_local = image_forward_outs[select_hidden_state_layer]
         select_hidden_state_local = select_hidden_state_local[:, 1:]  # Removing the CLS token
-        local_feat = merge_tokens(select_hidden_state_local).detach().cpu().numpy().astype("float16")
+        local_feat = merge_tokens(select_hidden_state_local,
+                                  r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")
 
         global_feat = torch.cat([mem[:, :1] for mem in image_forward_outs],
                                 dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
