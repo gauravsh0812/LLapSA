@@ -20,15 +20,13 @@ def main():
         with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/dino_features/{i}","rb") as f:
             image_forward_outs = pickle.load(f)
         
-        select_hidden_state_local = image_forward_outs[select_hidden_state_layer]
+        select_hidden_state_local = image_forward_outs[0]
         select_hidden_state_local = select_hidden_state_local[:, 1:]  # Removing the CLS token
         local_feat = merge_tokens(select_hidden_state_local,
                                   r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")
 
-        mem_arrays = [torch.tensor(mem[:,:1]).cuda() for mem in image_forward_outs]
-        print(len(mem_arrays))
-        global_feat = torch.cat(mem_arrays, 
-                                dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
+        
+        global_feat = image_forward_outs[1]
         
         with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/local_features/{i}","wb") as f:
             pickle.dump(local_feat, f)
