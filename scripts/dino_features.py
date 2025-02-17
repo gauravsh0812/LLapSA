@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
-from transformers import AutoImageProcessor, Dinov2Model
+from transformers import AutoImageProcessor, Dinov2Model, Dinov2Config
     
 
 def load_video(vis_path, num_frm=100):
@@ -75,11 +75,17 @@ class DinoFeatureExtractor:
             device (str): Device to run the model on ('cuda' or 'cpu').
         """
         self.device = device
+        config = Dinov2Config.from_pretrained(model_name)
+        config.hidden_size = 1024 
         self.processor = AutoImageProcessor.from_pretrained(model_name, torch_dtype=torch.float16)
-        self.model = Dinov2Model.from_pretrained(model_name, torch_dtype=torch.float16, 
+        self.model = Dinov2Model.from_pretrained(model_name, config=config, 
+                                                 torch_dtype=torch.float16, 
                                                  low_cpu_mem_usage=True).to(self.device)
+
         # self.model.half()
         self.model.eval()
+
+        print("Modified hidden size:", self.model.config.hidden_size) 
 
     def extract_features(self, frames, layer_index=-2):
         """
