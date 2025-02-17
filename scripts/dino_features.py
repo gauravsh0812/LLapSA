@@ -85,7 +85,7 @@ class DinoFeatureExtractor:
         # self.model.half()
         self.model.eval()
 
-        print("Modified hidden size:", self.model.config.hidden_size) 
+        print("Modified hidden size:", self.model.config) 
 
     def extract_features(self, frames, layer_index=-2):
         """
