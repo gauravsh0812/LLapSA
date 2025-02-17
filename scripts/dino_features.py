@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 from decord import VideoReader, cpu
+from llapsa.model.merge import merge_tokens
 from transformers import AutoImageProcessor, Dinov2Model, Dinov2Config
     
 
@@ -30,6 +31,18 @@ def load_video(vis_path, num_frm=100):
 
     return clip_imgs
 
+def get_spatio_temporal_features(features, num_temporal_tokens=100):
+    t, s, c = features.shape
+    
+    temporal_tokens = np.mean(features, axis=1)
+    padding_size = num_temporal_tokens - t
+    if padding_size > 0:
+        temporal_tokens = np.pad(temporal_tokens, ((0, padding_size), (0, 0)), mode='constant')
+    
+    spatial_tokens = np.mean(features, axis=0)
+    sp_features = np.concatenate([temporal_tokens, spatial_tokens], axis=0)
+    
+    return sp_features
 
 def get_seq_frames(total_num_frames, desired_num_frames):
     seg_size = float(total_num_frames - 1) / desired_num_frames
@@ -43,8 +56,6 @@ def get_seq_frames(total_num_frames, desired_num_frames):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training")
-    parser.add_argument("--video_dir_path", required=True, help="Path to read the videos from.")
-    parser.add_argument("--clip_feat_path", required=True, help="The output dir to save the features in.")
     parser.add_argument("--xy", required=True)
     args = parser.parse_args()
     return args
@@ -121,11 +132,8 @@ class DinoFeatureExtractor:
 def main():
 
     args = parse_args()
-    video_dir_path = args.video_dir_path
-    clip_feat_path = args.clip_feat_path
-    vcgpt_features = os.path.join(clip_feat_path, "dino_features")
-    os.makedirs(vcgpt_features, exist_ok=True)
-
+    video_dir_path = "/data/shared/gauravs/llapsa/surgical_tutor/video_clips"
+    
     # Initialize the DinoV2 model    
     x, y = args.xy.split("-")
     
@@ -138,35 +146,33 @@ def main():
     
     dino = DinoFeatureExtractor()
 
-    video_clip_features = {}
-    counter = 0
-
     for video_name in tqdm(all_videos):
         video_path = f"{video_dir_path}/{video_name}"
-        video_id = video_name.split('.')[0]
-        if os.path.exists(f"{vcgpt_features}/{video_id}.pkl"):
-            continue
+        i = video_name.split('.')[0]
+
         try:
             frames = load_video(video_path)
             preprocessed_frames = dino.preprocess_frames(frames)
-            features = dino.extract_features(preprocessed_frames, layer_index=-2)
-            video_clip_features[video_id] = features
-            counter += 1       
+            features, global_feat = dino.extract_features(preprocessed_frames, layer_index=-2)
+            sp_tmp = get_spatio_temporal_features(features[:, 1:].detach().cpu().numpy().astype("float16"))
+            local_feat = merge_tokens(features[:, 1:],
+                                  r_merge_list=[2880, 1440, 720, 360, 180, 90, 40]).detach().cpu().numpy().astype("float16")
             
+            with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/dino_sp_temp_features/{i}","wb") as f:
+                pickle.dump(sp_tmp, f)
+            with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/local_features/{i}","wb") as f:
+                pickle.dump(local_feat, f)
+            with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/global_features/{i}","wb") as f:
+                pickle.dump(global_feat, f)
+
+
+
         except Exception as e:
             print(f"Can't process {video_path} due to {e}")
     
-        if counter % 50==0:
-            for key in video_clip_features.keys():
-                features = video_clip_features[key]
-                with open(f"{vcgpt_features}/{key}.pkl", 'wb') as f:
-                    pickle.dump(features, f)
-            video_clip_features = {}
+        
     
-    for key in video_clip_features.keys():
-        features = video_clip_features[key]
-        with open(f"{vcgpt_features}/{key}.pkl", 'wb') as f:
-            pickle.dump(features, f)
+
 
 if __name__ == "__main__":
     main()  
