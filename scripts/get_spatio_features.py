@@ -18,8 +18,8 @@ if __name__ == "__main__":
     L = os.listdir("/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/dino_features/")
     for i in tqdm.tqdm(L, total=len(L)):
         with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/dino_features/{i}","rb") as f:
-            tnsr = pickle.load(f).cpu().numpy()
-        
+            tnsr = pickle.load(f)
+        tnsr = tnsr.detach().cpu().numpy().astype("float16")
         sp_tmp = get_spatio_temporal_features(tnsr)
         with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/dino_sp_temp_features/{i}","wb") as f:
             pickle.dump(sp_tmp, f)
