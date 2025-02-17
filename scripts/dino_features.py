@@ -165,8 +165,6 @@ def main():
             with open(f"/data/shared/gauravs/llapsa/surgical_tutor/llapsa/dino/global_features/{i}","wb") as f:
                 pickle.dump(global_feat, f)
 
-
-
         except Exception as e:
             print(f"Can't process {video_path} due to {e}")
     
