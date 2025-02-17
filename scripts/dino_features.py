@@ -75,18 +75,13 @@ class DinoFeatureExtractor:
             device (str): Device to run the model on ('cuda' or 'cpu').
         """
         self.device = device
-        config = Dinov2Config.from_pretrained(model_name)
-        config.hidden_size = 1024 
-        config.num_attention_heads = 16
+        configuration = Dinov2Config.from_pretrained(model_name)
+        # print(configuration)
+        configuration.hidden_size = 1024
+        configuration.num_attention_heads = 16
         self.processor = AutoImageProcessor.from_pretrained(model_name, torch_dtype=torch.float16)
-        self.model = Dinov2Model.from_pretrained(model_name, config=config, 
-                                                 torch_dtype=torch.float16, 
-                                                 low_cpu_mem_usage=True).to(self.device)
-
-        # self.model.half()
+        self.model = Dinov2Model(configuration).to(self.device)
         self.model.eval()
-
-        print("Modified hidden size:", self.model.config) 
 
     def extract_features(self, frames, layer_index=-2):
         """
@@ -104,7 +99,10 @@ class DinoFeatureExtractor:
             outputs = self.model(frames, output_hidden_states=True)
             # Extract features from the desired layer
             features = outputs.hidden_states[layer_index]
-        return features
+            global_feature = torch.cat(
+                [mem[:, :1] for mem in outputs.hidden_states], 
+                dim=1).mean(0).squeeze(0).detach().cpu().numpy().astype("float16")
+        return features, global_feature
 
     def preprocess_frames(self, frames):
         """
