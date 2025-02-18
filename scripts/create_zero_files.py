@@ -4,7 +4,6 @@ import tqdm
 
 parser = argparse.ArgumentParser(description="creting zero-shot")
 parser.add_argument("--api_key", required=True,)
-parser.add_argument("--openai_model", required=True,)
 args = parser.parse_args()
 openai.api_key = args.api_key
 
@@ -17,7 +16,7 @@ def annotate_current(text):
     try:
         # Compute the correctness score
         completion = openai.ChatCompletion.create(
-            model=args.openai_model,
+            model="gpt-4o-mini",
             messages = [
                         {
                             "role": "system",
