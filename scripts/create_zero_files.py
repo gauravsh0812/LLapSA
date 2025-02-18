@@ -111,6 +111,7 @@ def main():
             if "60sec" in id:
                 response = annotate_current(text)
             elif "45sec" in id:
+                print(text)
                 response = annotate_future(text)
 
             for i,r in enumerate(response):
