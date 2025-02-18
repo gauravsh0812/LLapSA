@@ -9,10 +9,7 @@ args = parser.parse_args()
 openai.api_key = args.api_key
 
 def annotate_current(text):
-    """
-    Evaluates question and answer pairs using GPT-3
-    Returns a score for correctness.
-    """
+
 
     try:
         # Compute the correctness score
@@ -51,10 +48,6 @@ def annotate_current(text):
         print(f"Error processing file {e}")
 
 def annotate_future(text):
-    """
-    Evaluates question and answer pairs using GPT-3
-    Returns a score for correctness.
-    """
 
     try:
         # Compute the correctness score
