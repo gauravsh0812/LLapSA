@@ -113,6 +113,7 @@ def main():
         if len(qtns) < 2000:
             id = item["video_id"]
             text = item["input_text"]
+            print(id)
             # try:
             if "60sec" in id:
                 response = annotate_current(text)
