@@ -1,7 +1,7 @@
 import json
 import ast
 import tqdm
-import argparse
+import argparse, openai
 
 parser = argparse.ArgumentParser(description="creting zero-shot")
 parser.add_argument("--api_key", required=True,)
