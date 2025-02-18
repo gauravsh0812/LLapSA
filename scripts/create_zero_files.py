@@ -111,7 +111,7 @@ def main():
     for item in data:
         assert len(qtns)==len(ans)
         if len(qtns) < 2000:
-            id = item["id"]
+            id = item["video_id"]
             text = item["input_text"]
             try:
                 if "60sec" in id:
