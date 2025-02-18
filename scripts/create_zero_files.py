@@ -113,27 +113,27 @@ def main():
         if len(qtns) < 2000:
             id = item["video_id"]
             text = item["input_text"]
-            try:
-                if "60sec" in id:
-                    response = annotate_current(text)
-                elif "45sec" in id:
-                    response = annotate_future(text)
+            # try:
+            if "60sec" in id:
+                response = annotate_current(text)
+            elif "45sec" in id:
+                response = annotate_future(text)
 
-                for i,r in enumerate(response):
-                    qtns.append(
-                        {"video_name":id,
-                        "question":r["Q"],
-                        "question_id":f"q_{id}_{i}"}
-                    )
-                    ans.append(
-                        {"video_name":id,
-                        "answer":r["A"],
-                        "question_id":f"q_{id}_{i}"
-                        }
-                    )
+            for i,r in enumerate(response):
+                qtns.append(
+                    {"video_name":id,
+                    "question":r["Q"],
+                    "question_id":f"q_{id}_{i}"}
+                )
+                ans.append(
+                    {"video_name":id,
+                    "answer":r["A"],
+                    "question_id":f"q_{id}_{i}"
+                    }
+                )
 
-            except:
-                pass
+            # except:
+            #     pass
             
         else:
             break
