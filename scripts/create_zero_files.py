@@ -133,7 +133,7 @@ def main():
         else:
             break
 
-        if len(qtns) % 300 == 0:
+        if len(qtns) % 100 == 0:
             print("writing QA....")
             with open("/data/shared/gauravs/llapsa/surgical_tutor/all_qas/zero/zero_shot_questions.json", "w") as file:
                 json.dump(qtns, file, indent=2)
