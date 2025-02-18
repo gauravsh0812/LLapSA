@@ -52,7 +52,7 @@ def annotate_future(text):
     try:
         # Compute the correctness score
         completion = openai.ChatCompletion.create(
-            model=args.openai_model,
+            model="gpt-4o-mini",
             messages = [
                         {
                             "role": "system",
@@ -106,12 +106,12 @@ def main():
         if len(qtns) < 2000:
             id = item["video_id"]
             text = item["input_text"]
-            print(id)
+            # print(id)
             # try:
             if "60sec" in id:
                 response = annotate_current(text)
             elif "45sec" in id:
-                print(text)
+                # print(text)
                 response = annotate_future(text)
 
             for i,r in enumerate(response):
