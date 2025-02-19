@@ -90,20 +90,21 @@ def main():
         ans = pc["A"]
         pred = pc["pred"]
         vid = pc["video_id"]
-        if f"{vid}.txt" not in all_scr_files:
+        cid = pc["counter_id"]
+        if f"{cid}.txt" not in all_scr_files:
             try:
                 response = annotate(qtn, pred, ans)
                 scr = response['score']
                 len_scores+=1
                 total_score += scr
 
-                with open(f"{args.output_dir}/temporal/scores/{vid}.txt", "w") as f:
-                    f.write(f"{vid} -- {scr}")
+                with open(f"{args.output_dir}/temporal/scores/{cid}.txt", "w") as f:
+                    f.write(f"{cid} -- {scr}")
 
                 #scores.write(f"{vid} \t score: {scr} \n")
 
             except:
-                print(f"{vid}.txt not working!")
+                print(f"{cid}.txt not working!")
                 didnot_work+=1
 
     average_score = total_score / len_scores

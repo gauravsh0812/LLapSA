@@ -100,7 +100,8 @@ def main():
         ans = pc["A"]
         pred = pc["pred"]
         vid = pc["video_id"]
-        if f"{vid}.txt" not in all_scr_files:
+        cid = pc["counter_id"]
+        if f"{cid}.txt" not in all_scr_files:
             try:
                 #print(qtn)
                 #print(ans)
@@ -111,18 +112,18 @@ def main():
                 len_scores+=1
                 total_score += scr
 
-                with open(f"{args.output_dir}/detailed_orientation/scores/{vid}.txt", "w") as f:
-                    f.write(f"{vid} -- {scr}")
+                with open(f"{args.output_dir}/detailed_orientation/scores/{cid}.txt", "w") as f:
+                    f.write(f"{cid} -- {scr}")
 
             #scores.write(f"{vid} \t score: {scr} \n")
 
             except:
                 didnot_work+=1
-                print(f"{vid}.txt not working!")
+                print(f"{cid}.txt not working!")
 
     average_score = total_score / len_scores
 
-    print("Average score for correctness:", average_score)
+    print("Average score for DO:", average_score)
     print("didnot work: ", didnot_work)
 
 if __name__ == "__main__":
