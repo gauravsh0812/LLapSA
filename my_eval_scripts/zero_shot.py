@@ -88,9 +88,9 @@ def main():
                 y_n, scr = response["pred"], response['score']
                 length+=1
                 total_score += float(scr)
-                if y_n.lower() == "yes":
+                if  "yes" in y_n.lower():
                     total_yes += 1
-                elif y_n.lower() == "no":
+                elif "no" in y_n.lower():
                     total_no += 1
 
                 with open(f"{args.output_dir}/{vid}.txt", "w") as f:
@@ -99,9 +99,14 @@ def main():
             except:
                 print(f"{vid}.txt not working!")
                 didnot_work+=1
+    
+    average_score = total_score / length
+    accuracy = total_yes / (total_yes + total_no)
 
-
-
+    print("Yes count:", total_yes)
+    print("No count:", total_no)
+    print("Accuracy:", accuracy)
+    print("Average score:", average_score)
 
 
 if __name__ == "__main__":
