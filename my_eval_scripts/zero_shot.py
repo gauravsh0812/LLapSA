@@ -92,7 +92,8 @@ def main():
 
         # Create a new sample with the modified key
         new_sample = sample
-        new_sample['video_name'] = f"{video_id}_{video_id_counts[video_id]}"
+        # new_sample['video_name'] = f"{video_id}_{video_id_counts[video_id]}"
+        new_sample['video_name'] = f"{video_id}"
         new_pred_contents.append(new_sample)
 
     # Generating list of id's and corresponding files
