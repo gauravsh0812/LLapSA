@@ -84,7 +84,7 @@ def main():
 
     # Iterate through each sample in pred_contents
     for sample in pred_contents:
-        video_id = sample['video_id']
+        video_id = sample['id']
         if video_id in video_id_counts:
             video_id_counts[video_id] += 1
         else:
@@ -107,7 +107,7 @@ def main():
     # Preparing dictionary of question-answer sets
     prediction_set = {}
     for sample in new_pred_contents:
-        id = sample['video_id']
+        id = sample['id']
         question = sample['question']
         answer = sample['answer']
         pred = sample['pred']
