@@ -4,31 +4,22 @@ import argparse
 import json
 import ast
 from multiprocessing.pool import Pool
+import tqdm
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="question-answer-generation-using-gpt-3")
-    parser.add_argument("--pred_path", required=True, help="The path to file containing prediction.")
-    parser.add_argument("--output_dir", required=True, help="The path to save annotation json files.")
-    parser.add_argument("--output_json", required=True, help="The path to save annotation final combined json file.")
-    parser.add_argument("--api_key", required=True, help="OpenAI API key.")
-    parser.add_argument("--num_tasks", required=True, type=int, help="Number of splits.")
-    parser.add_argument("--openai_model", required=True, help="which openai model -- gpt-3.5-turbo or gpt-4o-mini")
-    args = parser.parse_args()
-    return args
+parser = argparse.ArgumentParser(description="question-answer-generation-using-gpt-3")
+parser.add_argument("--api_key", required=True, help="OpenAI API key")
+parser.add_argument("--openai_model", required=True, help="which openai model -- gpt-3.5-turbo or gpt-4o-mini")
+parser.add_argument("--predicted_file_path", required=True, help="file containing the predictions from trained model (Inference output file)")
+parser.add_argument("--output_dir", required=True, help="output directory")
+args = parser.parse_args()
 
 
-def annotate(prediction_set, caption_files, output_dir, openai_model):
-    for file in caption_files:
-        key = file[:-5] # Strip file extension
-        qa_set = prediction_set[key]
-        question = qa_set['question']
-        answer = qa_set['answer']
-        pred = qa_set['pred']
+def annotate(question, answer, pred,):
         try:
             # Compute the correctness score
             completion = openai.ChatCompletion.create(
-                model=openai_model,
+                model=args.openai_model,
                 messages=[
                     {
                         "role": "system",
@@ -58,138 +49,59 @@ def annotate(prediction_set, caption_files, output_dir, openai_model):
             # Convert response to a Python dictionary.
             response_message = completion["choices"][0]["message"]["content"]
             response_dict = ast.literal_eval(response_message)
-            result_qa_pair = [response_dict, qa_set]
-
-            # Save the question-answer pairs to a json file.
-            with open(f"{output_dir}/{key}.json", "w") as f:
-                json.dump(result_qa_pair, f)
+            return response_dict
 
         except Exception as e:
-            print(f"Error processing file '{key}': {e}")
+            print(f"Error processing file: {e}")
 
 
 def main():
+
     """
     Main function to control the flow of the program.
     """
-    # Parse arguments.
-    args = parse_args()
 
-    file = open(args.pred_path)
-    pred_contents = json.load(file)
+    pred_path=args.predicted_file_path
+    with open(pred_path, 'r', encoding='utf-8') as file:
+        pred_contents = json.load(file)
 
-    # Dictionary to store the count of occurrences for each video_id
-    video_id_counts = {}
-    new_pred_contents = []
+    os.makedirs(f"{args.output_dir}", exist_ok=True)
 
-    # Iterate through each sample in pred_contents
-    for sample in pred_contents:
-        video_id = sample['id']
-        if video_id in video_id_counts:
-            video_id_counts[video_id] += 1
-        else:
-            video_id_counts[video_id] = 0
+    total_yes = 0
+    total_no = 0
+    total_score = 0
+    length = 0
 
-        # Create a new sample with the modified key
-        new_sample = sample
-        # new_sample['video_name'] = f"{video_id}_{video_id_counts[video_id]}"
-        new_sample['video_name'] = f"{video_id}"
-        new_pred_contents.append(new_sample)
+    didnot_work = 0
 
-    # Generating list of id's and corresponding files
-    id_list = [x['video_name'] for x in new_pred_contents]
-    caption_files = [f"{id}.json" for id in id_list]
+    all_scr_files = os.listdir(f"{args.output_dir}")
 
-    output_dir = args.output_dir
-    # Generate output directory if not exists.
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
+        qtn = pc["question"]
+        ans = pc["answer"]
+        pred = pc["pred"]
+        vid = pc["id"]
+        
+        if f"{vid}.txt" not in all_scr_files:
+            try:
+                response = annotate(qtn, pred, ans)
+                y_n, scr = response["pred"], response['score']
+                length+=1
+                total_score += float(scr)
+                if y_n.lower() == "yes":
+                    total_yes += 1
+                elif y_n.lower() == "no":
+                    total_no += 1
 
-    # Preparing dictionary of question-answer sets
-    prediction_set = {}
-    for sample in new_pred_contents:
-        id = sample['id']
-        question = sample['question']
-        answer = sample['answer']
-        pred = sample['pred']
-        qa_set = {"q": question, "a": answer, "pred": pred}
-        prediction_set[id] = qa_set
+                with open(f"{args.output_dir}/{vid}.txt", "w") as f:
+                    f.write(f"{vid} -- {y_n} -- {scr}")
 
-    # Set the OpenAI API key.
-    openai.api_key = args.api_key
-    num_tasks = args.num_tasks
+            except:
+                print(f"{vid}.txt not working!")
+                didnot_work+=1
 
-    # While loop to ensure that all captions are processed.
-    while True:
-        try:
-            # Files that have not been processed yet.
-            completed_files = os.listdir(output_dir)
-            print(f"completed_files: {len(completed_files)}")
 
-            # Files that have not been processed yet.
-            incomplete_files = [f for f in caption_files if f not in completed_files]
-            print(f"incomplete_files: {len(incomplete_files)}")
 
-            # Break the loop when there are no incomplete files
-            if len(incomplete_files) == 0:
-                break
-            if len(incomplete_files) <= num_tasks:
-                num_tasks = 1
-
-            # Split tasks into parts.
-            part_len = len(incomplete_files) // num_tasks
-            all_parts = [incomplete_files[i:i + part_len] for i in range(0, len(incomplete_files), part_len)]
-            task_args = [(prediction_set, part, args.output_dir, args.openai_model) for part in all_parts]
-
-            # Use a pool of workers to process the files in parallel.
-            with Pool() as pool:
-                pool.starmap(annotate, task_args)
-
-        except Exception as e:
-            print(f"Error: {e}")
-
-    # Combine all the processed files into one
-    combined_contents = {}
-    json_path = args.output_json
-
-    # Iterate through json files
-    for file_name in os.listdir(output_dir):
-        if file_name.endswith(".json"):
-            file_path = os.path.join(output_dir, file_name)
-            with open(file_path, "r") as json_file:
-                content = json.load(json_file)
-                combined_contents[file_name[:-5]] = content
-
-    # Write combined content to a json file
-    with open(json_path, "w") as json_file:
-        json.dump(combined_contents, json_file)
-    print("All evaluation completed!")
-
-    # Calculate average score and accuracy
-    score_sum = 0
-    count = 0
-    yes_count = 0
-    no_count = 0
-    for key, result in combined_contents.items():
-        # Computing score
-        count += 1
-        score_match = result[0]['score']
-        score = int(score_match)
-        score_sum += score
-
-        # Computing accuracy
-        pred = result[0]['pred']
-        if "yes" in pred.lower():
-            yes_count += 1
-        elif "no" in pred.lower():
-            no_count += 1
-
-    average_score = score_sum / count
-    accuracy = yes_count / (yes_count + no_count)
-    print("Yes count:", yes_count)
-    print("No count:", no_count)
-    print("Accuracy:", accuracy)
-    print("Average score:", average_score)
 
 
 if __name__ == "__main__":
