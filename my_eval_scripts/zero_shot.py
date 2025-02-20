@@ -14,6 +14,7 @@ parser.add_argument("--predicted_file_path", required=True, help="file containin
 parser.add_argument("--output_dir", required=True, help="output directory")
 args = parser.parse_args()
 
+openai.api_key = args.api_key
 
 def annotate(question, answer, pred,):
         try:
