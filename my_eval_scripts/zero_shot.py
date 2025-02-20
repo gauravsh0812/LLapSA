@@ -13,25 +13,22 @@ def parse_args():
     parser.add_argument("--output_json", required=True, help="The path to save annotation final combined json file.")
     parser.add_argument("--api_key", required=True, help="OpenAI API key.")
     parser.add_argument("--num_tasks", required=True, type=int, help="Number of splits.")
+    parser.add_argument("--openai_model", required=True, help="which openai model -- gpt-3.5-turbo or gpt-4o-mini")
     args = parser.parse_args()
     return args
 
 
-def annotate(prediction_set, caption_files, output_dir):
-    """
-    Evaluates question and answer pairs using GPT-3
-    Returns a score for correctness.
-    """
+def annotate(prediction_set, caption_files, output_dir, openai_model):
     for file in caption_files:
         key = file[:-5] # Strip file extension
         qa_set = prediction_set[key]
-        question = qa_set['q']
-        answer = qa_set['a']
+        question = qa_set['question']
+        answer = qa_set['answer']
         pred = qa_set['pred']
         try:
             # Compute the correctness score
             completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model=openai_model,
                 messages=[
                     {
                         "role": "system",
@@ -141,7 +138,7 @@ def main():
             # Split tasks into parts.
             part_len = len(incomplete_files) // num_tasks
             all_parts = [incomplete_files[i:i + part_len] for i in range(0, len(incomplete_files), part_len)]
-            task_args = [(prediction_set, part, args.output_dir) for part in all_parts]
+            task_args = [(prediction_set, part, args.output_dir, args.openai_model) for part in all_parts]
 
             # Use a pool of workers to process the files in parallel.
             with Pool() as pool:
