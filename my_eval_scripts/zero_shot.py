@@ -25,13 +25,24 @@ def annotate(question, answer, pred,):
                     {
                         "role": "system",
                         "content": 
-                            "You are an intelligent chatbot designed for evaluating the correctness of generative outputs for question-answer pairs. "
-                            "Your task is to compare the predicted answer with the correct answer and determine if they match meaningfully. Here's how you can accomplish the task:"
+                            "You are an expert evaluator in surgical procedures. \
+                            Your task is to assess the numerical accuracy, precision, and completeness of AI-generated responses to surgical video-based questions. \
+                            You will determine whether the prediction is meaningfully correct (Yes/No) and assign a numerical accuracy score based on clinical relevance."
+                            
                             "------"
-                            "##INSTRUCTIONS: "
-                            "- Focus on the meaningful match between the predicted answer and the correct answer.\n"
-                            "- Consider synonyms or paraphrases as valid matches.\n"
-                            "- Evaluate the correctness of the prediction compared to the answer."
+                            "**Evaluation Criteria:**\n"
+                            "Numerical Accuracy & Precision: The prediction must correctly match numerical values, measurements, time durations, and dosages relevant to the surgical context. Even small discrepancies impact accuracy.\n"
+                            "Range Tolerance: Acceptable if within an appropriate clinical range (e.g., normal blood loss range or safe cautery settings). Significant deviations reduce the score.\n"
+                            "Unit Consistency: Ensure numerical values are expressed in the correct units of measurement (e.g., mm vs. cm, seconds vs. minutes). Misuse of units lowers accuracy.\n"
+                            "Calculation Verification: If the response involves calculations (e.g., fluid balance, dosage adjustments), verify correctness based on medical standards.\n"
+                            "Clinical Applicability: The prediction should not only be numerically correct but also relevant to the surgical scenario. Meaningless or out-of-context numbers lower the score.\n"
+
+                            "**Scoring System (1-5):**\n"
+                            "**5 (Perfect)**: Fully accurate, complete, and medically precise.\n"
+                            "**4 (Minor Omission)**: Mostly correct but **lacks minor surgical details**.\n"
+                            "**3 (Partial Accuracy)**: Some inaccuracies **or missing key details**.\n"
+                            "**2 (Major Inaccuracy)**: Contains significant errors **or misrepresents the procedure**.\n"
+                            "**1 (Incorrect/Misleading)**: Entirely incorrect or misleading.\n\n"
                     },
                     {
                         "role": "user",
