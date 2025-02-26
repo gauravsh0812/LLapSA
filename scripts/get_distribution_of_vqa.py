@@ -69,6 +69,8 @@ def main():
 
     pred_contents = pred_contents[0:10000]
 
+    obs, rsn, plan, note, organ, eqp = 0,0,0,0,0,0
+
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
         # try:
         qtn = pc["Q"]
