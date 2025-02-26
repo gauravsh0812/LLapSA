@@ -86,7 +86,6 @@ def main():
                     f.write(f"{response}")
                 
         except:
-            didnot_work+=1
             print(f"{cid}.txt not working!")
 
 if __name__ == "__main__":
