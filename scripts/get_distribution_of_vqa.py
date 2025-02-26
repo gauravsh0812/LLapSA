@@ -67,7 +67,7 @@ def main():
     with open(pred_path, 'r', encoding='utf-8') as file:
         pred_contents = json.load(file)
 
-    pred_contents = pred_contents[0:10000]
+    pred_contents = pred_contents[0:100]
 
     obs, rsn, plan, note, organ, eqp = 0,0,0,0,0,0
 
