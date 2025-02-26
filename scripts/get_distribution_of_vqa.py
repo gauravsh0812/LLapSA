@@ -67,12 +67,13 @@ def main():
     with open(pred_path, 'r', encoding='utf-8') as file:
         pred_contents = json.load(file)
 
+    pred_contents = pred_contents[0:10000]
+
     os.makedirs("vqa_distribution", exist_ok=True)
     all_scr_files = os.listdir("vqa_distribution")
 
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
         # try:
-        print(pc)
         qtn = pc["Q"]
         ans = pc["A"]
         text = pc["input_text"]
