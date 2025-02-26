@@ -81,6 +81,7 @@ def main():
                 response = annotate(text, qtn, ans)
                 print(response)
                 
+                exit()
                 with open(f"vqa_distribution/{cid}.txt", "w") as f:
                     f.write(f"{response}")
                 
