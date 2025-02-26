@@ -72,18 +72,23 @@ def main():
     obs, rsn, plan, note, organ, eqp = 0,0,0,0,0,0
 
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
-        # try:
-        qtn = pc["Q"]
-        ans = pc["A"]
-        text = pc["input_text"]
+        try:
+            qtn = pc["Q"]
+            ans = pc["A"]
+            text = pc["input_text"]
 
-        response = annotate(text, qtn, ans)
-        print(response)
-            
-        exit()
+            response = annotate(text, qtn, ans)
+            if response.lower() == "reason": rsn+=1
+            elif response.lower() == "observation": obs+=1
+            elif response.lower() == "plan": plan+=1
+            elif response.lower() == "note": note+=1
+            elif response.lower() == "organs": organ+=1
+            elif response.lower() == "equipment": eqp+=1
                 
-        # except:
-        #     print(f"{cid}.txt not working!")
+        except:
+            pass
+    
+    print("obs, rsn, plan, note, organ, eqp -- ", obs, rsn, plan, note, organ, eqp)
 
 if __name__ == "__main__":
     main()
