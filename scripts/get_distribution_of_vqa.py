@@ -69,23 +69,16 @@ def main():
 
     pred_contents = pred_contents[0:10000]
 
-    os.makedirs("vqa_distribution", exist_ok=True)
-    all_scr_files = os.listdir("vqa_distribution")
-
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
         # try:
         qtn = pc["Q"]
         ans = pc["A"]
         text = pc["input_text"]
-        cid = pc["counter_id"]
 
-        if f"{cid}.txt" not in all_scr_files:
-            response = annotate(text, qtn, ans)
-            print(response)
+        response = annotate(text, qtn, ans)
+        print(response)
             
-            exit()
-            with open(f"vqa_distribution/{cid}.txt", "w") as f:
-                f.write(f"{response}")
+        exit()
                 
         # except:
         #     print(f"{cid}.txt not working!")
