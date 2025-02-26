@@ -72,6 +72,7 @@ def main():
 
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
         # try:
+        print(pc)
         qtn = pc["Q"]
         ans = pc["A"]
         text = pc["input_text"]
