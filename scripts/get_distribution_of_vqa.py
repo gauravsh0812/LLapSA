@@ -71,22 +71,22 @@ def main():
     all_scr_files = os.listdir("vqa_distribution")
 
     for ind, pc  in enumerate(tqdm.tqdm(pred_contents, total=len(pred_contents))):
-        try:
-            qtn = pc["Q"]
-            ans = pc["A"]
-            text = pc["input_text"]
-            cid = pc["counter_id"]
+        # try:
+        qtn = pc["Q"]
+        ans = pc["A"]
+        text = pc["input_text"]
+        cid = pc["counter_id"]
 
-            if f"{cid}.txt" not in all_scr_files:
-                response = annotate(text, qtn, ans)
-                print(response)
+        if f"{cid}.txt" not in all_scr_files:
+            response = annotate(text, qtn, ans)
+            print(response)
+            
+            exit()
+            with open(f"vqa_distribution/{cid}.txt", "w") as f:
+                f.write(f"{response}")
                 
-                exit()
-                with open(f"vqa_distribution/{cid}.txt", "w") as f:
-                    f.write(f"{response}")
-                
-        except:
-            print(f"{cid}.txt not working!")
+        # except:
+        #     print(f"{cid}.txt not working!")
 
 if __name__ == "__main__":
     main()
